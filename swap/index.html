@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Swap $VLAD — Vladhood</title>
+<meta name="description" content="Buy or sell $VLAD directly — connect your wallet and swap on the Robinhood Chain. Powered by LI.FI." />
+<link rel="icon" href="https://vlad-hood.xyz/photo_1_2026-07-21_06-14-24.jpg?v=2" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Patrick+Hand&family=Caveat:wght@500;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { paper:'#f4ecd8', paper2:'#efe6cf', ink:'#2b2620', forest:'#2f6b2f', forest2:'#3f8b3d', mustard:'#e0a51e', brown:'#8a5a2b', crayred:'#c0392b' },
+    fontFamily: { marker:['"Permanent Marker"','cursive'], hand:['"Patrick Hand"','cursive'], caveat:['"Caveat"','cursive'] },
+  } } };
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body {
+    background-color:#f4ecd8;
+    background-image:
+      repeating-linear-gradient(35deg, rgba(90,80,60,0.035) 0 1px, transparent 1px 6px),
+      repeating-linear-gradient(180deg, transparent 0 33px, rgba(90,120,160,0.13) 33px 34px),
+      linear-gradient(90deg, transparent 0 46px, rgba(192,57,43,0.2) 46px 48px, transparent 48px);
+    color:#2b2620;
+  }
+  .sketch { border:2.4px solid #2b2620; border-radius:255px 15px 225px 15px/15px 225px 15px 255px; }
+  .sketch-2 { border:2.4px solid #2b2620; border-radius:15px 225px 15px 255px/255px 15px 225px 15px; }
+  .rough-shadow { box-shadow:4px 5px 0 rgba(43,38,32,0.85), 6px 8px 0 rgba(43,38,32,0.18); }
+  .rough-shadow-sm { box-shadow:3px 4px 0 rgba(43,38,32,0.8); }
+  .scribble-underline { position:relative; display:inline-block; }
+  .scribble-underline::after {
+    content:''; position:absolute; left:-4%; right:-4%; bottom:-10px; height:12px;
+    background:no-repeat center/100% 100% url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 12'%3E%3Cpath d='M2 8 C 60 2, 120 12, 180 6 S 280 2, 298 7' fill='none' stroke='%23e0a51e' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E");
+  }
+  .pin { position:absolute; top:-12px; left:50%; transform:translateX(-50%); width:20px; height:20px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #ff7b6b, #c0392b 65%); border:2px solid #2b2620; box-shadow:1px 3px 3px rgba(0,0,0,0.3); z-index:6; }
+</style>
+</head>
+<body class="font-hand min-h-screen flex flex-col selection:bg-mustard/60">
+
+<!-- header -->
+<header class="border-b-[3px] border-ink bg-paper2/95 backdrop-blur">
+  <div class="max-w-5xl mx-auto px-4 py-2 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-2 group">
+      <img src="https://vlad-hood.xyz/photo_1_2026-07-21_06-14-24.jpg?v=2" alt="Vladhood" class="w-11 h-11 rounded-full border-[3px] border-ink rough-shadow-sm group-hover:rotate-6 transition" />
+      <span class="font-marker text-2xl text-forest tracking-wide">VLADHOOD</span>
+      <span class="font-marker text-mustard text-xl hidden sm:inline">$VLAD</span>
+    </a>
+    <a href="/" class="font-hand text-lg text-ink hover:text-forest hover:underline decoration-wavy decoration-mustard">← back to site</a>
+  </div>
+</header>
+
+<!-- swap -->
+<main class="flex-1 flex flex-col items-center px-4 py-10">
+  <h1 class="font-marker text-forest text-5xl md:text-6xl text-center mb-3 -rotate-1">
+    <span class="scribble-underline">Swap $VLAD</span>
+  </h1>
+  <p class="font-caveat text-2xl md:text-3xl text-brown mb-8 text-center max-w-lg">
+    connect your wallet &amp; grab $VLAD right here — steal from the jeets, feed the degens
+  </p>
+
+  <div class="w-full max-w-4xl flex flex-col lg:flex-row gap-6 justify-center items-start">
+    <div class="relative bg-paper2 sketch rough-shadow p-4 md:p-5 w-full max-w-md mx-auto lg:mx-0">
+      <span class="pin"></span>
+      <div class="vlad-swap"><p class="font-hand text-xl text-ink/70 text-center py-10">loading swap…</p></div>
+    </div>
+    <div class="bg-paper2 sketch rough-shadow p-4 md:p-5 w-full max-w-md mx-auto lg:mx-0 lg:flex-1 lg:self-stretch">
+      <div class="vlad-trades"></div>
+    </div>
+  </div>
+
+  <div class="vlad-stats w-full max-w-2xl mx-auto mt-8"></div>
+
+  <div class="flex flex-wrap gap-4 justify-center mt-8">
+    <a href="https://dexscreener.com/robinhood/0xac870e97fc1fe981f4d887e5f453203745a15ef4" target="_blank" rel="noopener"
+       class="sketch-2 bg-ink text-paper font-marker text-lg px-5 py-2 rough-shadow-sm hover:bg-forest transition inline-flex items-center gap-2">
+      Live Chart
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M18.5 7.5 13 13l-3-3-4 4"/><path d="M18.5 11V7.5H15"/></svg>
+    </a>
+    <a href="/" class="sketch bg-mustard text-ink font-marker text-lg px-5 py-2 rough-shadow-sm hover:bg-forest hover:text-paper transition">Home</a>
+  </div>
+
+  <p class="font-hand text-sm text-ink/60 mt-8 max-w-lg text-center">
+    Swaps route through LI.FI on the Robinhood Chain. $VLAD is a community meme coin for entertainment only — not financial advice. Crypto is risky, DYOR.
+  </p>
+</main>
+
+<footer class="border-t-[3px] border-ink" style="background:#2f6b2f">
+  <div class="max-w-5xl mx-auto px-4 py-5 text-center text-paper">
+    <p class="font-caveat text-xl text-mustard">Green candles forever.</p>
+    <p class="font-hand text-sm text-paper/70 mt-1">© 2026 Vladhood · $VLAD · powered by LI.FI</p>
+  </div>
+</footer>
+
+<!-- custom swap (vanilla JS on LI.FI API) -->
+<script src="/swap.js?v=13"></script>
+</body>
+</html>
