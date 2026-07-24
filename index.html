@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VLADHOOD ($VLAD) — The Outlaw of Robinhood Chain</title>
+<meta name="description" content="Vladhood — the legendary outlaw of the Robinhood Chain. Takes from the jeets, rewards the needy with green candles. Launching on ponsfamily. $VLAD" />
+
+<!-- Favicon = mascot -->
+<link rel="icon" href="photo_1_2026-07-21_06-14-24.jpg?v=2" />
+
+<!-- Google handwritten fonts (CDN) -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Patrick+Hand&family=Gochi+Hand&family=Caveat:wght@500;700&display=swap" rel="stylesheet" />
+
+<!-- Tailwind CSS (CDN) -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- AOS - Animate On Scroll (CDN) -->
+<link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          paper:   '#f4ecd8',
+          paper2:  '#efe6cf',
+          ink:     '#2b2620',
+          forest:  '#2f6b2f',
+          forest2: '#3f8b3d',
+          mustard: '#e0a51e',
+          brown:   '#8a5a2b',
+          crayred: '#c0392b',
+        },
+        fontFamily: {
+          marker: ['"Permanent Marker"', 'cursive'],
+          hand:   ['"Patrick Hand"', 'cursive'],
+          gochi:  ['"Gochi Hand"', 'cursive'],
+          caveat: ['"Caveat"', 'cursive'],
+        },
+      },
+    },
+  };
+</script>
+
+<style>
+  /* ---------- Paper / notebook base ---------- */
+  html { scroll-behavior: smooth; }
+  body {
+    background-color: #f4ecd8;
+    /* pencil / paper texture: crosshatch grain + faint rule lines + red margin line */
+    background-image:
+      repeating-linear-gradient(35deg, rgba(90,80,60,0.035) 0 1px, transparent 1px 6px),
+      repeating-linear-gradient(-35deg, rgba(90,80,60,0.03) 0 1px, transparent 1px 6px),
+      radial-gradient(rgba(120,100,60,0.06) 1px, transparent 1px),
+      repeating-linear-gradient(180deg, transparent 0 33px, rgba(90,120,160,0.13) 33px 34px),
+      linear-gradient(90deg, transparent 0 46px, rgba(192,57,43,0.2) 46px 48px, transparent 48px);
+    background-size: auto, auto, 4px 4px, 100% 34px, 100% 100%;
+    color: #2b2620;
+    overflow-x: hidden;
+  }
+  /* colored-pencil grain wash over the whole page so every color reads as pencil */
+  body::after {
+    content: ''; position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    mix-blend-mode: multiply; opacity: 0.5;
+    /* свой слой отрисовки — иначе Safari на iPhone оставляет «призраки» при скролле */
+    transform: translateZ(0); will-change: transform;
+    background-image:
+      repeating-linear-gradient(48deg, rgba(70,60,45,0.05) 0 1px, transparent 1px 5px),
+      repeating-linear-gradient(-42deg, rgba(70,60,45,0.045) 0 1px, transparent 1px 5px);
+  }
+  /* keep real content above the wash (music button & leaves keep their own fixed positioning) */
+  header, section, footer { position: relative; z-index: 2; }
+  /* AOS сдвигает блоки на 100px вбок при появлении — обрезаем по ширине секции,
+     clip (а не hidden) не создаёт скролл-контейнер и не ломает липкое меню */
+  section, footer { overflow-x: clip; }
+
+  .font-hand { font-family: 'Patrick Hand', cursive; }
+
+  /* ---------- Hand-drawn pencil borders (wobbly outline via SVG displacement) ---------- */
+  .sketch, .sketch-2 {
+    position: relative;
+    border: 0;
+    border-radius: 14px;
+  }
+  /* the wobbly graphite outline lives on a pseudo-element so text stays crisp */
+  .sketch::before, .sketch-2::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    border: 2.4px solid #2b2620;
+    border-radius: inherit;
+    filter: url(#pencil);
+  }
+  /* a faint second pass — kids always draw the line twice */
+  .sketch::after, .sketch-2::after {
+    content: ''; position: absolute; inset: 1px; pointer-events: none;
+    border: 1.4px solid rgba(43,38,32,0.4);
+    border-radius: inherit;
+    filter: url(#pencil);
+  }
+  .sketch  { border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px; }
+  .sketch-2 { border-radius: 15px 225px 15px 255px / 255px 15px 225px 15px; }
+
+  /* sketchy offset shadow (also roughened) */
+  .rough-shadow { box-shadow: 4px 5px 0 rgba(43,38,32,0.85), 6px 8px 0 rgba(43,38,32,0.18); }
+  .rough-shadow-sm { box-shadow: 3px 4px 0 rgba(43,38,32,0.8); }
+
+  /* ---------- Photos: colored-pencil / wobbly hand-drawn treatment ---------- */
+  .sketch-photo { position: relative; }
+  .sketch-photo img, img.sketch-photo {
+    filter: url(#pencilStrong) saturate(0.82) contrast(1.06) brightness(1.02);
+  }
+  /* pencil-grain shading laid over each image */
+  .sketch-photo::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    mix-blend-mode: multiply; opacity: 0.4; border-radius: inherit;
+    background-image:
+      repeating-linear-gradient(40deg, rgba(60,50,35,0.28) 0 1px, transparent 1px 5px),
+      repeating-linear-gradient(-50deg, rgba(60,50,35,0.16) 0 1px, transparent 1px 6px);
+  }
+
+  /* ---------- Crayon / colored-pencil fills for the solid blocks ---------- */
+  .crayon-green {
+    background-color: #2f6b2f;
+    background-image:
+      repeating-linear-gradient(28deg, rgba(255,255,255,0.10) 0 2px, transparent 2px 7px),
+      repeating-linear-gradient(-28deg, rgba(0,0,0,0.10) 0 2px, transparent 2px 8px);
+  }
+  .crayon-ink {
+    background-color: #2b2620;
+    background-image:
+      repeating-linear-gradient(28deg, rgba(255,255,255,0.06) 0 2px, transparent 2px 7px);
+  }
+  .doodle { filter: url(#pencilDoodle); }
+
+  /* ---------- Tape strips ---------- */
+  .tape {
+    position: absolute;
+    width: 92px; height: 26px;
+    background: rgba(224,165,30,0.55);
+    border: 1px dashed rgba(43,38,32,0.35);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    z-index: 5;
+  }
+  .tape::after { content:''; position:absolute; inset:0; background:repeating-linear-gradient(90deg, rgba(255,255,255,0.25) 0 6px, transparent 6px 12px); }
+  .tape-tl { top:-13px; left:16px; transform: rotate(-8deg); }
+  .tape-tr { top:-13px; right:16px; transform: rotate(7deg); }
+  .tape-green { background: rgba(63,139,61,0.5); }
+  .tape-red { background: rgba(192,57,43,0.45); }
+
+  /* Push-pin */
+  .pin { position:absolute; top:-12px; left:50%; transform:translateX(-50%); width:20px; height:20px; border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, #ff7b6b, #c0392b 65%); border:2px solid #2b2620; box-shadow: 1px 3px 3px rgba(0,0,0,0.3); z-index:6; }
+
+  /* ---------- Handwriting underline scribble ---------- */
+  .scribble-underline { position: relative; display: inline-block; }
+  .scribble-underline::after {
+    content: ''; position: absolute; left: -4%; right: -4%; bottom: -10px; height: 12px;
+    background: no-repeat center/100% 100%
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 12'%3E%3Cpath d='M2 8 C 60 2, 120 12, 180 6 S 280 2, 298 7' fill='none' stroke='%23e0a51e' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- Animations ---------- */
+  @keyframes wobble { 0%,100%{ transform: rotate(-2deg); } 50%{ transform: rotate(2deg); } }
+  .wobble:hover { animation: wobble .35s ease-in-out infinite; }
+
+  @keyframes bob { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-14px); } }
+  .bob { animation: bob 3.2s ease-in-out infinite; }
+
+  @keyframes spincoin { 0%{ transform: rotateY(0deg);} 100%{ transform: rotateY(360deg);} }
+  .spincoin { animation: spincoin 4s linear infinite; }
+
+  @keyframes floatleaf {
+    0%   { transform: translateY(-8vh) translateX(0) rotate(0deg); opacity: 0; }
+    10%  { opacity: .9; }
+    90%  { opacity: .9; }
+    100% { transform: translateY(108vh) translateX(40px) rotate(320deg); opacity: 0; }
+  }
+  /* контейнер листьев обрезает их по краям экрана — иначе на iPhone страница едет вбок */
+  #leaves { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 2; transform: translateZ(0); }
+  .leaf { position: absolute; top:-40px; font-size: 26px; pointer-events:none; animation: floatleaf linear infinite; }
+
+  @keyframes dashmove { to { stroke-dashoffset: -1000; } }
+  .dash-anim { stroke-dasharray: 10 8; animation: dashmove 18s linear infinite; }
+
+  @keyframes popwiggle { 0%,100%{transform:rotate(-3deg) scale(1);} 50%{transform:rotate(3deg) scale(1.06);} }
+  .badge-wiggle { animation: popwiggle 2.4s ease-in-out infinite; }
+
+  /* nav mobile */
+  #mobileMenu { max-height: 0; overflow: hidden; transition: max-height .35s ease; }
+  #mobileMenu.open { max-height: 420px; }
+
+  /* gallery polaroid */
+  .polaroid { background:#fffdf6; padding:8px 8px 26px; }
+  .polaroid img { display:block; width:100%; height:100%; object-fit:cover; }
+
+  /* music button pulse ring */
+  @keyframes ring { 0%{ box-shadow: 0 0 0 0 rgba(63,139,61,.55);} 100%{ box-shadow: 0 0 0 16px rgba(63,139,61,0);} }
+  .music-live { animation: ring 1.8s ease-out infinite; }
+
+  /* ---------- Live market cap badge ---------- */
+  /* «сердцебиение рынка»: двойной удар всей кнопки, тень углубляется — кнопка подпрыгивает над бумагой */
+  @keyframes mcapBeat {
+    0%, 42%, 100% { transform: scale(1) rotate(0deg); box-shadow: 3px 4px 0 rgba(43,38,32,0.8); }
+    8%  { transform: scale(1.08) rotate(-1.5deg); box-shadow: 6px 8px 0 rgba(43,38,32,0.85); }
+    16% { transform: scale(1) rotate(0.6deg); box-shadow: 3px 4px 0 rgba(43,38,32,0.8); }
+    26% { transform: scale(1.05) rotate(-1deg); box-shadow: 5px 6px 0 rgba(43,38,32,0.85); }
+  }
+  .mcap-beat { animation: mcapBeat 3.2s ease-in-out infinite; }
+  /* SVG-фильтр контура ломается на анимированном элементе (Safari/Mac) — рисуем контур без фильтра */
+  .mcap-beat::before, .mcap-beat::after { filter: none; }
+
+  /* ---------- Copy contract address ---------- */
+  .ca-copy { cursor: pointer; }
+  /* тот же фикс, что и у MCAP: SVG-фильтр контура даёт «обрывки» рамки на Safari/Mac */
+  .ca-copy::before, .ca-copy::after { filter: none; }
+  .ca-copy.copied { background: #2f6b2f; }
+  .ca-copy.copied [data-ca-text], .ca-copy.copied span { color: #f4ecd8 !important; }
+  @keyframes caPop { 0%{ transform: scale(1);} 40%{ transform: scale(1.06) rotate(-1deg);} 100%{ transform: scale(1);} }
+  .ca-copy.copied { animation: caPop .4s ease; }
+  [data-mcap] { display:inline-block; min-width:5ch; text-align:left; }
+  @keyframes mcapPopUp { 0%{ transform:scale(1);} 35%{ transform:scale(1.22) rotate(-3deg); color:#3f8b3d; } 100%{ transform:scale(1);} }
+  @keyframes mcapPopDown { 0%{ transform:scale(1);} 35%{ transform:scale(1.22) rotate(3deg); color:#c0392b; } 100%{ transform:scale(1);} }
+  [data-mcap].up { animation: mcapPopUp .9s ease; }
+  [data-mcap].down { animation: mcapPopDown .9s ease; }
+
+  /* ---------- Inline hand-drawn icons (replace emoji) ---------- */
+  .ic { display:inline-block; width:1em; height:1em; vertical-align:-0.15em; }
+
+  /* ---------- Reduced motion ---------- */
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { animation: none !important; transition: none !important; }
+    .leaf { display: none !important; }
+    [data-aos] { opacity: 1 !important; transform: none !important; }
+  }
+</style>
+</head>
+
+<body class="font-hand selection:bg-mustard/60">
+
+<!-- ================= HAND-DRAWN PENCIL FILTERS ================= -->
+<svg class="pointer-events-none absolute" width="0" height="0" aria-hidden="true">
+  <defs>
+    <!-- subtle wobble for bordered/text cards & buttons -->
+    <filter id="pencil" x="-10%" y="-50%" width="120%" height="200%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="3" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.7" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <!-- stronger wobble for photos & doodles -->
+    <filter id="pencilStrong" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.014" numOctaves="4" seed="4" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="4.2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <!-- rough sketchy stroke for decorative svg doodles -->
+    <filter id="pencilDoodle" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="11" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <!-- graphite hatch pattern (colored-pencil shading) -->
+    <pattern id="hatch" width="7" height="7" patternTransform="rotate(35)" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="0" x2="0" y2="7" stroke="#2b2620" stroke-width="1"/>
+    </pattern>
+  </defs>
+</svg>
+
+<!-- ================= HAND-DRAWN ICON LIBRARY (replaces emoji) ================= -->
+<svg width="0" height="0" class="absolute" aria-hidden="true" style="position:absolute">
+  <defs>
+    <symbol id="ic-bow" viewBox="0 0 24 24">
+      <path d="M6 3c6 4 6 14 0 18" fill="none" stroke="#2f6b2f" stroke-width="2" stroke-linecap="round"/>
+      <path d="M6 3 6 21" fill="none" stroke="#8a5a2b" stroke-width="1.2"/>
+      <path d="M3 12h18" stroke="#8a5a2b" stroke-width="2" stroke-linecap="round"/>
+      <path d="M21 12l-4-3M21 12l-4 3" fill="none" stroke="#c0392b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M3 12l3-2M3 12l3 2" fill="none" stroke="#2f6b2f" stroke-width="1.6" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="ic-tree" viewBox="0 0 24 24">
+      <path d="M12 3 18 12H14L19 19H5L10 12H6Z" fill="#2f6b2f" stroke="#255224" stroke-width="1" stroke-linejoin="round"/>
+      <path d="M10.5 19h3v3h-3z" fill="#8a5a2b"/>
+    </symbol>
+    <symbol id="ic-candle" viewBox="0 0 24 24">
+      <rect x="9" y="9" width="6" height="12" rx="1" fill="#f4ecd8" stroke="#8a5a2b" stroke-width="1.4"/>
+      <path d="M12 9V6" stroke="#2b2620" stroke-width="1"/>
+      <path d="M12 2c2 2 2 4 0 4s-2-2 0-4z" fill="#e0a51e" stroke="#b7841a" stroke-width=".8"/>
+    </symbol>
+    <symbol id="ic-moon" viewBox="0 0 24 24">
+      <path d="M16 3a10 10 0 100 18 8 8 0 010-18z" fill="#e0a51e" stroke="#b7841a" stroke-width="1" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="ic-coin" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9" fill="#e0a51e" stroke="#b7841a" stroke-width="1.4"/>
+      <circle cx="12" cy="12" r="6.5" fill="none" stroke="#b7841a" stroke-width="1"/>
+      <path d="M9 8l3 8 3-8" fill="none" stroke="#8a5a2b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="ic-bag" viewBox="0 0 24 24">
+      <path d="M9 7h6l-2-3h-2z" fill="#8a5a2b"/>
+      <path d="M9 7C5 10 4 21 12 21s7-11 3-14z" fill="#8a5a2b" stroke="#5f3e1d" stroke-width="1"/>
+      <path d="M12 11v6M10 13h4M10 16h4" stroke="#e0a51e" stroke-width="1.6" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="ic-target" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9" fill="#c0392b" stroke="#8f2a20" stroke-width="1"/>
+      <circle cx="12" cy="12" r="6" fill="#f4ecd8"/>
+      <circle cx="12" cy="12" r="3" fill="#c0392b"/>
+    </symbol>
+    <symbol id="ic-crown" viewBox="0 0 24 24">
+      <path d="M3 8 7 14 12 6 17 14 21 8 19 19H5Z" fill="#e0a51e" stroke="#b7841a" stroke-width="1.2" stroke-linejoin="round"/>
+      <circle cx="3" cy="8" r="1.4" fill="#c0392b"/><circle cx="21" cy="8" r="1.4" fill="#c0392b"/><circle cx="12" cy="6" r="1.4" fill="#c0392b"/>
+    </symbol>
+    <symbol id="ic-lock" viewBox="0 0 24 24">
+      <path d="M8 10V7a4 4 0 018 0v3" fill="none" stroke="#8a5a2b" stroke-width="2" stroke-linecap="round"/>
+      <rect x="5" y="10" width="14" height="10" rx="2" fill="#e0a51e" stroke="#b7841a" stroke-width="1.2"/>
+      <circle cx="12" cy="14.5" r="1.6" fill="#8a5a2b"/><path d="M12 15v2.5" stroke="#8a5a2b" stroke-width="1.6" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="ic-smile" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9" fill="#e0a51e" stroke="#b7841a" stroke-width="1.2"/>
+      <path d="M8 10q1.5-1.5 3 0M13 10q1.5-1.5 3 0" fill="none" stroke="#2b2620" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M8.5 14.5q3.5 3 7 0" fill="none" stroke="#2b2620" stroke-width="1.6" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="ic-wave" viewBox="0 0 24 24">
+      <path d="M2 9q3-3 6 0t6 0 6 0" fill="none" stroke="#4a7fa5" stroke-width="2" stroke-linecap="round"/>
+      <path d="M2 14q3-3 6 0t6 0 6 0" fill="none" stroke="#4a7fa5" stroke-width="2" stroke-linecap="round"/>
+      <path d="M2 19q3-3 6 0t6 0 6 0" fill="none" stroke="#7fa8c4" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="ic-pencil" viewBox="0 0 24 24">
+      <path d="M4 20l2-6L16 4l4 4L10 18Z" fill="#e0a51e" stroke="#b7841a" stroke-width="1.2" stroke-linejoin="round"/>
+      <path d="M16 4l4 4" stroke="#c0392b" stroke-width="1.6"/>
+      <path d="M4 20l2-6 4 4z" fill="#8a5a2b"/>
+    </symbol>
+    <symbol id="ic-pick" viewBox="0 0 24 24">
+      <path d="M3 6q9-5 18 2" fill="none" stroke="#9aa0a6" stroke-width="2.4" stroke-linecap="round"/>
+      <path d="M12 6 8 21" stroke="#8a5a2b" stroke-width="2.2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="ic-gem" viewBox="0 0 24 24">
+      <path d="M6 4h12l4 5-10 12L2 9Z" fill="#6cc5d6" stroke="#3d97a8" stroke-width="1.2" stroke-linejoin="round"/>
+      <path d="M2 9h20M9 4 7 9l5 12M15 4l2 5-5 12" fill="none" stroke="#3d97a8" stroke-width="1"/>
+    </symbol>
+    <symbol id="ic-pin" viewBox="0 0 24 24">
+      <ellipse cx="12" cy="8" rx="6" ry="5" fill="#c0392b" stroke="#8f2a20" stroke-width="1"/>
+      <ellipse cx="10" cy="6.5" rx="1.6" ry="1.2" fill="#ff8a7a"/>
+      <path d="M12 13v8" stroke="#8a5a2b" stroke-width="1.8" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="ic-eyes" viewBox="0 0 24 24">
+      <ellipse cx="8" cy="12" rx="4" ry="5" fill="#f4ecd8" stroke="#2b2620" stroke-width="1.2"/>
+      <ellipse cx="16" cy="12" rx="4" ry="5" fill="#f4ecd8" stroke="#2b2620" stroke-width="1.2"/>
+      <circle cx="9" cy="13" r="1.8" fill="#2b2620"/><circle cx="17" cy="13" r="1.8" fill="#2b2620"/>
+    </symbol>
+    <symbol id="ic-leaf" viewBox="0 0 24 24">
+      <path d="M4 20C4 8 12 4 20 4c0 12-8 16-16 16z" fill="#3f8b3d" stroke="#2f6b2f" stroke-width="1"/>
+      <path d="M4 20C8 15 14 9 20 4" fill="none" stroke="#2f6b2f" stroke-width="1"/>
+    </symbol>
+    <symbol id="ic-leaf2" viewBox="0 0 24 24">
+      <path d="M4 20C4 8 12 4 20 4c0 12-8 16-16 16z" fill="#c98a3a" stroke="#8a5a2b" stroke-width="1"/>
+      <path d="M4 20C8 15 14 9 20 4" fill="none" stroke="#8a5a2b" stroke-width="1"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ================= FLOATING LEAVES ================= -->
+<div id="leaves" aria-hidden="true"></div>
+
+<!-- ================= MUSIC PLAYER ================= -->
+<audio id="bgm" loop preload="auto" src="Whistle-Stop%20-%20Robin%20Hood%20[YDTBBn1RDpw].mp3?v=2"></audio>
+<button id="musicBtn"
+  class="fixed z-50 bottom-4 right-4 sketch bg-forest text-paper rough-shadow-sm px-3 py-2 flex items-center gap-2 font-hand text-lg hover:bg-forest2 active:translate-y-1 transition"
+  aria-label="Play or pause background music">
+  <span id="musicIcon" class="flex items-center" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12-7.5z"/></svg></span>
+  <span id="musicLabel" class="hidden sm:inline">Play tune</span>
+</button>
+
+<!-- ================= NAV ================= -->
+<header class="sticky top-0 z-40">
+  <nav class="bg-paper2/95 backdrop-blur border-b-[3px] border-ink">
+    <div class="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between">
+      <a href="#hero" class="flex items-center gap-2 group">
+        <img src="photo_1_2026-07-21_06-14-24.jpg?v=2" alt="Vladhood logo" class="w-11 h-11 rounded-full border-[3px] border-ink rough-shadow-sm group-hover:rotate-6 transition" />
+        <span class="font-marker text-2xl text-forest tracking-wide hidden md:inline">VLADHOOD</span>
+        <span class="font-marker text-2xl text-forest tracking-wide md:hidden">$VLAD</span>
+      </a>
+
+      <!-- капитализация в мобильной шапке (на десктопе она в общем меню ниже) -->
+      <a href="https://dexscreener.com/robinhood/0xac870e97fc1fe981f4d887e5f453203745a15ef4" target="_blank" rel="noopener" title="$VLAD live market cap"
+         class="md:hidden mcap-beat sketch bg-paper2 px-2 py-1 rough-shadow-sm flex items-center gap-1 font-hand">
+        <b data-mcap class="font-marker text-forest text-base">$—</b>
+        <span data-mcap-ch class="text-[9px] leading-none self-start mt-0.5 -ml-0.5" title="Изменение цены за 24ч"></span>
+      </a>
+
+      <ul class="hidden md:flex items-center gap-6 font-hand text-xl text-ink">
+        <li><a href="https://dexscreener.com/robinhood/0xac870e97fc1fe981f4d887e5f453203745a15ef4" target="_blank" rel="noopener" title="$VLAD live market cap" class="mcap-beat sketch bg-paper2 px-3 py-1 rough-shadow-sm flex items-center gap-2">
+          <span class="text-lg">MCAP</span>
+          <b data-mcap class="font-marker text-forest text-lg">$—</b>
+          <span data-mcap-ch class="text-[10px] leading-none self-start mt-1 -ml-1" title="Изменение цены за 24ч"></span>
+        </a></li>
+        <li><a href="#about" class="hover:text-forest hover:underline decoration-wavy decoration-mustard">Legend</a></li>
+        <li><a href="#tokenomics" class="hover:text-forest hover:underline decoration-wavy decoration-mustard">Tokenomics</a></li>
+        <li><a href="#buy" class="hover:text-forest hover:underline decoration-wavy decoration-mustard">How to Buy</a></li>
+        <li><a href="#swap" class="hover:text-forest hover:underline decoration-wavy decoration-mustard">Swap</a></li>
+        <!-- ВРЕМЕННО СКРЫТО: <li><a href="#gallery" class="hover:text-forest hover:underline decoration-wavy decoration-mustard">Legend Wall</a></li> -->
+        <li><a href="#community" class="hover:text-forest hover:underline decoration-wavy decoration-mustard">Community</a></li>
+        <li><a href="https://x.com/vladhoodcoin" target="_blank" rel="noopener" class="sketch-2 bg-ink text-paper px-3 py-2 rough-shadow-sm hover:bg-forest transition flex items-center" aria-label="X community"><svg viewBox="0 0 24 24" class="w-5 h-5 fill-current" aria-hidden="true"><path d="M18.9 2H22l-7.6 8.7L23.3 22h-6.9l-5.4-7-6.2 7H1.6l8.1-9.3L.9 2h7.1l4.9 6.5L18.9 2Zm-2.4 18h1.9L7.6 4H5.6l10.9 16Z"/></svg></a></li>
+        <li><a href="https://t.me/vladhood_tg" target="_blank" rel="noopener" class="sketch bg-forest text-paper px-3 py-2 rough-shadow-sm hover:bg-forest2 transition flex items-center" aria-label="Telegram"><svg viewBox="0 0 24 24" class="w-5 h-5 fill-current" aria-hidden="true"><path d="M21.9 4.3 18.7 19c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-4.9 9-8.1c.4-.3-.1-.5-.6-.2L6.4 12.9l-4.8-1.5c-1-.3-1.1-1 .2-1.5L20.5 2.9c.9-.3 1.6.2 1.4 1.4Z"/></svg></a></li>
+        <li><a href="/swap" class="sketch bg-mustard text-ink px-3 py-1 rough-shadow-sm hover:bg-forest hover:text-paper transition">Buy Now</a></li>
+      </ul>
+
+      <button id="hamburger" class="md:hidden sketch bg-mustard text-ink px-3 py-1 text-xl rough-shadow-sm inline-flex items-center gap-2" aria-label="Toggle menu" aria-expanded="false"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Menu</button>
+    </div>
+
+    <div id="mobileMenu" class="md:hidden bg-paper2 border-t-2 border-dashed border-ink/50">
+      <ul class="flex flex-col px-6 py-2 font-hand text-2xl text-ink">
+        <li class="py-2 border-b border-dashed border-ink/30"><a href="#about">Legend</a></li>
+        <li class="py-2 border-b border-dashed border-ink/30"><a href="#tokenomics">Tokenomics</a></li>
+        <li class="py-2 border-b border-dashed border-ink/30"><a href="#buy">How to Buy</a></li>
+        <li class="py-2 border-b border-dashed border-ink/30"><a href="#swap">Swap</a></li>
+        <!-- ВРЕМЕННО СКРЫТО: <li class="py-2 border-b border-dashed border-ink/30"><a href="#gallery">Legend Wall</a></li> -->
+        <li class="py-2 border-b border-dashed border-ink/30"><a href="#community">Community</a></li>
+        <li class="py-3 flex flex-wrap gap-3">
+          <a href="/swap" class="inline-block sketch bg-forest text-paper px-4 py-1">Buy $VLAD Now</a>
+          <a href="https://x.com/vladhoodcoin" target="_blank" rel="noopener" class="inline-block sketch-2 bg-ink text-paper px-4 py-1">X Community</a>
+          <a href="https://t.me/vladhood_tg" target="_blank" rel="noopener" class="inline-block sketch bg-forest2 text-paper px-4 py-1">Telegram</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+</header>
+
+<!-- ================= HERO ================= -->
+<section id="hero" class="relative overflow-hidden px-4 pt-8 pb-16 md:pt-14 md:pb-24">
+
+  <!-- doodle arrows / decoration -->
+  <svg class="doodle absolute top-24 left-4 w-24 opacity-70 hidden md:block" viewBox="0 0 120 80" fill="none" aria-hidden="true">
+    <path class="dash-anim" d="M5 70 C 40 10, 80 10, 112 30" stroke="#2f6b2f" stroke-width="3" stroke-linecap="round"/>
+    <path d="M112 30 l-16 -2 M112 30 l-6 15" stroke="#2f6b2f" stroke-width="3" stroke-linecap="round"/>
+  </svg>
+
+  <!-- doodled pencil sun -->
+  <svg class="doodle absolute top-6 right-6 w-20 h-20 opacity-80" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+    <circle cx="50" cy="50" r="20" stroke="#e0a51e" stroke-width="3.5"/>
+    <g stroke="#e0a51e" stroke-width="3.5" stroke-linecap="round">
+      <path d="M50 8v14M50 78v14M8 50h14M78 50h14M20 20l10 10M70 70l10 10M80 20l-10 10M30 70l-10 10"/>
+    </g>
+    <path d="M42 52c3 5 13 5 16 0" stroke="#2b2620" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="43" cy="45" r="1.6" fill="#2b2620"/><circle cx="57" cy="45" r="1.6" fill="#2b2620"/>
+  </svg>
+
+  <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 items-center">
+
+    <!-- Text -->
+    <div class="order-2 md:order-1 text-center md:text-left" data-aos="fade-right">
+      <span class="badge-wiggle inline-block sketch-2 bg-crayred text-paper font-hand text-lg px-3 py-1 rough-shadow-sm mb-4">
+        <svg class="ic"><use href="#ic-bow"/></svg> Launching on <b>ponsfamily</b> · Robinhood Chain (ETH)
+      </span>
+
+      <h1 class="font-marker leading-none text-forest text-6xl sm:text-7xl md:text-8xl drop-shadow-[3px_3px_0_rgba(43,38,32,0.35)]">
+        VLADHOOD
+      </h1>
+      <p class="font-marker text-mustard text-3xl md:text-4xl mt-1">$VLAD</p>
+
+      <p class="font-hand text-2xl md:text-3xl mt-4 text-ink">
+        <span class="scribble-underline">Steals from the jeets. Feeds the degens.</span>
+      </p>
+      <p class="font-hand text-xl md:text-2xl mt-3 text-ink/80 max-w-md mx-auto md:mx-0">
+        The outlaw who shows up right before the green candles. Rob the cabals, print the hopium. <svg class="ic"><use href="#ic-tree"/></svg><svg class="ic"><use href="#ic-candle"/></svg>
+      </p>
+
+      <div class="flex flex-wrap gap-4 justify-center md:justify-start mt-7">
+        <a href="/swap" class="wobble sketch bg-mustard text-ink font-marker text-2xl px-6 py-3 rough-shadow hover:bg-forest hover:text-paper transition">
+          Buy Now <svg class="ic"><use href="#ic-bow"/></svg>
+        </a>
+        <a href="https://t.me/vladhood_tg" target="_blank" rel="noopener" class="wobble sketch-2 bg-forest text-paper font-marker text-2xl px-6 py-3 rough-shadow hover:bg-forest2 transition">
+          Join Community
+        </a>
+      </div>
+
+      <!-- Contract address (copy to clipboard) -->
+      <div class="mt-6 flex justify-center md:justify-start">
+        <button type="button" data-copy-ca
+          class="ca-copy sketch bg-paper2 rough-shadow-sm px-4 py-2 flex items-center gap-3 max-w-full hover:-translate-y-0.5 transition"
+          title="Click to copy the $VLAD contract address">
+          <span class="font-marker text-forest text-sm sm:text-base flex-none">CA</span>
+          <span data-ca-text class="font-hand text-ink text-sm sm:text-lg truncate">0x92D176ccBeEffeCd8089e841D09ea17b6C22D969</span>
+          <span data-ca-icon class="flex-none flex items-center text-forest" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></span>
+        </button>
+      </div>
+
+      <p class="font-caveat text-2xl text-brown mt-4">psst — we're live on ponsfamily <svg class="ic"><use href="#ic-eyes"/></svg></p>
+    </div>
+
+    <!-- Mascot with parallax -->
+    <div class="order-1 md:order-2 relative flex justify-center" data-aos="fade-left">
+      <!-- spinning coin behind -->
+      <div class="absolute -top-2 -left-2 md:left-6 z-0">
+        <img src="photo_1_2026-07-21_06-14-24.jpg?v=2" alt="" aria-hidden="true"
+             class="spincoin w-20 h-20 rounded-full border-[4px] border-mustard rough-shadow-sm" />
+      </div>
+
+      <div id="heroMascot" class="sketch-photo relative z-10 will-change-transform">
+        <img src="photo_2_2026-07-21_06-14-24.jpg?v=2" alt="Vladhood the outlaw mascot holding a bow"
+             class="bob w-[78%] md:w-full max-w-sm mx-auto drop-shadow-[6px_10px_0_rgba(43,38,32,0.2)]" />
+      </div>
+
+      <!-- doodled moon -->
+      <div class="absolute -top-3 right-2 md:right-0 text-4xl rotate-12 z-20" aria-hidden="true"><svg class="ic"><use href="#ic-moon"/></svg></div>
+      <div class="absolute bottom-4 -left-1 text-3xl z-20" aria-hidden="true"><svg class="ic"><use href="#ic-coin"/></svg></div>
+    </div>
+  </div>
+
+  <!-- scrolling ticker strip -->
+  <div class="mt-12 -rotate-1 crayon-ink text-paper py-2 border-y-[3px] border-ink overflow-hidden">
+    <div class="flex whitespace-nowrap font-marker text-xl gap-8 animate-[none] ticker">
+      <span><svg class="ic"><use href="#ic-bow"/></svg> $VLAD</span><span><svg class="ic"><use href="#ic-tree"/></svg> ROBINHOOD CHAIN</span><span><svg class="ic"><use href="#ic-candle"/></svg> 100% GREEN CANDLES</span><span><svg class="ic"><use href="#ic-bag"/></svg> STEAL FROM THE JEETS</span><span><svg class="ic"><use href="#ic-target"/></svg> ponsfamily LAUNCH</span><span><svg class="ic"><use href="#ic-moon"/></svg> TO THE FOREST MOON</span>
+      <span><svg class="ic"><use href="#ic-bow"/></svg> $VLAD</span><span><svg class="ic"><use href="#ic-tree"/></svg> ROBINHOOD CHAIN</span><span><svg class="ic"><use href="#ic-candle"/></svg> 100% GREEN CANDLES</span><span><svg class="ic"><use href="#ic-bag"/></svg> STEAL FROM THE JEETS</span><span><svg class="ic"><use href="#ic-target"/></svg> ponsfamily LAUNCH</span><span><svg class="ic"><use href="#ic-moon"/></svg> TO THE FOREST MOON</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SWAP $VLAD (LI.FI widget) ================= -->
+<section id="swap" class="px-4 py-16 relative">
+  <div class="max-w-md mx-auto">
+    <h2 class="font-marker text-forest text-5xl md:text-6xl text-center mb-3 rotate-1" data-aos="zoom-in">
+      <span class="scribble-underline">Swap $VLAD</span>
+    </h2>
+    <p class="text-center font-caveat text-2xl text-brown mb-10" data-aos="fade-up">connect your wallet &amp; grab $VLAD right here — no leaving the forest</p>
+    <div class="relative bg-paper2 sketch p-4 md:p-5 rough-shadow" data-aos="fade-up">
+      <span class="pin"></span>
+      <div class="vlad-swap"><p class="font-hand text-xl text-ink/70 text-center py-10">loading swap…</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ABOUT / LEGEND ================= -->
+<section id="about" class="px-4 py-16 relative">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="font-marker text-forest text-5xl md:text-6xl text-center mb-3 -rotate-1" data-aos="zoom-in">
+      <span class="scribble-underline">The Legend of Vladhood</span>
+    </h2>
+    <p class="text-center font-caveat text-3xl text-brown mb-10" data-aos="fade-up">~ pulled straight from my notebook margins ~</p>
+
+    <div class="grid md:grid-cols-5 gap-8 items-center">
+      <!-- story card -->
+      <div class="md:col-span-3 relative bg-paper2 sketch p-6 md:p-8 rough-shadow" data-aos="fade-right">
+        <span class="tape tape-tl tape-green"></span>
+        <span class="tape tape-tr"></span>
+        <p class="font-hand text-xl md:text-2xl leading-relaxed text-ink">
+          Deep within the forests of the <b class="text-forest">Robinhood Chain</b> lives <b class="text-forest">Vladhood</b>,
+          the legendary outlaw with one simple mission: take from the jeets and greedy cabals, then reward the needy
+          with endless <b class="text-forest2">green candles</b>.
+        </p>
+        <p class="font-hand text-xl md:text-2xl leading-relaxed text-ink mt-4">
+          Armed with nothing but a trusty bow, enchanted arrows, and an unhealthy hatred for
+          <b class="text-crayred">exit liquidity</b>, Vladhood appears whenever fear takes over.
+        </p>
+        <p class="font-hand text-xl md:text-2xl leading-relaxed text-ink mt-4">
+          Some call him a myth. Others swear they've seen him. But whenever the chart starts ripping…
+          everyone knows <b class="text-mustard">Vladhood has been there first.</b> <svg class="ic"><use href="#ic-bow"/></svg>
+        </p>
+      </div>
+
+      <!-- rock image -->
+      <div class="md:col-span-2 relative" data-aos="fade-left">
+        <div class="sketch-photo bg-white sketch-2 p-3 rough-shadow rotate-2 hover:rotate-0 transition">
+          <span class="pin"></span>
+          <img src="photo_3_2026-07-21_06-14-24.jpg?v=2" alt="Vladhood standing heroically on a rock" class="w-full" />
+          <p class="font-caveat text-2xl text-center text-ink mt-1">"king of the forest, fr" <svg class="ic"><use href="#ic-crown"/></svg></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- wide banner image -->
+    <div class="sketch-photo mt-10 relative bg-white sketch p-2 rough-shadow -rotate-1" data-aos="zoom-in-up">
+      <span class="tape tape-tl"></span><span class="tape tape-tr tape-red"></span>
+      <img src="photo_5_2026-07-21_06-14-24.jpg?v=2" alt="VLADHOOD wanted-poster forest banner" class="w-full" />
+    </div>
+  </div>
+</section>
+
+<!-- ================= TOKENOMICS ================= -->
+<section id="tokenomics" class="px-4 py-16 relative">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="font-marker text-forest text-5xl md:text-6xl text-center mb-3 rotate-1" data-aos="zoom-in">
+      <span class="scribble-underline">Tokenomics <svg class="ic"><use href="#ic-coin"/></svg></span>
+    </h2>
+    <p class="text-center font-caveat text-3xl text-brown mb-10" data-aos="fade-up">no VC gnomes · no sneaky cabal wallets</p>
+
+    <div class="grid md:grid-cols-3 gap-8 items-stretch">
+
+      <!-- Big supply card -->
+      <div class="md:col-span-2 relative crayon-green text-paper sketch p-8 rough-shadow flex flex-col justify-center" data-aos="fade-up">
+        <span class="tape tape-tl"></span>
+        <p class="font-hand text-2xl">Total Supply</p>
+        <p class="font-marker text-6xl md:text-7xl text-mustard leading-none mt-1">
+          <span class="counter" data-target="1000000000" data-suffix="">0</span>
+        </p>
+        <p class="font-hand text-2xl mt-1">$VLAD — a clean <b class="text-mustard">1 Billion</b>. That's it. That's the tweet.</p>
+
+        <div class="grid grid-cols-3 gap-3 mt-6 font-hand text-center">
+          <div class="bg-paper/10 sketch-2 border-paper/40 py-3">
+            <p class="font-marker text-3xl text-mustard"><span class="counter" data-target="100" data-suffix="%">0</span></p>
+            <p class="text-lg">Fair Launch</p>
+          </div>
+          <div class="bg-paper/10 sketch-2 border-paper/40 py-3">
+            <p class="font-marker text-3xl text-mustard"><span class="counter" data-target="0" data-suffix="%">0</span></p>
+            <p class="text-lg">Team Tax</p>
+          </div>
+          <div class="bg-paper/10 sketch-2 border-paper/40 py-3">
+            <p class="font-marker text-3xl text-mustard">LP<svg class="ic"><use href="#ic-lock"/></svg></p>
+            <p class="text-lg">Burned</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- gold pile image card -->
+      <div class="sketch-photo relative bg-white sketch-2 p-3 rough-shadow rotate-2 hover:rotate-0 transition" data-aos="fade-up" data-aos-delay="100">
+        <span class="pin"></span>
+        <img src="photo_13_2026-07-21_06-14-24.jpg?v=2" alt="Vladhood sitting on a huge pile of gold coins" class="w-full" />
+        <p class="font-caveat text-2xl text-center text-ink mt-1">redistributed from the cabals <svg class="ic"><use href="#ic-smile"/></svg></p>
+      </div>
+    </div>
+
+    <!-- allocation mini cards -->
+    <div class="grid sm:grid-cols-3 gap-6 mt-8">
+      <div class="relative bg-paper2 sketch p-5 rough-shadow-sm hover:-translate-y-1 transition" data-aos="fade-up">
+        <p class="font-marker text-4xl text-forest"><svg class="ic"><use href="#ic-wave"/></svg> 100%</p>
+        <p class="font-hand text-xl mt-1">Liquidity Pool</p>
+        <p class="font-caveat text-xl text-brown">for the people, locked & loaded</p>
+      </div>
+      <div class="relative bg-paper2 sketch p-5 rough-shadow-sm hover:-translate-y-1 transition" data-aos="fade-up" data-aos-delay="100">
+        <p class="font-marker text-4xl text-mustard"><svg class="ic"><use href="#ic-target"/></svg> 0%</p>
+        <p class="font-hand text-xl mt-1">Community & Memes</p>
+        <p class="font-caveat text-xl text-brown">raids, contests, giveaways</p>
+      </div>
+      <div class="relative bg-paper2 sketch p-5 rough-shadow-sm hover:-translate-y-1 transition" data-aos="fade-up" data-aos-delay="200">
+        <p class="font-marker text-4xl text-crayred"><svg class="ic"><use href="#ic-bow"/></svg> 0%</p>
+        <p class="font-hand text-xl mt-1">CEX & Arrows</p>
+        <p class="font-caveat text-xl text-brown">listings + future quests</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= HOW TO BUY ================= -->
+<section id="buy" class="px-4 py-16 relative">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="font-marker text-forest text-5xl md:text-6xl text-center mb-3 -rotate-1" data-aos="zoom-in">
+      <span class="scribble-underline">How to Grab $VLAD</span>
+    </h2>
+    <p class="text-center font-caveat text-3xl text-brown mb-10" data-aos="fade-up">4 lil steps, drawn during math class <svg class="ic"><use href="#ic-pencil"/></svg></p>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+      <!-- Step 1 -->
+      <div class="relative bg-paper2 sketch p-6 rough-shadow hover:-translate-y-2 hover:rotate-1 transition" data-aos="fade-up">
+        <div class="absolute -top-5 -left-3 font-marker text-5xl text-mustard bg-ink w-14 h-14 rounded-full flex items-center justify-center border-[3px] border-ink rough-shadow-sm">1</div>
+        <h3 class="font-marker text-2xl text-forest mt-4">Get a Wallet</h3>
+        <p class="font-hand text-xl mt-2 text-ink">Grab MetaMask (or any ETH wallet) and add the <b>Robinhood Chain</b> network. Keep your seed phrase secret. <svg class="ic"><use href="#ic-lock"/></svg></p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="relative bg-paper2 sketch p-6 rough-shadow hover:-translate-y-2 hover:-rotate-1 transition" data-aos="fade-up" data-aos-delay="100">
+        <div class="absolute -top-5 -left-3 font-marker text-5xl text-mustard bg-ink w-14 h-14 rounded-full flex items-center justify-center border-[3px] border-ink rough-shadow-sm">2</div>
+        <h3 class="font-marker text-2xl text-forest mt-4">Load some ETH</h3>
+        <p class="font-hand text-xl mt-2 text-ink">Bridge or buy a bit of ETH for gas + your bag. Even a peasant's coin pouch works. <svg class="ic"><use href="#ic-bag"/></svg></p>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="relative bg-paper2 sketch p-6 rough-shadow hover:-translate-y-2 hover:rotate-1 transition" data-aos="fade-up" data-aos-delay="200">
+        <div class="absolute -top-5 -left-3 font-marker text-5xl text-mustard bg-ink w-14 h-14 rounded-full flex items-center justify-center border-[3px] border-ink rough-shadow-sm">3</div>
+        <h3 class="font-marker text-2xl text-forest mt-4">Aim at ponsfamily</h3>
+        <p class="font-hand text-xl mt-2 text-ink">Open the <b>ponsfamily</b> launchpad, connect your wallet, and find the official <b>$VLAD</b> page. <svg class="ic"><use href="#ic-bow"/></svg></p>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="relative bg-paper2 sketch p-6 rough-shadow hover:-translate-y-2 hover:-rotate-1 transition" data-aos="fade-up" data-aos-delay="300">
+        <div class="absolute -top-5 -left-3 font-marker text-5xl text-mustard bg-ink w-14 h-14 rounded-full flex items-center justify-center border-[3px] border-ink rough-shadow-sm">4</div>
+        <h3 class="font-marker text-2xl text-forest mt-4">Loose the Arrow</h3>
+        <p class="font-hand text-xl mt-2 text-ink">Swap ETH → $VLAD, confirm, and welcome to the Merry Men. Now HODL like an outlaw. <svg class="ic"><use href="#ic-tree"/></svg></p>
+      </div>
+    </div>
+
+    <!-- buy CTA + mining image -->
+    <div class="grid md:grid-cols-5 gap-8 items-center mt-12">
+      <div class="sketch-photo md:col-span-2 relative bg-white sketch-2 p-3 rough-shadow -rotate-2 hover:rotate-0 transition" data-aos="fade-right">
+        <span class="pin"></span>
+        <img src="photo_7_2026-07-21_06-14-24.jpg?v=2" alt="Vladhood pushing a cart of diamonds from a mine" class="w-full" />
+        <p class="font-caveat text-2xl text-center text-ink mt-1">mining fresh gains <svg class="ic"><use href="#ic-pick"/></svg><svg class="ic"><use href="#ic-gem"/></svg></p>
+      </div>
+      <div class="md:col-span-3 text-center md:text-left" data-aos="fade-left">
+        <h3 class="font-marker text-4xl text-forest">Ready to ride?</h3>
+        <p class="font-hand text-2xl mt-2 text-ink">We're live on ponsfamily — smash the buy button and watch the chart. <svg class="ic"><use href="#ic-bow"/></svg></p>
+        <div class="flex flex-wrap gap-4 justify-center md:justify-start mt-5">
+          <a href="/swap" class="wobble sketch bg-mustard text-ink font-marker text-2xl px-6 py-3 rough-shadow hover:bg-forest hover:text-paper transition">Buy $VLAD <svg class="ic"><use href="#ic-bow"/></svg></a>
+          <a href="https://dexscreener.com/robinhood/0xac870e97fc1fe981f4d887e5f453203745a15ef4" target="_blank" rel="noopener" class="wobble sketch-2 bg-ink text-paper font-marker text-2xl px-6 py-3 rough-shadow hover:bg-forest transition inline-flex items-center gap-2">Live Chart <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M18.5 7.5 13 13l-3-3-4 4"/><path d="M18.5 11V7.5H15"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LEGEND WALL (gallery — uses remaining images) ================= -->
+<!-- ВРЕМЕННО СКРЫТО: чтобы вернуть секцию, убери атрибут hidden в строке ниже -->
+<section id="gallery" hidden class="px-4 py-16 relative">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="font-marker text-forest text-5xl md:text-6xl text-center mb-3 rotate-1" data-aos="zoom-in">
+      <span class="scribble-underline">The Legend Wall</span>
+    </h2>
+    <p class="text-center font-caveat text-3xl text-brown mb-10" data-aos="fade-up">every sighting of Vladhood, taped to my corkboard <svg class="ic"><use href="#ic-pin"/></svg></p>
+
+    <div class="columns-2 md:columns-3 lg:columns-4 gap-4 [column-fill:_balance]" id="galleryGrid">
+      <!-- filled by JS from image list -->
+    </div>
+  </div>
+</section>
+
+<!-- ================= COMMUNITY / SOCIALS ================= -->
+<section id="community" class="px-4 py-16 relative">
+  <div class="max-w-4xl mx-auto text-center">
+    <img src="photo_18_2026-07-21_06-14-24.jpg?v=2" alt="Vladhood eating nuggets like a degen"
+         class="sketch-photo w-40 h-40 object-cover rounded-full border-[4px] border-ink rough-shadow mx-auto -rotate-3 bob" data-aos="zoom-in" />
+
+    <h2 class="font-marker text-forest text-5xl md:text-6xl mt-6 mb-3" data-aos="zoom-in">
+      <span class="scribble-underline">Join the Merry Men</span>
+    </h2>
+    <p class="font-hand text-2xl text-ink mb-10" data-aos="fade-up">
+      The forest is loud. Come raid, meme, and print green candles with the whole band of outlaws.
+    </p>
+
+    <div class="flex flex-wrap justify-center gap-6" data-aos="fade-up">
+      <!-- Twitter / X -->
+      <a href="https://x.com/vladhoodcoin" target="_blank" rel="noopener"
+         class="wobble group sketch bg-ink text-paper px-8 py-5 rough-shadow flex items-center gap-3 hover:bg-forest transition">
+        <svg viewBox="0 0 24 24" class="w-8 h-8 fill-current" aria-hidden="true"><path d="M18.9 2H22l-7.6 8.7L23.3 22h-6.9l-5.4-7-6.2 7H1.6l8.1-9.3L.9 2h7.1l4.9 6.5L18.9 2Zm-2.4 18h1.9L7.6 4H5.6l10.9 16Z"/></svg>
+        <span class="font-marker text-2xl">Twitter / X</span>
+      </a>
+
+      <!-- Telegram -->
+      <a href="https://t.me/vladhood_tg" target="_blank" rel="noopener"
+         class="wobble group sketch-2 bg-forest text-paper px-8 py-5 rough-shadow flex items-center gap-3 hover:bg-forest2 transition">
+        <svg viewBox="0 0 24 24" class="w-8 h-8 fill-current" aria-hidden="true"><path d="M21.9 4.3 18.7 19c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-4.9 9-8.1c.4-.3-.1-.5-.6-.2L6.4 12.9l-4.8-1.5c-1-.3-1.1-1 .2-1.5L20.5 2.9c.9-.3 1.6.2 1.4 1.4Z"/></svg>
+        <span class="font-marker text-2xl">Telegram</span>
+      </a>
+    </div>
+
+    <div class="mt-8 inline-block sketch bg-paper2 px-5 py-3 rough-shadow-sm -rotate-1" data-aos="fade-up">
+      <p class="font-caveat text-2xl text-brown">Twitter, Telegram, DEX & chart — <b class="text-crayred">all links are live!</b> Welcome to the forest, outlaws! <svg class="ic"><use href="#ic-bow"/></svg></p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer class="mt-8 border-t-[3px] border-ink crayon-green text-paper">
+  <div class="max-w-6xl mx-auto px-4 py-10 text-center">
+    <img src="photo_1_2026-07-21_06-14-24.jpg?v=2" alt="Vladhood" class="w-16 h-16 rounded-full border-[3px] border-paper mx-auto rough-shadow-sm" />
+    <p class="font-marker text-3xl mt-3">VLADHOOD · $VLAD</p>
+    <p class="font-hand text-xl mt-2 text-paper/90">Robinhood Chain (ETH) · launching on ponsfamily <svg class="ic"><use href="#ic-bow"/></svg></p>
+    <p class="font-caveat text-2xl mt-5 text-mustard">Steal from the jeets. Feed the needy. Green candles forever. <svg class="ic"><use href="#ic-tree"/></svg><svg class="ic"><use href="#ic-candle"/></svg></p>
+    <p class="font-hand text-sm mt-6 text-paper/70 max-w-xl mx-auto">
+      $VLAD is a community meme coin for entertainment only. Not financial advice. Crypto is risky — never invest more than you can afford to lose. DYOR.
+    </p>
+    <p class="font-hand text-sm mt-2 text-paper/60">© 2026 Vladhood. Drawn in the back of a notebook.</p>
+  </div>
+</footer>
+
+<!-- ================= LIBS (CDN) ================= -->
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+<!-- ================= VANILLA JS ================= -->
+<script>
+(function () {
+  'use strict';
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- AOS ---------- */
+  if (window.AOS) {
+    AOS.init({ once: true, duration: 700, easing: 'ease-out-cubic', disable: reduceMotion, offset: 80 });
+  }
+
+  /* ---------- Mobile menu ---------- */
+  var hamburger = document.getElementById('hamburger');
+  var mobileMenu = document.getElementById('mobileMenu');
+  hamburger.addEventListener('click', function () {
+    var open = mobileMenu.classList.toggle('open');
+    hamburger.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  mobileMenu.querySelectorAll('a').forEach(function (a) {
+    a.addEventListener('click', function () {
+      mobileMenu.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  /* ---------- Inline SVG icons (swapped by JS) ---------- */
+  var ICON_PLAY  = '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12-7.5z"/></svg>';
+  var ICON_PAUSE = '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5h4v15H7zM13 4.5h4v15h-4z"/></svg>';
+  var ICON_COPY  = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
+  var ICON_CHECK = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+  var ICON_WARN  = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20z"/><path d="M12 10v4"/><path d="M12 17h.01"/></svg>';
+
+  /* ---------- Background music + pause button ---------- */
+  var bgm = document.getElementById('bgm');
+  var musicBtn = document.getElementById('musicBtn');
+  var musicIcon = document.getElementById('musicIcon');
+  var musicLabel = document.getElementById('musicLabel');
+
+  function setPlayingUI(playing) {
+    musicIcon.innerHTML = playing ? ICON_PAUSE : ICON_PLAY;
+    musicLabel.textContent = playing ? 'Pause tune' : 'Play tune';
+    musicBtn.classList.toggle('music-live', playing && !reduceMotion);
+  }
+  function toggleMusic() {
+    if (bgm.paused) {
+      bgm.play().then(function () { setPlayingUI(true); }).catch(function () { setPlayingUI(false); });
+    } else {
+      bgm.pause();
+      setPlayingUI(false);
+    }
+  }
+  musicBtn.addEventListener('click', toggleMusic);
+  bgm.addEventListener('play', function(){ setPlayingUI(true); });
+  bgm.addEventListener('pause', function(){ setPlayingUI(false); });
+
+  /* Try to autoplay softly; most browsers block until interaction, so start on first click/scroll/key */
+  bgm.volume = 0.45;
+  var kicked = false;
+  function firstInteract() {
+    if (kicked) return;
+    kicked = true;
+    bgm.play().then(function(){ setPlayingUI(true); }).catch(function(){ /* user can press play */ });
+    window.removeEventListener('pointerdown', firstInteract);
+    window.removeEventListener('keydown', firstInteract);
+    window.removeEventListener('scroll', firstInteract);
+  }
+  window.addEventListener('pointerdown', firstInteract, { once:false });
+  window.addEventListener('keydown', firstInteract);
+  window.addEventListener('scroll', firstInteract, { passive:true });
+
+  /* ---------- "Coming soon" links ---------- */
+  window.soon = function (e, what) {
+    e.preventDefault();
+    var n = document.createElement('div');
+    n.textContent = what + ' link goes live real soon™';
+    n.style.cssText = 'position:fixed;left:50%;bottom:80px;transform:translateX(-50%);z-index:60;background:#2b2620;color:#f4ecd8;font-family:"Patrick Hand",cursive;font-size:20px;padding:10px 18px;border:2.5px solid #2b2620;border-radius:255px 15px 225px 15px/15px 225px 15px 255px;box-shadow:4px 5px 0 rgba(0,0,0,.4);';
+    document.body.appendChild(n);
+    setTimeout(function(){ n.style.transition='opacity .4s'; n.style.opacity='0'; }, 1800);
+    setTimeout(function(){ n.remove(); }, 2300);
+  };
+
+  /* ---------- Animated counters ---------- */
+  function formatNum(n) { return n.toLocaleString('en-US'); }
+  function runCounter(el) {
+    var target = parseInt(el.getAttribute('data-target'), 10);
+    var suffix = el.getAttribute('data-suffix') || '';
+    if (reduceMotion) { el.textContent = formatNum(target) + suffix; return; }
+    var dur = 1600, start = null;
+    function step(ts) {
+      if (!start) start = ts;
+      var p = Math.min((ts - start) / dur, 1);
+      var eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = formatNum(Math.floor(eased * target)) + suffix;
+      if (p < 1) requestAnimationFrame(step);
+      else el.textContent = formatNum(target) + suffix;
+    }
+    requestAnimationFrame(step);
+  }
+  var counters = document.querySelectorAll('.counter');
+  if ('IntersectionObserver' in window) {
+    var co = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { runCounter(en.target); co.unobserve(en.target); }
+      });
+    }, { threshold: 0.5 });
+    counters.forEach(function (c) { co.observe(c); });
+  } else {
+    counters.forEach(runCounter);
+  }
+
+  /* ---------- Hero parallax (GSAP) ---------- */
+  var mascot = document.getElementById('heroMascot');
+  if (mascot && window.gsap && !reduceMotion) {
+    window.addEventListener('scroll', function () {
+      var y = window.scrollY;
+      if (y < window.innerHeight * 1.2) {
+        gsap.to(mascot, { y: y * 0.18, rotation: y * 0.01, duration: 0.4, overwrite: 'auto' });
+      }
+    }, { passive: true });
+    // gentle mouse parallax
+    document.getElementById('hero').addEventListener('mousemove', function (e) {
+      var cx = (e.clientX / window.innerWidth - 0.5) * 18;
+      var cy = (e.clientY / window.innerHeight - 0.5) * 12;
+      gsap.to(mascot, { x: cx, duration: 0.6, overwrite: 'auto' });
+    });
+  }
+
+  /* ---------- Ticker scroll ---------- */
+  var ticker = document.querySelector('.ticker');
+  if (ticker && !reduceMotion && window.gsap) {
+    var half = ticker.scrollWidth / 2;
+    gsap.set(ticker, { x: 0 });
+    gsap.to(ticker, { x: -half, duration: 22, ease: 'none', repeat: -1 });
+  }
+
+  /* ---------- Floating leaves ---------- */
+  if (!reduceMotion) {
+    var leafIcons = ['#ic-leaf', '#ic-leaf2', '#ic-leaf', '#ic-coin'];
+    var wrap = document.getElementById('leaves');
+    for (var i = 0; i < 9; i++) {
+      var s = document.createElement('span');
+      s.className = 'leaf';
+      s.innerHTML = '<svg class="ic"><use href="' + leafIcons[i % leafIcons.length] + '"/></svg>';
+      s.style.left = Math.random() * 100 + 'vw';
+      s.style.animationDuration = (10 + Math.random() * 12) + 's';
+      s.style.animationDelay = (Math.random() * 12) + 's';
+      s.style.fontSize = (18 + Math.random() * 18) + 'px';
+      wrap.appendChild(s);
+    }
+  }
+
+  /* ---------- Scatter little pencil doodles across sections ---------- */
+  var doodleSet = [
+    // star
+    '<svg viewBox="0 0 40 40" fill="none"><path d="M20 3l5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1z" stroke="#e0a51e" stroke-width="2.4" stroke-linejoin="round"/></svg>',
+    // coin with V
+    '<svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="15" stroke="#e0a51e" stroke-width="2.6"/><circle cx="20" cy="20" r="11" stroke="#e0a51e" stroke-width="1.4"/><path d="M14 13l6 15 6-15" stroke="#8a5a2b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    // little tree
+    '<svg viewBox="0 0 40 40" fill="none"><path d="M20 4l9 14h-6l7 11H10l7-11h-6z" stroke="#2f6b2f" stroke-width="2.4" stroke-linejoin="round"/><path d="M20 29v8" stroke="#8a5a2b" stroke-width="2.6" stroke-linecap="round"/></svg>',
+    // spiral
+    '<svg viewBox="0 0 40 40" fill="none"><path d="M20 20c0-4 6-4 6 0s-8 6-11 0-2-14 8-14 14 8 12 16" stroke="#c0392b" stroke-width="2.4" stroke-linecap="round"/></svg>',
+    // heart
+    '<svg viewBox="0 0 40 40" fill="none"><path d="M20 34C6 24 6 12 14 12c4 0 6 3 6 3s2-3 6-3c8 0 8 12-6 22z" stroke="#c0392b" stroke-width="2.4" stroke-linejoin="round"/></svg>',
+    // arrow
+    '<svg viewBox="0 0 44 24" fill="none"><path d="M3 12h34M30 5l8 7-8 7M6 8l-3 4 3 4" stroke="#2f6b2f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    // moon
+    '<svg viewBox="0 0 40 40" fill="none"><path d="M27 6a15 15 0 100 28 12 12 0 010-28z" stroke="#e0a51e" stroke-width="2.4" stroke-linejoin="round"/></svg>'
+  ];
+  if (!reduceMotion || true) {
+    document.querySelectorAll('section').forEach(function (sec, si) {
+      var n = 3;
+      for (var i = 0; i < n; i++) {
+        var d = document.createElement('span');
+        d.className = 'doodle';
+        d.setAttribute('aria-hidden', 'true');
+        d.innerHTML = doodleSet[(si * 3 + i) % doodleSet.length];
+        var size = 26 + Math.random() * 26;
+        d.style.cssText =
+          'position:absolute;z-index:0;pointer-events:none;opacity:.55;width:' + size + 'px;height:' + size + 'px;' +
+          'top:' + (8 + Math.random() * 82) + '%;' +
+          (Math.random() > 0.5 ? 'left:' : 'right:') + (2 + Math.random() * 8) + '%;' +
+          'transform:rotate(' + (Math.random() * 50 - 25) + 'deg);';
+        sec.appendChild(d);
+      }
+    });
+  }
+
+  /* ---------- Legend Wall gallery (uses all remaining images) ---------- */
+  var galleryImages = [
+    'photo_4_2026-07-21_06-14-24.jpg','photo_6_2026-07-21_06-14-24.jpg',
+    'photo_8_2026-07-21_06-14-24.jpg','photo_9_2026-07-21_06-14-24.jpg',
+    'photo_10_2026-07-21_06-14-24.jpg','photo_11_2026-07-21_06-14-24.jpg',
+    'photo_12_2026-07-21_06-14-24.jpg','photo_14_2026-07-21_06-14-24.jpg',
+    'photo_15_2026-07-21_06-14-24.jpg','photo_16_2026-07-21_06-14-24.jpg',
+    'photo_17_2026-07-21_06-14-24.jpg','photo_19_2026-07-21_06-14-24.jpg',
+    'photo_20_2026-07-21_06-14-24.jpg','photo_21_2026-07-21_06-14-24.jpg',
+    'photo_22_2026-07-21_06-14-24.jpg','photo_23_2026-07-21_06-14-24.jpg',
+    'photo_24_2026-07-21_06-14-24.jpg','photo_25_2026-07-21_06-14-24.jpg'
+  ];
+  var captions = ['sighting #','wanted alive','forest tales','outlaw hours','pure hopium','green candle szn','merry men','the myth','arrow to the moon'];
+  var grid = document.getElementById('galleryGrid');
+  if (grid) {
+    galleryImages.forEach(function (src, idx) {
+      var rot = (idx % 3 === 0) ? '-rotate-2' : (idx % 3 === 1 ? 'rotate-1' : 'rotate-2');
+      var fig = document.createElement('figure');
+      fig.className = 'polaroid sketch-2 rough-shadow-sm mb-4 break-inside-avoid ' + rot + ' hover:rotate-0 hover:scale-[1.03] transition duration-300';
+      fig.setAttribute('data-aos', 'zoom-in');
+      fig.innerHTML =
+        '<img loading="lazy" src="' + src + '?v=2" alt="Vladhood the outlaw — meme scene" />' +
+        '<figcaption class="font-caveat text-xl text-ink text-center pt-1">' +
+          captions[idx % captions.length] + (idx % captions.length === 0 ? (idx + 1) : '') + ' <svg class="ic"><use href="#ic-bow"/></svg>' +
+        '</figcaption>';
+      grid.appendChild(fig);
+    });
+    if (window.AOS) AOS.refresh();
+  }
+
+  /* ---------- Live market cap badge (DexScreener) ---------- */
+  var MCAP_API = 'https://api.dexscreener.com/latest/dex/pairs/robinhood/0xac870e97FC1FE981F4D887e5f453203745A15EF4';
+  var mcapEls = document.querySelectorAll('[data-mcap]');
+  var mcapLast = 0;
+
+  function fmtMcap(n) {
+    if (n >= 1e9) return '$' + (n / 1e9).toFixed(2) + 'B';
+    if (n >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M';
+    if (n >= 1e3) return '$' + (n / 1e3).toFixed(1) + 'K';
+    return '$' + Math.round(n);
+  }
+  function mcapText(t) { mcapEls.forEach(function (el) { el.textContent = t; }); }
+
+  var mcapChEls = document.querySelectorAll('[data-mcap-ch]');
+  function setMcapChange(v) {
+    var up = v >= 0, a = Math.abs(v);
+    var txt = (up ? '+' : '−') + (a >= 1000 ? (a / 1000).toFixed(1) + 'K' : a.toFixed(1)) + '%';
+    mcapChEls.forEach(function (el) {
+      el.textContent = txt;
+      el.style.color = up ? '#3f8b3d' : '#c0392b';
+    });
+  }
+
+  function setMcap(v) {
+    var from = mcapLast;
+    if (v === from) return;
+    var dir = from && v > from ? 'up' : (from && v < from ? 'down' : null);
+    if (reduceMotion) {
+      mcapText(fmtMcap(v));
+    } else {
+      var dur = 1200, start = null;
+      (function step(ts) {
+        if (!start) start = ts;
+        var p = Math.min((ts - start) / dur, 1);
+        var eased = 1 - Math.pow(1 - p, 3);
+        mcapText(fmtMcap(from + (v - from) * eased));
+        if (p < 1) requestAnimationFrame(step);
+      })(performance.now());
+      if (dir) mcapEls.forEach(function (el) {
+        el.classList.remove('up', 'down');
+        void el.offsetWidth; /* перезапуск CSS-анимации */
+        el.classList.add(dir);
+      });
+    }
+    mcapLast = v;
+  }
+
+  function fetchMcap() {
+    fetch(MCAP_API).then(function (r) { return r.json(); }).then(function (d) {
+      var p = d.pair || (d.pairs && d.pairs[0]);
+      var mc = p && (p.marketCap || p.fdv);
+      if (mc) setMcap(mc);
+      var ch = p && p.priceChange && typeof p.priceChange.h24 === 'number' ? p.priceChange.h24 : null;
+      if (ch !== null) setMcapChange(ch);
+    }).catch(function () { /* сеть недоступна — оставляем прежнее значение */ });
+  }
+
+  if (mcapEls.length) {
+    fetchMcap();
+    setInterval(fetchMcap, 5000);
+  }
+
+  /* ---------- Copy contract address ---------- */
+  var CA = '0x92D176ccBeEffeCd8089e841D09ea17b6C22D969';
+  function legacyCopy(t) {
+    return new Promise(function (resolve, reject) {
+      try {
+        var ta = document.createElement('textarea');
+        ta.value = t; ta.setAttribute('readonly', '');
+        ta.style.cssText = 'position:absolute;left:-9999px;top:0;';
+        document.body.appendChild(ta);
+        ta.select(); ta.setSelectionRange(0, t.length);
+        var ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        ok ? resolve() : reject(new Error('execCommand failed'));
+      } catch (e) { reject(e); }
+    });
+  }
+  function copyText(t) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      // если современный API отклонён (нет прав/песочница) — падаем на запасной способ
+      return navigator.clipboard.writeText(t).catch(function () { return legacyCopy(t); });
+    }
+    return legacyCopy(t);
+  }
+  document.querySelectorAll('[data-copy-ca]').forEach(function (btn) {
+    var icon = btn.querySelector('[data-ca-icon]');
+    var text = btn.querySelector('[data-ca-text]');
+    var full = text ? text.textContent.trim() : CA;
+    btn.addEventListener('click', function () {
+      copyText(full).then(function () {
+        btn.classList.add('copied');
+        if (icon) icon.innerHTML = ICON_CHECK;
+        if (text) { text.dataset.orig = text.dataset.orig || text.textContent; text.textContent = 'Copied!'; }
+        setTimeout(function () {
+          btn.classList.remove('copied');
+          if (icon) icon.innerHTML = ICON_COPY;
+          if (text && text.dataset.orig) text.textContent = text.dataset.orig;
+        }, 1400);
+      }).catch(function () {
+        if (icon) icon.innerHTML = ICON_WARN;
+        setTimeout(function () { if (icon) icon.innerHTML = ICON_COPY; }, 1400);
+      });
+    });
+  });
+})();
+</script>
+
+<!-- ================= SWAP PANEL (custom, vanilla JS on LI.FI API) ================= -->
+<script src="/swap.js?v=13"></script>
+</body>
+</html>
