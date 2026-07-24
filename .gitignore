@@ -1,0 +1,12 @@
+# secrets — never publish
+.env
+message-*.md
+
+# local tooling / OS junk
+.DS_Store
+.claude/
+fonts/
+
+# temp / build
+*.log
+node_modules/
