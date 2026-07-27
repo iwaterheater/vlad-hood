@@ -71,8 +71,24 @@
   .meme-card:hover { transform:translate(-2px,-2px); box-shadow:6px 7px 0 rgba(43,38,32,0.85), 9px 11px 0 rgba(43,38,32,0.18); }
   .meme-card:focus-within { outline:3px dashed #e0a51e; outline-offset:3px; }
 
-  .bar-track { border:2px solid #2b2620; background:#f4ecd8; height:14px; overflow:hidden; border-radius:8px; }
+  .bar-track { border:2px solid #2b2620; background:#f4ecd8; height:11px; overflow:hidden; border-radius:8px; }
   .bar-fill { height:100%; border-right:2px solid rgba(43,38,32,.55); transition:width .4s ease; }
+
+  /* Permanent Marker runs its digits together, so every figure on this page
+     is set in Patrick Hand with tabular spacing instead. */
+  .num { font-family:'Patrick Hand', cursive; font-variant-numeric:tabular-nums;
+    letter-spacing:.03em; }
+
+  /* graduated panel — ten tiles a page, five across */
+  .grad-chip { transition:transform .15s, box-shadow .15s; }
+  .grad-chip:hover { transform:translate(-1px,-1px); box-shadow:4px 5px 0 rgba(43,38,32,.8); }
+  .grad-chip:focus-visible { outline:3px dashed #e0a51e; outline-offset:2px; }
+  .grad-ava { width:26px; height:26px; border-radius:9999px; overflow:hidden;
+    border:2px solid #2b2620; flex:none; }
+  .grad-ava svg { width:100%; height:100%; display:block; }
+  .grad-page { transition:background-color .15s, color .15s; }
+  .grad-page:hover:not(:disabled) { background:#2b2620; color:#f4ecd8; }
+  .grad-page:disabled { opacity:.4; cursor:default; box-shadow:none; }
 
   /* the sort <select> keeps the hand-drawn look on every browser */
   .paper-select {
@@ -139,143 +155,160 @@
   <div class="max-w-[75rem] mx-auto px-5 sm:px-8 lg:px-[3.75rem] py-2 flex items-center justify-between gap-3">
     <a href="/" class="flex items-center gap-2 group shrink-0">
       <img src="https://vlad-hood.xyz/photo_1_2026-07-21_06-14-24.jpg?v=2" alt="Vladhood" class="w-11 h-11 rounded-full border-[3px] border-ink rough-shadow-sm group-hover:rotate-6 transition" />
-      <span class="font-marker text-2xl text-forest tracking-wide">VLADHOOD</span>
+      <span class="font-marker text-xl sm:text-2xl text-forest tracking-wide">VLADHOOD</span>
       <span class="font-marker text-mustard text-xl hidden sm:inline">$VLAD</span>
+      <!-- the wide red banner is gone; this chip keeps the page honest at a
+           glance, and the full notice still sits at the foot of the board -->
+      <span class="font-marker text-[10px] tracking-wide bg-crayred text-paper border-2 border-ink rounded-full px-2 py-0.5 -rotate-2"
+        title="This launchpad is a UI preview. No contracts, no sale, demo data only.">DEMO</span>
     </a>
-    <a href="/" class="font-hand text-lg text-ink hover:text-forest hover:underline decoration-wavy decoration-mustard shrink-0">&larr; Back to site</a>
+    <!-- the short label keeps the row inside a 320px viewport now that the
+         DEMO chip sits next to the logo -->
+    <a href="/" class="font-hand text-lg text-ink hover:text-forest hover:underline decoration-wavy decoration-mustard shrink-0">&larr; Back<span class="hidden sm:inline"> to site</span></a>
   </div>
 </header>
-
-<!-- ============ honesty banner — unmissable ============ -->
-<div class="border-b-[3px] border-ink text-paper" style="background:#c0392b">
-  <div class="max-w-[75rem] mx-auto px-5 sm:px-8 lg:px-[3.75rem] py-2.5 flex items-start gap-2.5">
-    <svg class="ic text-2xl shrink-0 mt-0.5" aria-hidden="true"><use href="#ic-alert"/></svg>
-    <p class="font-hand text-base sm:text-lg leading-snug">
-      <b class="font-marker tracking-wide">DEMO — UI PREVIEW ONLY.</b>
-      This launchpad has <b>no smart contracts</b> behind it. Every meme, number, chart and countdown below is
-      made-up sample data. Nothing here can take, hold or move real funds, and no sale is actually running.
-    </p>
-  </div>
-</div>
 </div>
 
 <main class="flex-1">
 
   <!-- ============ hero ============ -->
-  <section class="max-w-[75rem] mx-auto px-5 sm:px-8 lg:px-[3.75rem] pt-10 pb-6">
-    <div class="grid gap-10 lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_400px] items-start">
+  <section class="max-w-[75rem] mx-auto px-5 sm:px-8 lg:px-[3.75rem] pt-6 pb-3">
+    <div class="grid gap-6 lg:gap-8 lg:grid-cols-[1fr_300px] xl:grid-cols-[1fr_330px] items-start">
 
       <!-- hero copy -->
       <div>
-        <p class="taped inline-block bg-crayred text-paper font-marker text-xs sm:text-sm tracking-wide px-4 py-1.5 -rotate-1 border-2 border-ink rough-shadow-sm">
+        <p class="taped inline-block bg-crayred text-paper font-marker text-[11px] sm:text-xs tracking-wide px-3 py-1 -rotate-1 border-2 border-ink rough-shadow-sm">
           The forest needs new legends.
         </p>
 
-        <h1 class="font-marker text-forest text-5xl sm:text-6xl md:text-7xl leading-[1.25] mt-7 -rotate-1 break-words">
+        <h1 class="font-marker text-forest text-4xl sm:text-5xl md:text-6xl leading-[1.2] mt-5 -rotate-1 break-words">
           <span class="scribble-underline">LAUNCHPAD</span><br class="hidden sm:block" />
           <span class="text-mustard">MEMES</span>
         </h1>
 
-        <p class="font-caveat text-2xl sm:text-3xl text-brown mt-6">The home for the next 100x memes.</p>
-        <p class="font-hand text-lg sm:text-xl text-ink/80 mt-1">Fair launches. Community first. Built on Robinhood Chain.</p>
+        <p class="font-caveat text-xl sm:text-2xl text-brown mt-4">The home for the next 100x memes.</p>
+        <p class="font-hand text-base sm:text-lg text-ink/80 mt-0.5">Fair launches. Community first. Built on Robinhood Chain.</p>
 
         <!-- feature blurbs -->
-        <div class="grid sm:grid-cols-3 gap-4 mt-8">
-          <div class="bg-paper2/70 sketch rough-shadow-sm p-4">
-            <span class="inline-flex items-center justify-center w-10 h-10 border-2 border-ink rounded-full bg-mustard text-ink text-xl">
+        <div class="grid sm:grid-cols-3 gap-3 mt-5">
+          <div class="bg-paper2/70 sketch rough-shadow-sm p-3">
+            <span class="inline-flex items-center justify-center w-8 h-8 border-2 border-ink rounded-full bg-mustard text-ink text-base">
               <svg class="ic" aria-hidden="true"><use href="#ic-scales"/></svg>
             </span>
-            <h3 class="font-marker text-forest text-lg mt-3">Fair Launch</h3>
-            <p class="font-hand text-base text-ink/80 leading-snug mt-1">No presale. No VC. Just the community.</p>
+            <h3 class="font-marker text-forest text-base mt-2">Fair Launch</h3>
+            <p class="font-hand text-sm text-ink/80 leading-snug mt-0.5">No presale. No VC. Just the community.</p>
           </div>
-          <div class="bg-paper2/70 sketch-2 rough-shadow-sm p-4">
-            <span class="inline-flex items-center justify-center w-10 h-10 border-2 border-ink rounded-full bg-forest text-paper text-xl">
+          <div class="bg-paper2/70 sketch-2 rough-shadow-sm p-3">
+            <span class="inline-flex items-center justify-center w-8 h-8 border-2 border-ink rounded-full bg-forest text-paper text-base">
               <svg class="ic" aria-hidden="true"><use href="#ic-shield"/></svg>
             </span>
-            <h3 class="font-marker text-forest text-lg mt-3">Safe &amp; Transparent</h3>
-            <p class="font-hand text-base text-ink/80 leading-snug mt-1">LP locked. Verified contracts. Rugproof by design.</p>
+            <h3 class="font-marker text-forest text-base mt-2">Safe &amp; Transparent</h3>
+            <p class="font-hand text-sm text-ink/80 leading-snug mt-0.5">LP locked. Verified contracts. Rugproof by design.</p>
           </div>
-          <div class="bg-paper2/70 sketch rough-shadow-sm p-4">
-            <span class="inline-flex items-center justify-center w-10 h-10 border-2 border-ink rounded-full bg-brown text-paper text-xl">
+          <div class="bg-paper2/70 sketch rough-shadow-sm p-3">
+            <span class="inline-flex items-center justify-center w-8 h-8 border-2 border-ink rounded-full bg-brown text-paper text-base">
               <svg class="ic" aria-hidden="true"><use href="#ic-users"/></svg>
             </span>
-            <h3 class="font-marker text-forest text-lg mt-3">Community Powered</h3>
-            <p class="font-hand text-base text-ink/80 leading-snug mt-1">Vote, support and pump the next big meme.</p>
+            <h3 class="font-marker text-forest text-base mt-2">Community Powered</h3>
+            <p class="font-hand text-sm text-ink/80 leading-snug mt-0.5">Vote, support and pump the next big meme.</p>
           </div>
         </div>
       </div>
 
       <!-- create your meme card -->
-      <aside class="relative bg-paper2 sketch rough-shadow p-5 md:p-6 w-full max-w-md mx-auto lg:mx-0 lg:sticky lg:top-24">
+      <aside class="relative bg-paper2 sketch rough-shadow p-4 md:p-5 w-full max-w-sm mx-auto lg:mx-0 lg:sticky lg:top-20">
         <span class="pin"></span>
-        <h2 class="font-marker text-forest text-2xl md:text-3xl mt-1">Create your meme</h2>
-        <p class="font-caveat text-xl text-brown mt-1">Launch your idea to the forest.</p>
+        <h2 class="font-marker text-forest text-xl md:text-2xl mt-1">Create your meme</h2>
+        <p class="font-caveat text-lg text-brown mt-0.5">Launch your idea to the forest.</p>
 
-        <ul class="mt-4 space-y-2.5">
-          <li class="flex items-start gap-2.5 font-hand text-lg leading-snug">
-            <svg class="ic text-xl text-forest2 shrink-0 mt-0.5" aria-hidden="true"><use href="#ic-check"/></svg>
+        <ul class="mt-3 space-y-1.5">
+          <li class="flex items-start gap-2 font-hand text-base leading-snug">
+            <svg class="ic text-lg text-forest2 shrink-0 mt-0.5" aria-hidden="true"><use href="#ic-check"/></svg>
             <span>Fair launch on Robinhood Chain</span>
           </li>
-          <li class="flex items-start gap-2.5 font-hand text-lg leading-snug">
-            <svg class="ic text-xl text-forest2 shrink-0 mt-0.5" aria-hidden="true"><use href="#ic-check"/></svg>
+          <li class="flex items-start gap-2 font-hand text-base leading-snug">
+            <svg class="ic text-lg text-forest2 shrink-0 mt-0.5" aria-hidden="true"><use href="#ic-check"/></svg>
             <span>Locked liquidity</span>
           </li>
-          <li class="flex items-start gap-2.5 font-hand text-lg leading-snug">
-            <svg class="ic text-xl text-forest2 shrink-0 mt-0.5" aria-hidden="true"><use href="#ic-check"/></svg>
+          <li class="flex items-start gap-2 font-hand text-base leading-snug">
+            <svg class="ic text-lg text-forest2 shrink-0 mt-0.5" aria-hidden="true"><use href="#ic-check"/></svg>
             <span>Verified &amp; community driven</span>
           </li>
-          <li class="flex items-start gap-2.5 font-hand text-lg leading-snug">
-            <svg class="ic text-xl text-forest2 shrink-0 mt-0.5" aria-hidden="true"><use href="#ic-check"/></svg>
+          <li class="flex items-start gap-2 font-hand text-base leading-snug">
+            <svg class="ic text-lg text-forest2 shrink-0 mt-0.5" aria-hidden="true"><use href="#ic-check"/></svg>
             <span>Get your meme in front of degens</span>
           </li>
         </ul>
 
         <a href="/launchpad/create.html"
-          class="mt-6 w-full sketch-2 bg-mustard text-ink font-marker text-xl md:text-2xl px-5 py-3 rough-shadow-sm hover:bg-forest hover:text-paper transition inline-flex items-center justify-center gap-2">
+          class="mt-4 w-full sketch-2 bg-mustard text-ink font-marker text-lg md:text-xl px-4 py-2.5 rough-shadow-sm hover:bg-forest hover:text-paper transition inline-flex items-center justify-center gap-2">
           LAUNCH A MEME
-          <svg class="ic text-2xl" aria-hidden="true"><use href="#ic-arrow"/></svg>
+          <svg class="ic text-xl" aria-hidden="true"><use href="#ic-arrow"/></svg>
         </a>
 
-        <p class="font-caveat text-xl text-brown text-center mt-2">Launch fee: 0.0005 ETH (illustrative)</p>
-        <p class="font-hand text-xs text-ink/55 text-center mt-3 leading-snug">
+        <p class="font-caveat text-lg text-brown text-center mt-1.5">Launch fee: 0.0005 ETH (illustrative)</p>
+        <p class="font-hand text-[11px] text-ink/55 text-center mt-2 leading-snug">
           Opens the launch form — a UI preview. No contract is deployed, no wallet is touched and no fee is charged.
         </p>
       </aside>
     </div>
   </section>
 
+  <!-- ============ graduated ============ -->
+  <!-- The memes that already filled their curve. They live here instead of in
+       the board below, so the board only ever shows what is still running. -->
+  <section id="graduated" class="max-w-[75rem] mx-auto px-5 sm:px-8 lg:px-[3.75rem] pt-2" hidden>
+    <div class="bg-paper2 sketch-2 rough-shadow-sm px-3 py-2.5 sm:px-3.5">
+      <h2 class="font-marker text-forest text-sm flex items-center gap-2 -rotate-1">
+        <span class="inline-flex items-center justify-center w-6 h-6 border-2 border-ink rounded-full bg-mustard text-ink text-[11px] shrink-0">
+          <svg class="ic" aria-hidden="true"><use href="#ic-flag"/></svg>
+        </span>
+        <span>GRADUATED <span class="num text-xs text-ink/55" data-grad-count></span></span>
+      </h2>
+
+      <!-- ten per page: five across, two rows -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mt-2" data-grad-grid></div>
+
+      <div class="flex items-center justify-center gap-2 mt-2.5" data-grad-pager hidden>
+        <button type="button" class="grad-page font-marker text-[11px] px-2.5 py-1 border-2 border-ink rounded-full bg-paper rough-shadow-sm" data-grad-prev>&larr; Prev</button>
+        <span class="num text-xs text-ink/70" data-grad-pageinfo></span>
+        <button type="button" class="grad-page font-marker text-[11px] px-2.5 py-1 border-2 border-ink rounded-full bg-paper rough-shadow-sm" data-grad-next>Next &rarr;</button>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ toolbar ============ -->
-  <section class="max-w-[75rem] mx-auto px-5 sm:px-8 lg:px-[3.75rem] pt-4 pb-2">
-    <div class="bg-paper2 sketch rough-shadow-sm p-3 sm:p-4 flex flex-col lg:flex-row lg:items-center gap-3">
+  <section class="max-w-[75rem] mx-auto px-5 sm:px-8 lg:px-[3.75rem] pt-3 pb-2">
+    <div class="bg-paper2 sketch rough-shadow-sm px-2.5 py-2 sm:px-3 sm:py-2.5 flex flex-col lg:flex-row lg:items-center gap-2">
 
       <!-- sort pills -->
-      <div role="group" aria-label="Sort memes" class="flex flex-wrap gap-2 lg:flex-1">
-        <button type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-sort="buys" aria-pressed="true">Recent buys</button>
-        <button type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-sort="newest" aria-pressed="false">Newest</button>
-        <button type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-sort="oldest" aria-pressed="false">Oldest</button>
-        <button type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-sort="mcap" aria-pressed="false">Market cap</button>
-        <button type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-sort="volume" aria-pressed="false">Volume</button>
+      <div role="group" aria-label="Sort memes" class="flex flex-wrap gap-1.5 lg:flex-1">
+        <button type="button" class="tab-pill font-marker text-xs sm:text-sm px-3 py-1.5 border-2 border-ink rounded-full rough-shadow-sm" data-sort="buys" aria-pressed="true">Recent buys</button>
+        <button type="button" class="tab-pill font-marker text-xs sm:text-sm px-3 py-1.5 border-2 border-ink rounded-full rough-shadow-sm" data-sort="newest" aria-pressed="false">Newest</button>
+        <button type="button" class="tab-pill font-marker text-xs sm:text-sm px-3 py-1.5 border-2 border-ink rounded-full rough-shadow-sm" data-sort="oldest" aria-pressed="false">Oldest</button>
+        <button type="button" class="tab-pill font-marker text-xs sm:text-sm px-3 py-1.5 border-2 border-ink rounded-full rough-shadow-sm" data-sort="mcap" aria-pressed="false">Market cap</button>
+        <button type="button" class="tab-pill font-marker text-xs sm:text-sm px-3 py-1.5 border-2 border-ink rounded-full rough-shadow-sm" data-sort="volume" aria-pressed="false">Volume</button>
       </div>
 
       <!-- period pills -->
-      <div role="group" aria-label="Filter by period" class="flex flex-wrap gap-2">
-        <button type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-period="all" aria-pressed="true">All</button>
-        <button type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-period="24h" aria-pressed="false">24h</button>
-        <button type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-period="7d" aria-pressed="false">7d</button>
+      <div role="group" aria-label="Filter by period" class="flex flex-wrap gap-1.5">
+        <button type="button" class="tab-pill font-marker text-xs sm:text-sm px-3 py-1.5 border-2 border-ink rounded-full rough-shadow-sm" data-period="all" aria-pressed="true">All</button>
+        <button type="button" class="tab-pill font-marker text-xs sm:text-sm px-3 py-1.5 border-2 border-ink rounded-full rough-shadow-sm" data-period="24h" aria-pressed="false">24h</button>
+        <button type="button" class="tab-pill font-marker text-xs sm:text-sm px-3 py-1.5 border-2 border-ink rounded-full rough-shadow-sm" data-period="7d" aria-pressed="false">7d</button>
       </div>
 
       <!-- search -->
-      <div class="relative w-full lg:w-56">
-        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-ink/55 text-xl pointer-events-none">
+      <div class="relative w-full lg:w-48">
+        <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink/55 text-base pointer-events-none">
           <svg class="ic" aria-hidden="true"><use href="#ic-search"/></svg>
         </span>
         <label class="sr-only" for="meme-search">Search memes</label>
         <input id="meme-search" type="search" autocomplete="off" placeholder="Search memes..."
-          class="w-full font-hand text-lg bg-paper border-2 border-ink rounded-full pl-10 pr-3 py-2 outline-none focus:ring-2 focus:ring-mustard placeholder:text-ink/45" />
+          class="w-full font-hand text-base bg-paper border-2 border-ink rounded-full pl-8 pr-3 py-1 outline-none focus:ring-2 focus:ring-mustard placeholder:text-ink/45" />
       </div>
     </div>
 
-    <p class="font-caveat text-xl text-brown mt-2 px-1" id="result-count" aria-live="polite"></p>
+    <p class="font-caveat text-lg text-brown mt-1.5 px-1" id="result-count" aria-live="polite"></p>
   </section>
 
   <!-- ============ grid ============ -->
@@ -284,7 +317,7 @@
 
     <div id="empty-state" hidden class="bg-paper2 sketch rough-shadow-sm p-8 text-center mt-6">
       <p class="font-marker text-2xl text-forest">Nothing in these woods</p>
-      <p class="font-hand text-lg text-ink/70 mt-2">No meme matches that filter. Try another tab or clear the search.</p>
+      <p class="font-hand text-lg text-ink/70 mt-2">No live meme matches that filter. Try another period or clear the search.</p>
     </div>
   </section>
 
@@ -355,7 +388,7 @@
   </div>
 </div>
 
-<script src="/launchpad.js?v=5"></script>
+<script src="/launchpad.js?v=10"></script>
 <script>
 (function () {
   'use strict';
@@ -375,6 +408,8 @@
   function fAgo(t)  { try { return F.ago ? F.ago(t) : ''; } catch (e) { return ''; } }
   function fUsd(n)  { try { return F.usd ? F.usd(n) : '$' + n; } catch (e) { return '$' + n; } }
   function fAddr(a) { try { return F.addr ? F.addr(a) : String(a || ''); } catch (e) { return String(a || ''); } }
+  // a signed delta, unlike fFunded above — fmt.pct already adds the +/-
+  function fPct(n)  { try { return F.pct ? F.pct(n) : (+n).toFixed(2) + '%'; } catch (e) { return n + '%'; } }
   function fComp(n) { try { return F.compact ? F.compact(n) : String(n); } catch (e) { return String(n); } }
   function avatarSvg(meme, size) {
     try { return (LP && LP.avatar) ? LP.avatar(meme, size) : ''; } catch (e) { return ''; }
@@ -399,9 +434,10 @@
   /* ---------------------------------------------------------------
      status vocabulary
   --------------------------------------------------------------- */
+  /* The board only lists memes that are still on their curve. Graduated ones
+     are not repeated here — they get the strip above the toolbar. */
   var SECTIONS = [
-    { key: 'live',     title: 'LIVE NOW', icon: '#ic-spark' },
-    { key: 'finished', title: 'FINISHED', icon: '#ic-flag'  }
+    { key: 'live', title: 'LIVE NOW', icon: '#ic-spark' }
   ];
 
   var STATUS = {
@@ -455,25 +491,22 @@
           '</div>' +
         '</div>' +
 
-        // body
-        '<div class="p-3 sm:p-3.5 flex flex-col flex-1">' +
-          '<h3 class="font-marker text-base sm:text-lg text-forest leading-tight card-title">' + esc(meme.name) + '</h3>' +
-          '<p class="font-hand text-base text-brown leading-none mt-0.5">$' + esc(meme.symbol) + '</p>' +
+        // body — every figure below is .num, because Permanent Marker digits collide
+        '<div class="p-2.5 flex flex-col flex-1">' +
+          '<h3 class="font-marker text-sm sm:text-[15px] text-forest leading-tight card-title">' + esc(meme.name) + '</h3>' +
+          '<p class="num text-sm text-brown leading-none mt-0.5">$' + esc(meme.symbol) + '</p>' +
 
-          '<p class="font-marker text-xl text-ink leading-none mt-1.5">' + esc(fUsd(meme.marketCap)) +
-            '<span class="font-hand text-base text-brown ml-1.5">MC</span></p>' +
+          '<p class="num text-lg text-ink leading-none mt-1.5">' + esc(fUsd(meme.marketCap)) +
+            '<span class="font-hand text-xs text-brown ml-1">MC</span></p>' +
 
-          '<div class="mt-3">' +
-            '<div class="flex items-center gap-2">' +
-              '<div class="bar-track flex-1" role="img" aria-label="' + esc(fFunded(pct)) + ' to graduation">' +
-                '<div class="bar-fill" style="width:' + pct.toFixed(1) + '%;background:' + st.fill + '"></div>' +
-              '</div>' +
-              '<span class="font-marker text-base text-ink shrink-0">' + Math.round(pct) + '%</span>' +
+          '<div class="mt-3 flex items-center gap-2">' +
+            '<div class="bar-track flex-1" role="img" aria-label="' + esc(fFunded(pct)) + ' to graduation">' +
+              '<div class="bar-fill" style="width:' + pct.toFixed(1) + '%;background:' + st.fill + '"></div>' +
             '</div>' +
-            '<p class="font-caveat text-lg text-brown mt-0.5">graduating</p>' +
+            '<span class="num text-sm text-ink shrink-0">' + Math.round(pct) + '%</span>' +
           '</div>' +
 
-          '<div class="mt-auto pt-3 flex items-center justify-between gap-2 font-hand text-sm">' +
+          '<div class="mt-auto pt-3 flex items-center justify-between gap-1.5 num text-xs">' +
             '<span class="text-ink/60 truncate" title="' + esc(meme.contract) + '">' + esc(fAddr(meme.contract)) + '</span>' +
             '<span class="text-forest shrink-0">' + esc(lastTxt) + '</span>' +
           '</div>' +
@@ -498,6 +531,82 @@
   }
 
   /* ---------------------------------------------------------------
+     graduated strip
+  --------------------------------------------------------------- */
+  /* biggest first — a graduated meme has no race left to run, so market cap
+     is the only ranking that still means anything */
+  var GRADUATED = MEMES
+    .filter(function (m) { return statusOf(m) === 'finished'; })
+    .sort(function (a, b) { return (b.marketCap || 0) - (a.marketCap || 0); });
+
+  /* everything the toolbar and the grid operate on */
+  var BOARD = MEMES.filter(function (m) { return statusOf(m) !== 'finished'; });
+
+  var GRAD_PER_PAGE = 10;          /* five across, two rows */
+  var gradPage = 0;
+
+  function gradChipHtml(meme) {
+    var bg = (meme.avatar && meme.avatar.bg) ? meme.avatar.bg : '#a8d5a2';
+    var ch = Number(meme.change24h) || 0;
+    var tone = ch > 0 ? 'text-forest2' : (ch < 0 ? 'text-crayred' : 'text-ink/60');
+    return '' +
+      '<a class="grad-chip flex flex-col gap-1 bg-paper border-2 border-ink rounded-xl px-2 py-1.5 rough-shadow-sm" ' +
+        'href="/launchpad/meme.html?id=' + encodeURIComponent(meme.id) + '">' +
+        '<span class="flex items-center gap-1.5 min-w-0">' +
+          '<span class="grad-ava" style="background:' + esc(bg) + '" aria-hidden="true">' + avatarSvg(meme, 26) + '</span>' +
+          '<span class="min-w-0 leading-none">' +
+            '<span class="block font-marker text-[11px] text-forest truncate">' + esc(meme.name) + '</span>' +
+            '<span class="block num text-[11px] text-brown mt-0.5 truncate">$' + esc(meme.symbol) + '</span>' +
+          '</span>' +
+        '</span>' +
+        '<span class="flex items-baseline justify-between gap-1 leading-none">' +
+          '<span class="num text-xs text-ink truncate">' + esc(fUsd(meme.marketCap)) + '</span>' +
+          '<span class="num text-xs ' + tone + ' shrink-0">' + esc(fPct(ch)) + '</span>' +
+        '</span>' +
+      '</a>';
+  }
+
+  var gradEl = document.getElementById('graduated');
+  var gradGridEl = gradEl ? gradEl.querySelector('[data-grad-grid]') : null;
+  var gradCountEl = gradEl ? gradEl.querySelector('[data-grad-count]') : null;
+  var gradPagerEl = gradEl ? gradEl.querySelector('[data-grad-pager]') : null;
+  var gradPrevEl = gradEl ? gradEl.querySelector('[data-grad-prev]') : null;
+  var gradNextEl = gradEl ? gradEl.querySelector('[data-grad-next]') : null;
+  var gradInfoEl = gradEl ? gradEl.querySelector('[data-grad-pageinfo]') : null;
+
+  /* The panel answers to the search box only: sort and period describe the
+     live board underneath. */
+  function renderGraduated() {
+    if (!gradEl || !gradGridEl) return 0;
+
+    var list = GRADUATED.filter(function (m) {
+      return textMatches(m) && withinPeriod(m.endsAt);
+    });
+    var pages = Math.max(1, Math.ceil(list.length / GRAD_PER_PAGE));
+    if (gradPage > pages - 1) gradPage = pages - 1;
+    if (gradPage < 0) gradPage = 0;
+
+    var start = gradPage * GRAD_PER_PAGE;
+    gradGridEl.innerHTML = list.slice(start, start + GRAD_PER_PAGE).map(gradChipHtml).join('');
+
+    if (gradCountEl) gradCountEl.textContent = '(' + list.length + ')';
+    if (gradPagerEl) gradPagerEl.hidden = pages < 2;
+    if (gradInfoEl) gradInfoEl.textContent = (gradPage + 1) + ' / ' + pages;
+    if (gradPrevEl) gradPrevEl.disabled = gradPage === 0;
+    if (gradNextEl) gradNextEl.disabled = gradPage >= pages - 1;
+
+    gradEl.hidden = list.length === 0;
+    return list.length;
+  }
+
+  function turnGradPage(delta) {
+    gradPage += delta;
+    renderGraduated();
+  }
+  if (gradPrevEl) gradPrevEl.addEventListener('click', function () { turnGradPage(-1); });
+  if (gradNextEl) gradNextEl.addEventListener('click', function () { turnGradPage(1); });
+
+  /* ---------------------------------------------------------------
      filtering + sorting
   --------------------------------------------------------------- */
   var state = { q: '', sort: 'buys', period: 'all' };
@@ -516,9 +625,14 @@
     }
     return m._lastBuy;
   }
-  function lastActivity(m) {
-    var t = (m.trades || []).reduce(function (mx, x) { return Math.max(mx, +x.ts || 0); }, 0);
-    return t || m.endsAt || m.startsAt || 0;
+  /* The period pills are a recency filter over the whole page: on the board
+     they scope by launch time, in the graduated panel by the moment the meme
+     filled its curve. They deliberately do NOT look at trade timestamps —
+     every demo trade is minutes old by construction, so all three windows
+     would return exactly the same rows and the pills would do nothing. */
+  function withinPeriod(ts) {
+    var win = PERIOD_MS[state.period];
+    return !win || (Date.now() - (+ts || 0)) <= win;
   }
 
   var SORTERS = {
@@ -531,12 +645,14 @@
 
   var PERIOD_MS = { '24h': 24 * 3600e3, '7d': 7 * 24 * 3600e3 };
 
-  function matches(meme) {
-    var win = PERIOD_MS[state.period];
-    if (win && (Date.now() - lastActivity(meme)) > win) return false;
+  function textMatches(meme) {
     if (!state.q) return true;
-    var hay = [meme.name, meme.tagline, meme.id, meme.about].join(' ').toLowerCase();
+    var hay = [meme.name, meme.symbol, meme.tagline, meme.id, meme.about].join(' ').toLowerCase();
     return hay.indexOf(state.q) !== -1;
+  }
+
+  function matches(meme) {
+    return withinPeriod(meme.startsAt) && textMatches(meme);
   }
 
   var sectionsEl = document.getElementById('meme-sections');
@@ -552,10 +668,13 @@
         '</div>';
       emptyEl.hidden = true;
       countEl.textContent = '';
+      if (gradEl) gradEl.hidden = true;
       return;
     }
 
-    var visible = MEMES.filter(matches).sort(SORTERS[state.sort] || SORTERS.newest);
+    renderGraduated();
+
+    var visible = BOARD.filter(matches).sort(SORTERS[state.sort] || SORTERS.newest);
 
     var html = SECTIONS
       .map(function (sec) {
@@ -568,7 +687,7 @@
     emptyEl.hidden = visible.length > 0;
 
     countEl.textContent = visible.length
-      ? 'Showing ' + visible.length + ' of ' + MEMES.length + ' demo memes'
+      ? 'Showing ' + visible.length + ' of ' + BOARD.length + ' demo memes'
       : '';
 
     tickCountdowns();
@@ -598,6 +717,7 @@
       btn.addEventListener('click', function () {
         state[key] = btn.getAttribute(attr);
         pills.forEach(function (b) { b.setAttribute('aria-pressed', String(b === btn)); });
+        gradPage = 0;          /* a new filter means a new first page */
         render();
       });
     });
@@ -608,6 +728,7 @@
   var searchEl = document.getElementById('meme-search');
   searchEl.addEventListener('input', function () {
     state.q = searchEl.value.trim().toLowerCase();
+    gradPage = 0;              /* a new query means a new first page */
     render();
   });
 

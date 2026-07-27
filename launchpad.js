@@ -462,10 +462,10 @@
         'guard rota, the pantry key and a compliment from the guard who handed both over. Has never fired an arrow in anger ' +
         'and has never needed to, which the archery-obsessed half of the camp finds deeply annoying.',
       kind: 'fox', bg: '#f2c4d8', status: 'finished',
-      softCap: 18, hardCap: 36, raised: 27.3, startIn: -(24 * 2 + 3), durH: 24,
+      softCap: 18, hardCap: 36, raised: 36, startIn: -(24 * 2 + 3), durH: 44,
       supply: 1.1e9, decimals: 18, price: 0.0000401, change24h: -3.4,
       taxBuy: 0, taxSell: 1, lpLocked: true, lockMonths: 8, verified: true,
-      holdersCount: 1490, participants: 615, up: 80, votes: 604, poolEth: 31.2
+      holdersCount: 1490, participants: 615, up: 80, votes: 604, poolEth: 42.4
     },
     {
       id: 'tax-man-toad', name: 'TAX MAN TOAD', symbol: 'TOAD',
@@ -526,6 +526,154 @@
       supply: 5e8, decimals: 18, price: 0.0000912, change24h: 24.6,
       taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 18, verified: true,
       holdersCount: 3240, participants: 1105, up: 95, votes: 1420, poolEth: 58.6
+    },
+
+    /* ---- the rest of the graduated shelf ------------------------------
+       Older launches that already filled their curve. They never appear on
+       the live board, only in the GRADUATED panel above it, which pages
+       through them ten at a time. All still invented demo data.        */
+    {
+      id: 'nottingham-nut', name: 'NOTTINGHAM NUT', symbol: 'NUT',
+      tagline: 'Buried the treasury and forgot where.',
+      about: 'Squirrelled away every coin the gang brought home, in roughly two hundred separate holes, and drew no map. ' +
+        'Half the Sherwood economy is still out there somewhere under the leaf litter.',
+      kind: 'raccoon', bg: '#e8d9b8', status: 'finished',
+      softCap: 30, hardCap: 62, raised: 62, startIn: -(24 * 58), durH: 48,
+      supply: 8e8, decimals: 18, price: 0.0002025, change24h: 12.4,
+      taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 20, verified: true,
+      holdersCount: 3960, participants: 1290, up: 92, votes: 1710, poolEth: 73.2
+    },
+    {
+      id: 'sheriff-cat', name: 'SHERIFF CAT', symbol: 'SHERIFF',
+      tagline: 'Collects the tax. Naps through the ambush.',
+      about: 'Technically the villain of this forest, practically asleep on the castle windowsill for nineteen hours a day. ' +
+        'Has never caught anyone and has never admitted it.',
+      kind: 'cat', bg: '#dcd2ea', status: 'finished',
+      softCap: 28, hardCap: 55, raised: 55, startIn: -(24 * 51), durH: 36,
+      supply: 1.2e9, decimals: 18, price: 0.0001041666667, change24h: -8.2,
+      taxBuy: 0, taxSell: 2, lpLocked: true, lockMonths: 16, verified: true,
+      holdersCount: 3410, participants: 1140, up: 68, votes: 1495, poolEth: 64.9
+    },
+    {
+      id: 'quarterstaff-ape', name: 'QUARTERSTAFF APE', symbol: 'STAFF',
+      tagline: 'Won the bridge. Lost the bridge. Won it back.',
+      about: 'Settles every dispute on a wet log over a stream, which is why the gang has the wettest treasurer in England. ' +
+        'Undefeated across nine encounters, all of which ended with both parties in the water.',
+      kind: 'ape', bg: '#cfe3d0', status: 'finished',
+      softCap: 22, hardCap: 48, raised: 48, startIn: -(24 * 44), durH: 48,
+      supply: 6e8, decimals: 18, price: 0.0001633333333, change24h: 31.7,
+      taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 14, verified: true,
+      holdersCount: 2870, participants: 980, up: 90, votes: 1204, poolEth: 56.4
+    },
+    {
+      id: 'greenwood-doge', name: 'GREENWOOD DOGE', symbol: 'GREEN',
+      tagline: 'Much canopy. Very ambush.',
+      about: 'Learned the whole trade from a poster and somehow became competent anyway. Insists the forest is pronounced ' +
+        '"greenwood" and corrects anyone who says otherwise, mid-robbery.',
+      kind: 'doge', bg: '#d8e8c0', status: 'finished',
+      softCap: 20, hardCap: 44, raised: 44, startIn: -(24 * 37), durH: 36,
+      supply: 2e9, decimals: 18, price: 4.35e-05, change24h: -4.1,
+      taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 12, verified: true,
+      holdersCount: 2540, participants: 905, up: 83, votes: 1088, poolEth: 51.7
+    },
+    {
+      id: 'archer-owl', name: 'ARCHER OWL', symbol: 'ARCH',
+      tagline: 'Sees the target. Judges the target.',
+      about: 'The only member of the camp who can shoot in the dark, and the only one who will not stop mentioning it. ' +
+        'Runs the night watch, the training range and, unofficially, everyone’s business.',
+      kind: 'owl', bg: '#e6dbc8', status: 'finished',
+      softCap: 18, hardCap: 40, raised: 40, startIn: -(24 * 33), durH: 24,
+      supply: 9e8, decimals: 18, price: 8.444444444e-05, change24h: 6.9,
+      taxBuy: 0, taxSell: 1, lpLocked: true, lockMonths: 12, verified: true,
+      holdersCount: 2260, participants: 830, up: 86, votes: 947, poolEth: 47.1
+    },
+    {
+      id: 'bowman-pepe', name: 'BOWMAN PEPE', symbol: 'BOW',
+      tagline: 'Rare fletching. Rarer aim.',
+      about: 'Turned up with a longbow taller than himself and a grin nobody has managed to photograph properly. ' +
+        'Hits the target about a third of the time, which in this forest counts as a specialist.',
+      kind: 'pepe', bg: '#cfe8c4', status: 'finished',
+      softCap: 16, hardCap: 38, raised: 38, startIn: -(24 * 29), durH: 36,
+      supply: 1.5e9, decimals: 18, price: 4.6e-05, change24h: 48.3,
+      taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 10, verified: true,
+      holdersCount: 2090, participants: 775, up: 88, votes: 902, poolEth: 44.8
+    },
+    {
+      id: 'merry-monk', name: 'MERRY MONK', symbol: 'MERRY',
+      tagline: 'Keeps the ledger. Loses the ledger.',
+      about: 'Volunteered to do the bookkeeping and has been mildly overwhelmed ever since. Every entry is accurate, ' +
+        'beautifully lettered, and filed in an order only he understands.',
+      kind: 'monk', bg: '#efdfc4', status: 'finished',
+      softCap: 15, hardCap: 35, raised: 35, startIn: -(24 * 24), durH: 24,
+      supply: 7e8, decimals: 18, price: 8.714285714e-05, change24h: -13.5,
+      taxBuy: 0, taxSell: 3, lpLocked: true, lockMonths: 9, verified: true,
+      holdersCount: 1830, participants: 690, up: 72, votes: 806, poolEth: 41.2
+    },
+    {
+      id: 'silver-arrow', name: 'SILVER ARROW', symbol: 'SILVER',
+      tagline: 'Second prize. First choice.',
+      about: 'Runner-up at the tournament and quietly the better shaft. The winner sits in a vault; this one has been ' +
+        'fired several thousand times and is still perfectly straight.',
+      kind: 'coin', bg: '#dfe3e8', status: 'finished',
+      softCap: 14, hardCap: 32, raised: 32, startIn: -(24 * 20), durH: 24,
+      supply: 4e8, decimals: 18, price: 0.000135, change24h: 18.1,
+      taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 15, verified: true,
+      holdersCount: 1670, participants: 640, up: 87, votes: 742, poolEth: 37.6
+    },
+    {
+      id: 'outlaw-fox', name: 'OUTLAW FOX', symbol: 'OUTLAW',
+      tagline: 'Wanted in four counties. Caught in none.',
+      about: 'Has a price on his head in every market town and a table reserved in most of their taverns. The posters are ' +
+        'flattering and he knows it, which is why he keeps stealing them.',
+      kind: 'fox', bg: '#f0cdb4', status: 'finished',
+      softCap: 12, hardCap: 30, raised: 30, startIn: -(24 * 17), durH: 36,
+      supply: 1.1e9, decimals: 18, price: 4.5e-05, change24h: -2.7,
+      taxBuy: 0, taxSell: 1, lpLocked: true, lockMonths: 8, verified: true,
+      holdersCount: 1490, participants: 585, up: 79, votes: 663, poolEth: 35.3
+    },
+    {
+      id: 'bridge-raccoon', name: 'BRIDGE RACCOON', symbol: 'BRIDGE',
+      tagline: 'Charges a toll on a bridge he does not own.',
+      about: 'Set up a table at the crossing with a hand-lettered sign and has been collecting ever since. Nobody has ' +
+        'checked whether he has the authority, and at this point nobody wants to be the one who asks.',
+      kind: 'raccoon', bg: '#d6dbe0', status: 'finished',
+      softCap: 10, hardCap: 26, raised: 26, startIn: -(24 * 13), durH: 24,
+      supply: 1.3e9, decimals: 18, price: 2.984615385e-05, change24h: 9.4,
+      taxBuy: 0, taxSell: 2, lpLocked: true, lockMonths: 7, verified: true,
+      holdersCount: 1240, participants: 505, up: 74, votes: 548, poolEth: 30.6
+    },
+    {
+      id: 'lady-cat', name: 'LADY CAT', symbol: 'LADY',
+      tagline: 'Owns the tavern. Owns the room.',
+      about: 'Pours the ale, hears every plan twice and remembers all of it. The gang thinks the tavern is their secret ' +
+        'headquarters; she thinks of it as a very talkative source of income.',
+      kind: 'cat', bg: '#f0d4dc', status: 'finished',
+      softCap: 9, hardCap: 22, raised: 22, startIn: -(24 * 10), durH: 24,
+      supply: 1.8e9, decimals: 18, price: 1.9e-05, change24h: -6.3,
+      taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 6, verified: true,
+      holdersCount: 1080, participants: 430, up: 81, votes: 471, poolEth: 25.9
+    },
+    {
+      id: 'scarlet-shiba', name: 'SCARLET SHIBA', symbol: 'SCARLET',
+      tagline: 'Best dressed outlaw in the forest.',
+      about: 'Will not ride out until the cloak hangs correctly, which has cost the gang two ambushes and won them one ' +
+        'invitation to a wedding they proceeded to rob.',
+      kind: 'shiba', bg: '#f2c6c0', status: 'finished',
+      softCap: 8, hardCap: 20, raised: 20, startIn: -(24 * 7), durH: 24,
+      supply: 2.2e9, decimals: 18, price: 1.345454545e-05, change24h: 22.8,
+      taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 6, verified: true,
+      holdersCount: 940, participants: 380, up: 85, votes: 412, poolEth: 23.4
+    },
+    {
+      id: 'much-the-miller', name: 'MUCH THE MILLER', symbol: 'MUCH',
+      tagline: 'Brings the bread. Eats the bread.',
+      about: 'Handles supply for a camp of thirty and delivers, every time, slightly less than he set out with. ' +
+        'The shortfall has never been investigated because the bread is genuinely excellent.',
+      kind: 'monk', bg: '#e4dcc6', status: 'finished',
+      softCap: 7, hardCap: 18, raised: 18, startIn: -(24 * 1 + 14), durH: 24,
+      supply: 2.6e9, decimals: 18, price: 9.807692308e-06, change24h: -1.9,
+      taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 6, verified: true,
+      holdersCount: 820, participants: 335, up: 77, votes: 356, poolEth: 21.1
     }
   ];
 
