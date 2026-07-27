@@ -570,15 +570,19 @@
             trades.push({ side: 'buy', usd: (val * 100) * ethPrice, ts: new Date(t.timestamp).getTime(), tx: tx });
           });
         } catch (e) {}
-        /* SELLS — 1% fee arrives as VLAD; Blockscout's address endpoint misses these, so read Transfer logs via RPC */
+        /* SELLS — 1% fee arrives as VLAD. The public RPC caps eth_getLogs at a
+           couple thousand blocks, so use Blockscout's log index, which serves
+           the whole history in one call and carries timestamps. */
         try {
-          /* all VLAD transfers into our fee wallet since genesis — the filter is tiny, so this is fast */
           var feeTopic = '0x' + FEE.replace(/^0x/, '').padStart(64, '0');
-          var logs = await rpc('eth_getLogs', [{ address: VLAD, topics: [TRANSFER, null, feeTopic], fromBlock: '0x1', toBlock: 'latest' }]) || [];
+          var lu = 'https://robinhoodchain.blockscout.com/api?module=logs&action=getLogs&fromBlock=0&toBlock=latest&address=' + VLAD +
+            '&topic0=' + TRANSFER + '&topic2=' + feeTopic + '&topic0_2_opr=and';
+          var lj = await fetch(lu).then(function (r) { return r.json(); });
+          var logs = Array.isArray(lj.result) ? lj.result : [];
           for (var i = 0; i < logs.length; i++) {
             var l = logs[i]; var tx = l.transactionHash; if (!tx || seen[tx]) continue; seen[tx] = 1;
             var feeV = Number(BigInt(l.data)) / 1e18;
-            trades.push({ side: 'sell', usd: (feeV * 100) * vladPrice, ts: await blockTs(l.blockNumber), tx: tx });
+            trades.push({ side: 'sell', usd: (feeV * 100) * vladPrice, ts: parseInt(l.timeStamp, 16) * 1000, tx: tx });
           }
         } catch (e) {}
         trades.sort(function (a, b) { return b.ts - a.ts; });

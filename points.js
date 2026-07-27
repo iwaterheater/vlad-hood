@@ -107,12 +107,19 @@
     var px = await prices();
     var raw = [];                                     /* {tx, side, eth?, vlad?} */
 
-    /* sells — 1% fee arrives as VLAD */
+    /* sells — 1% fee arrives as VLAD. Served by Blockscout's log index: the
+       public RPC caps eth_getLogs at a couple thousand blocks. */
     try {
       var feeTopic = '0x' + FEE_WALLET.replace(/^0x/, '').padStart(64, '0');
-      var logs = await rpc('eth_getLogs', [{ address: VLAD, topics: [TRANSFER, null, feeTopic], fromBlock: '0x1', toBlock: 'latest' }]) || [];
-      logs.forEach(function (l) {
-        raw.push({ tx: l.transactionHash, side: 'sell', vlad: (Number(BigInt(l.data)) / 1e18) * FEE_RATE });
+      var lu = EXPLORER + '/api?module=logs&action=getLogs&fromBlock=0&toBlock=latest&address=' + VLAD +
+        '&topic0=' + TRANSFER + '&topic2=' + feeTopic + '&topic0_2_opr=and';
+      var lj = await fetch(lu).then(function (r) { return r.json(); });
+      (Array.isArray(lj.result) ? lj.result : []).forEach(function (l) {
+        raw.push({
+          tx: l.transactionHash, side: 'sell',
+          vlad: (Number(BigInt(l.data)) / 1e18) * FEE_RATE,
+          block: l.blockNumber, ts: parseInt(l.timeStamp, 16) * 1000
+        });
       });
     } catch (e) {}
 
@@ -153,7 +160,7 @@
       var br = await rpcBatch(bc.map(function (h, n) { return { jsonrpc: '2.0', id: n, method: 'eth_getBlockByNumber', params: [h, false] }; }));
       br.forEach(function (r) { if (r && r.result) tsOf[bc[r.id]] = parseInt(r.result.timestamp, 16) * 1000; });
     }
-    swaps.forEach(function (s) { s.ts = tsOf[s.block] || Date.now(); });
+    swaps.forEach(function (s) { s.ts = tsOf[s.block] || s.ts || Date.now(); });   /* sell logs already carry their timestamp */
 
     /* historical VLAD/ETH rate straight from the pool at the swap's own block,
        so a sell is scored at the price it actually traded at, not today's */
