@@ -238,7 +238,6 @@
       <!-- tabs -->
       <div role="tablist" aria-label="Filter memes by status" class="flex flex-wrap gap-2 lg:flex-1">
         <button role="tab" type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-tab="all" aria-selected="true">All Memes</button>
-        <button role="tab" type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-tab="upcoming" aria-selected="false">Upcoming</button>
         <button role="tab" type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-tab="live" aria-selected="false">Live Now</button>
         <button role="tab" type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-tab="finished" aria-selected="false">Finished</button>
       </div>
@@ -345,7 +344,7 @@
   </div>
 </div>
 
-<script src="/launchpad.js?v=3"></script>
+<script src="/launchpad.js?v=4"></script>
 <script>
 (function () {
   'use strict';
@@ -390,9 +389,8 @@
      status vocabulary
   --------------------------------------------------------------- */
   var SECTIONS = [
-    { key: 'upcoming', title: 'UPCOMING LAUNCHES', icon: '#ic-clock' },
-    { key: 'live',     title: 'LIVE NOW',          icon: '#ic-spark' },
-    { key: 'finished', title: 'FINISHED',          icon: '#ic-flag'  }
+    { key: 'live',     title: 'LIVE NOW', icon: '#ic-spark' },
+    { key: 'finished', title: 'FINISHED', icon: '#ic-flag'  }
   ];
 
   var STATUS = {

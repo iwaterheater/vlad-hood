@@ -388,11 +388,11 @@
       about: 'Robs from the rich and buries it in the poor’s back garden, which everyone agrees is technically redistribution. ' +
         'Eleven seasons on watch at the Great Oak and not one tax collector has walked past without receiving a very stern boop. ' +
         'Fetches arrows. Fetches liquidity. Mostly fetches arrows.',
-      kind: 'doge', bg: '#a8d5a2', status: 'upcoming',
-      softCap: 10, hardCap: 20, raised: 0.45, startIn: 1.6, durH: 48,
+      kind: 'doge', bg: '#a8d5a2', status: 'live',
+      softCap: 10, hardCap: 20, raised: 7.8, startIn: -9, durH: 48,
       supply: 1e9, decimals: 18, price: 0.0000242, change24h: 12.45,
       taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 11, verified: true,
-      holdersCount: 0, participants: 26, up: 92, votes: 124, poolEth: 0
+      holdersCount: 940, participants: 260, up: 92, votes: 124, poolEth: 12.4
     },
     {
       id: 'mage-pepe', name: 'MAGE PEPE', symbol: 'PEPE',
@@ -400,11 +400,11 @@
       about: 'Third-year dropout of the Nottingham College of Damp Magic, expelled for turning the Sheriff’s ledger into ' +
         'a pond. Now lives under the footbridge casting exactly two spells: one that summons fog for a getaway, and one that ' +
         'makes flies land closer. Insists the hat is load-bearing.',
-      kind: 'pepe', bg: '#cfe3f7', status: 'upcoming',
-      softCap: 25, hardCap: 60, raised: 6.2, startIn: 14.25, durH: 72,
+      kind: 'pepe', bg: '#cfe3f7', status: 'live',
+      softCap: 25, hardCap: 60, raised: 21.6, startIn: -16, durH: 42,
       supply: 4.2e9, decimals: 18, price: 0.00000915, change24h: 4.8,
       taxBuy: 1, taxSell: 1, lpLocked: true, lockMonths: 12, verified: true,
-      holdersCount: 0, participants: 141, up: 76, votes: 318, poolEth: 0
+      holdersCount: 1620, participants: 530, up: 76, votes: 318, poolEth: 27.9
     },
     {
       id: 'sir-hoots-a-lot', name: 'SIR HOOTS-A-LOT', symbol: 'HOOTS',
@@ -412,11 +412,11 @@
       about: 'Sees everything, says most of it. Perched on the tallest oak from dusk until the tavern closes, hooting a running ' +
         'commentary on every cart, patrol and questionable haircut that passes below. Has strong opinions on governance, an ' +
         'unblinking stare, and absolutely no volume control.',
-      kind: 'owl', bg: '#f6d9a8', status: 'upcoming',
-      softCap: 8, hardCap: 16, raised: 1.9, startIn: 52, durH: 36,
+      kind: 'owl', bg: '#f6d9a8', status: 'live',
+      softCap: 8, hardCap: 16, raised: 9.4, startIn: -27, durH: 40,
       supply: 420e6, decimals: 18, price: 0.0000488, change24h: -2.1,
       taxBuy: 0, taxSell: 2, lpLocked: true, lockMonths: 3, verified: false,
-      holdersCount: 0, participants: 44, up: 63, votes: 97, poolEth: 0
+      holdersCount: 780, participants: 240, up: 63, votes: 97, poolEth: 14.1
     },
     /* ---------------- FINISHED ---------------- */
     {
@@ -473,11 +473,11 @@
       about: 'Spent nine years as the Sheriff’s ledger clerk before working out that the numbers only ever moved one way. ' +
         'Now runs the same books backwards from a lily pad outside Nottingham, and the peasants have started calling the ' +
         'refunds "tax season". Still writes everything in triplicate, because old habits croak hard.',
-      kind: 'pepe', bg: '#cfe8c9', status: 'upcoming',
-      softCap: 12, hardCap: 24, raised: 1.1, startIn: 5.5, durH: 36,
+      kind: 'pepe', bg: '#cfe8c9', status: 'live',
+      softCap: 12, hardCap: 24, raised: 6.2, startIn: -5, durH: 36,
       supply: 1e9, decimals: 18, price: 0.0000188, change24h: 6.2,
       taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 12, verified: true,
-      holdersCount: 0, participants: 63, up: 88, votes: 97, poolEth: 0
+      holdersCount: 510, participants: 180, up: 88, votes: 97, poolEth: 9.6
     },
     {
       id: 'merry-mouse', name: 'MERRY MOUSE', symbol: 'MOUSE',
@@ -485,11 +485,11 @@
       about: 'Fits through the castle grate that defeated everyone else, which is the entire reason the last three heists ' +
         'worked and the entire reason nobody is allowed to mention the word "cheese" at camp meetings. Insists on being ' +
         'counted as a full share. Gets a full share.',
-      kind: 'cat', bg: '#e8d4f2', status: 'upcoming',
-      softCap: 6, hardCap: 14, raised: 0.8, startIn: 21, durH: 48,
+      kind: 'cat', bg: '#e8d4f2', status: 'live',
+      softCap: 6, hardCap: 14, raised: 4.1, startIn: -21, durH: 48,
       supply: 8e8, decimals: 18, price: 0.0000094, change24h: 3.7,
       taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 9, verified: true,
-      holdersCount: 0, participants: 41, up: 84, votes: 58, poolEth: 0
+      holdersCount: 430, participants: 150, up: 84, votes: 58, poolEth: 6.8
     },
     {
       id: 'little-john-bear', name: 'LITTLE JOHN BEAR', symbol: 'JOHN',
