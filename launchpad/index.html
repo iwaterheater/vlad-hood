@@ -558,11 +558,11 @@
             '<span class="block num text-[11px] text-brown mt-0.5 truncate">$' + esc(meme.symbol) + '</span>' +
           '</span>' +
         '</span>' +
-        '<span class="num text-xs text-ink leading-none">' + esc(fUsd(meme.marketCap)) +
-          '<span class="font-hand text-[10px] text-brown ml-1">MC</span></span>' +
-        '<span class="num text-[10px] text-ink/60 leading-none truncate" title="' + esc(meme.contract) + '">' +
-          esc(fAddr(meme.contract)) + '</span>' +
-        '<span class="num text-[10px] text-brown leading-none truncate">launched ' + esc(born) + '</span>' +
+        '<span class="flex items-baseline justify-between gap-1.5 leading-none">' +
+          '<span class="num text-xs text-ink shrink-0">' + esc(fUsd(meme.marketCap)) +
+            '<span class="font-hand text-[10px] text-brown ml-1">MC</span></span>' +
+          '<span class="num text-[10px] text-brown truncate">launched ' + esc(born) + '</span>' +
+        '</span>' +
       '</a>';
   }
 
