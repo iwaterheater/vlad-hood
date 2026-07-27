@@ -228,6 +228,18 @@
   /* ---------- Inline hand-drawn icons (replace emoji) ---------- */
   .ic { display:inline-block; width:1em; height:1em; vertical-align:-0.15em; }
 
+  /* ---------- "Earn Vladhood Points" call-to-action ---------- */
+  /* soft glow pulse on the button, arrow nudges right to invite the click */
+  @keyframes vpGlow {
+    0%, 100% { box-shadow: 3px 4px 0 rgba(43,38,32,.8); }
+    50%      { box-shadow: 3px 4px 0 rgba(43,38,32,.8), 0 0 0 6px rgba(224,165,30,.35); }
+  }
+  @keyframes vpNudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
+  .vp-cta { animation: vpGlow 2.6s ease-in-out infinite; }
+  .vp-cta-arrow { animation: vpNudge 1.1s ease-in-out infinite; }
+  .vp-cta:hover { animation-play-state: paused; }
+  .vp-cta::before, .vp-cta::after { filter: none; }   /* keep the drawn border crisp while animating */
+
   /* ---------- Promo ticker under the nav ---------- */
   /* the row is duplicated in the markup, so -50% loops seamlessly */
   @keyframes promoScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
@@ -396,6 +408,11 @@
           <b data-mcap class="font-marker text-forest text-lg">$—</b>
           <span data-mcap-ch class="text-[10px] leading-none self-start mt-1 -ml-1" title="Изменение цены за 24ч"></span>
         </a></li>
+        <li><a href="/swap" title="Swap here and collect Vladhood Points"
+               class="vp-cta sketch bg-mustard text-ink px-3 py-1 rough-shadow-sm hover:bg-forest hover:text-paper transition flex items-center gap-2 whitespace-nowrap">
+          <span class="font-marker text-base">Earn Vladhood Points</span>
+          <svg class="vp-cta-arrow w-4 h-4 flex-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></svg>
+        </a></li>
         <li><a href="#swap" class="hover:text-forest hover:underline decoration-wavy decoration-mustard">Swap</a></li>
         <li><a href="https://x.com/vladhoodcoin" target="_blank" rel="noopener" class="sketch-2 bg-ink text-paper px-3 py-2 rough-shadow-sm hover:bg-forest transition flex items-center" aria-label="X community"><svg viewBox="0 0 24 24" class="w-5 h-5 fill-current" aria-hidden="true"><path d="M18.9 2H22l-7.6 8.7L23.3 22h-6.9l-5.4-7-6.2 7H1.6l8.1-9.3L.9 2h7.1l4.9 6.5L18.9 2Zm-2.4 18h1.9L7.6 4H5.6l10.9 16Z"/></svg></a></li>
         <li><a href="https://t.me/vladhood_tg" target="_blank" rel="noopener" class="sketch bg-forest text-paper px-3 py-2 rough-shadow-sm hover:bg-forest2 transition flex items-center" aria-label="Telegram"><svg viewBox="0 0 24 24" class="w-5 h-5 fill-current" aria-hidden="true"><path d="M21.9 4.3 18.7 19c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-4.9 9-8.1c.4-.3-.1-.5-.6-.2L6.4 12.9l-4.8-1.5c-1-.3-1.1-1 .2-1.5L20.5 2.9c.9-.3 1.6.2 1.4 1.4Z"/></svg></a></li>
@@ -408,6 +425,12 @@
     <div id="mobileMenu" class="md:hidden bg-paper2 border-t-2 border-dashed border-ink/50">
       <ul class="flex flex-col px-6 py-2 font-hand text-2xl text-ink">
         <li class="py-2 border-b border-dashed border-ink/30"><a href="#swap">Swap</a></li>
+        <li class="py-3 border-b border-dashed border-ink/30">
+          <a href="/swap" class="vp-cta sketch bg-mustard text-ink px-4 py-2 rough-shadow-sm flex items-center justify-between gap-2">
+            <span class="font-marker text-lg">Earn Vladhood Points</span>
+            <svg class="vp-cta-arrow w-5 h-5 flex-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></svg>
+          </a>
+        </li>
         <li class="py-3 flex flex-wrap gap-3">
           <a href="/swap" class="inline-block sketch bg-forest text-paper px-4 py-1">Buy $VLAD Now</a>
           <a href="https://x.com/vladhoodcoin" target="_blank" rel="noopener" class="inline-block sketch-2 bg-ink text-paper px-4 py-1">X Community</a>
