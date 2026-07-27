@@ -490,10 +490,9 @@
         } catch (e) {}
         /* SELLS — 1% fee arrives as VLAD; Blockscout's address endpoint misses these, so read Transfer logs via RPC */
         try {
-          var cur = parseInt(await rpc('eth_blockNumber', []), 16);
-          var fromBlk = '0x' + Math.max(0, cur - 300000).toString(16);
+          /* all VLAD transfers into our fee wallet since genesis — the filter is tiny, so this is fast */
           var feeTopic = '0x' + FEE.replace(/^0x/, '').padStart(64, '0');
-          var logs = await rpc('eth_getLogs', [{ address: VLAD, topics: [TRANSFER, null, feeTopic], fromBlock: fromBlk, toBlock: 'latest' }]) || [];
+          var logs = await rpc('eth_getLogs', [{ address: VLAD, topics: [TRANSFER, null, feeTopic], fromBlock: '0x1', toBlock: 'latest' }]) || [];
           for (var i = 0; i < logs.length; i++) {
             var l = logs[i]; var tx = l.transactionHash; if (!tx || seen[tx]) continue; seen[tx] = 1;
             var feeV = Number(BigInt(l.data)) / 1e18;
