@@ -27,6 +27,13 @@
 
   var RULES = { perUsd: 1, buyMultiplier: 2, dailyBonus: 10, streakDays: 7, streakBonus: 500 };
 
+  var SLOT0 = '0x3850c7bd';         /* UniswapV3Pool.slot0() */
+  var Q96 = BigInt(2) ** BigInt(96);
+  var RATE_KEY = 'vlad_rates';      /* block -> VLAD per ETH, immutable once written */
+
+  function readRateCache() { try { return JSON.parse(localStorage.getItem(RATE_KEY) || '{}'); } catch (e) { return {}; } }
+  function writeRateCache(o) { try { localStorage.setItem(RATE_KEY, JSON.stringify(o)); } catch (e) {} }
+
   /* ---------- styles ---------- */
   if (!document.getElementById('vlad-points-css')) {
     var st = document.createElement('style'); st.id = 'vlad-points-css';
@@ -43,7 +50,11 @@
       '.vp-rules{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}',
       '.vp-rule{font-size:13px;background:#ece3cf;border:1px solid rgba(43,38,32,.14);border-radius:10px;padding:4px 10px;color:#5f5647}',
       '.vp-rule b{color:#2f6b2f}',
-      '.vp-list{display:flex;flex-direction:column;gap:6px;max-height:460px;overflow-y:auto}',
+      '.vp-list{display:flex;flex-direction:column;gap:6px;max-height:540px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#c3b795 transparent;padding-right:4px}',
+      '.vp-list::-webkit-scrollbar{width:7px}',
+      '.vp-list::-webkit-scrollbar-track{background:transparent}',
+      '.vp-list::-webkit-scrollbar-thumb{background:#c3b795;border-radius:99px}',
+      '.vp-list::-webkit-scrollbar-thumb:hover{background:#a8996f}',
       '.vp-row{display:flex;align-items:center;gap:10px;padding:9px 11px;background:#ece3cf;border-radius:12px;font-size:15px;text-decoration:none;color:#2b2620}',
       '.vp-row:hover{background:#e4d9bf}',
       '.vp-row.mine{background:#2f6b2f;color:#f4ecd8}',
@@ -94,14 +105,14 @@
   async function collectSwaps() {
     if (cache.swaps && Date.now() - cache.at < 60000) return cache.swaps;
     var px = await prices();
-    var raw = [];                                     /* {tx, side, feeAmount, priceUsd} */
+    var raw = [];                                     /* {tx, side, eth?, vlad?} */
 
     /* sells — 1% fee arrives as VLAD */
     try {
       var feeTopic = '0x' + FEE_WALLET.replace(/^0x/, '').padStart(64, '0');
       var logs = await rpc('eth_getLogs', [{ address: VLAD, topics: [TRANSFER, null, feeTopic], fromBlock: '0x1', toBlock: 'latest' }]) || [];
       logs.forEach(function (l) {
-        raw.push({ tx: l.transactionHash, side: 'sell', usd: (Number(BigInt(l.data)) / 1e18) * FEE_RATE * px.vlad });
+        raw.push({ tx: l.transactionHash, side: 'sell', vlad: (Number(BigInt(l.data)) / 1e18) * FEE_RATE });
       });
     } catch (e) {}
 
@@ -111,7 +122,7 @@
       (bs.items || []).forEach(function (t) {
         if ((t.to && t.to.hash || '').toLowerCase() !== FEE_WALLET) return;
         var v = Number(t.value || 0) / 1e18; if (v <= 0) return;
-        raw.push({ tx: t.transaction_hash, side: 'buy', usd: v * FEE_RATE * px.eth });
+        raw.push({ tx: t.transaction_hash, side: 'buy', eth: v * FEE_RATE });
       });
     } catch (e) {}
 
@@ -143,6 +154,36 @@
       br.forEach(function (r) { if (r && r.result) tsOf[bc[r.id]] = parseInt(r.result.timestamp, 16) * 1000; });
     }
     swaps.forEach(function (s) { s.ts = tsOf[s.block] || Date.now(); });
+
+    /* historical VLAD/ETH rate straight from the pool at the swap's own block,
+       so a sell is scored at the price it actually traded at, not today's */
+    var needRate = swaps.filter(function (s) { return s.side === 'sell' && s.block; });
+    var rateOf = readRateCache();
+    var missing = needRate.filter(function (s) { return !rateOf[s.block]; });
+    for (var r0 = 0; r0 < missing.length; r0 += 40) {
+      var rc = missing.slice(r0, r0 + 40);
+      var rr = await rpcBatch(rc.map(function (s, n) { return { jsonrpc: '2.0', id: n, method: 'eth_call', params: [{ to: PAIR, data: SLOT0 }, s.block] }; }));
+      rr.forEach(function (res) {
+        if (!res || !res.result || res.result.length < 66) return;
+        var item = rc[res.id]; if (!item) return;
+        var sqrtP = BigInt('0x' + res.result.slice(2, 66));
+        if (sqrtP <= 0n) return;
+        /* pool: token0 = WETH, token1 = VLAD -> (sqrtP/2^96)^2 = VLAD per ETH */
+        var vladPerEth = Number(sqrtP * sqrtP * 1000000n / (Q96 * Q96)) / 1000000;
+        if (vladPerEth > 0) rateOf[item.block] = vladPerEth;
+      });
+    }
+    writeRateCache(rateOf);
+
+    swaps.forEach(function (s) {
+      if (s.side === 'buy') { s.eth = s.eth || 0; }
+      else {
+        var rate = rateOf[s.block];
+        s.eth = rate ? (s.vlad / rate) : ((s.vlad || 0) * px.vlad) / (px.eth || 1);  /* fallback: today's rate */
+        s.priced = !!rate;
+      }
+      s.usd = (s.eth || 0) * px.eth;      /* ETH volume is fixed on-chain; only the ETH/USD leg is live */
+    });
 
     cache = { swaps: swaps, at: Date.now() };
     return swaps;
@@ -230,6 +271,7 @@
       cards.forEach(function (el) { renderCard(el, ranked); });
       boards.forEach(function (el) { renderBoard(el, ranked); });
     } catch (e) {
+      if (window.console) console.error('[VP]', e);
       boards.forEach(function (el) { el.innerHTML = '<div class="vp"><div class="vp-head">Leaderboard</div><div class="vp-empty">couldn\'t load points</div></div>'; });
     }
   }
