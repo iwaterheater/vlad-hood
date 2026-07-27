@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Launch token — Vladhood Launchpad (demo)</title>
+<meta name="description" content="Vladhood Launchpad token creation form — a UI preview only. No contract is deployed, no wallet is touched and no fee is charged." />
+<meta name="robots" content="noindex" />
+<link rel="icon" href="https://vlad-hood.xyz/photo_1_2026-07-21_06-14-24.jpg?v=2" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Patrick+Hand&family=Caveat:wght@500;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { paper:'#f4ecd8', paper2:'#efe6cf', ink:'#2b2620', forest:'#2f6b2f', forest2:'#3f8b3d', mustard:'#e0a51e', brown:'#8a5a2b', crayred:'#c0392b' },
+    fontFamily: { marker:['"Permanent Marker"','cursive'], hand:['"Patrick Hand"','cursive'], caveat:['"Caveat"','cursive'] },
+  } } };
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body {
+    background-color:#f4ecd8;
+    background-image:
+      repeating-linear-gradient(35deg, rgba(90,80,60,0.035) 0 1px, transparent 1px 6px),
+      repeating-linear-gradient(180deg, transparent 0 33px, rgba(90,120,160,0.13) 33px 34px),
+      linear-gradient(90deg, transparent 0 46px, rgba(192,57,43,0.2) 46px 48px, transparent 48px);
+    color:#2b2620;
+  }
+  .sketch { border:2.4px solid #2b2620; border-radius:255px 15px 225px 15px/15px 225px 15px 255px; }
+  .sketch-2 { border:2.4px solid #2b2620; border-radius:15px 225px 15px 255px/255px 15px 225px 15px; }
+  .rough-shadow { box-shadow:4px 5px 0 rgba(43,38,32,0.85), 6px 8px 0 rgba(43,38,32,0.18); }
+  .rough-shadow-sm { box-shadow:3px 4px 0 rgba(43,38,32,0.8); }
+  .scribble-underline { position:relative; display:inline-block; }
+  .scribble-underline::after {
+    content:''; position:absolute; left:-4%; right:-4%; bottom:-10px; height:12px;
+    background:no-repeat center/100% 100% url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 12'%3E%3Cpath d='M2 8 C 60 2, 120 12, 180 6 S 280 2, 298 7' fill='none' stroke='%23e0a51e' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E");
+  }
+  .pin { position:absolute; top:-12px; left:50%; transform:translateX(-50%); width:20px; height:20px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #ff7b6b, #c0392b 65%); border:2px solid #2b2620; box-shadow:1px 3px 3px rgba(0,0,0,0.3); z-index:6; }
+
+  /* ---------- page-local helpers (same notebook look) ---------- */
+  header, main, footer { overflow-x: clip; }
+  .ic { display:inline-block; width:1em; height:1em; vertical-align:-0.15em; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* bare inputs sitting inside a hand-drawn box, like the trade panel on meme.html */
+  input.bare, textarea.bare {
+    background:transparent; border:0; outline:none; width:100%; color:#2b2620;
+    font-family:'Patrick Hand', cursive;
+  }
+  textarea.bare { resize:vertical; min-height:5.5rem; }
+  input.bare::placeholder, textarea.bare::placeholder { color:rgba(43,38,32,0.38); }
+  input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+
+  .box { background:#f4ecd8; transition:border-color .15s, box-shadow .15s; }
+  .box:focus-within { box-shadow:3px 4px 0 rgba(43,38,32,0.8), 0 0 0 3px rgba(224,165,30,0.55); }
+  .box.bad { border-color:#c0392b; }
+
+  .tape { position:absolute; top:-11px; right:16px; transform:rotate(6deg); background:rgba(224,165,30,0.75);
+    border:1px dashed rgba(43,38,32,0.5); padding:1px 10px; font-size:13px; }
+
+  /* dashed artwork drop-zone */
+  .drop { display:block; border:2.6px dashed rgba(43,38,32,0.32); border-radius:18px;
+    background:rgba(244,236,216,0.55); transition:background-color .15s, border-color .15s, opacity .15s; }
+  .drop[data-locked="true"] { opacity:.55; cursor:not-allowed; }
+  .drop[data-locked="false"] { border-color:#2b2620; cursor:pointer; }
+  .drop[data-locked="false"]:hover, .drop.is-over { background-color:rgba(224,165,30,0.28); }
+  .drop:focus-within { outline:3px dashed #e0a51e; outline-offset:3px; }
+
+  /* hand-drawn checkbox */
+  .check-box { width:22px; height:22px; border:2.4px solid #2b2620; border-radius:6px 2px 7px 3px; background:#f4ecd8;
+    display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; }
+  input[type=checkbox]:checked + .check-box { background:#3f8b3d; color:#f4ecd8; }
+  input[type=checkbox]:focus-visible + .check-box { outline:3px dashed #e0a51e; outline-offset:2px; }
+  .check-mark { opacity:0; width:14px; height:14px; }
+  input[type=checkbox]:checked + .check-box .check-mark { opacity:1; }
+
+  /* the primary call to action changes look with its state */
+  .cta { transition:background-color .15s, color .15s, box-shadow .15s; }
+  .cta:disabled { background:#e6dcc2; color:rgba(43,38,32,0.5); box-shadow:2px 3px 0 rgba(43,38,32,0.35); cursor:not-allowed; }
+
+  /* <details> knobs */
+  details.knobs > summary { list-style:none; cursor:pointer; }
+  details.knobs > summary::-webkit-details-marker { display:none; }
+  details.knobs[open] .knobs-chev { transform:rotate(180deg); }
+  .knobs-chev { transition:transform .15s; }
+
+  .leader { flex:1 1 auto; border-bottom:2px dotted rgba(43,38,32,0.3); margin:0 8px; transform:translateY(-5px); }
+
+  #preview-modal[hidden] { display:none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior:auto; }
+    * { animation:none !important; transition:none !important; }
+  }
+</style>
+</head>
+<body class="font-hand min-h-screen flex flex-col selection:bg-mustard/60">
+
+<!-- ============ inline icon sprite (no emoji anywhere) ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="ic-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 4.5 21 20H3z"/><path d="M12 10v4"/><path d="M12 17h.01"/>
+  </symbol>
+  <symbol id="ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 6 18 18M18 6 6 18"/>
+  </symbol>
+  <symbol id="ic-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 12h15"/><path d="m13 6 6 6-6 6"/>
+  </symbol>
+  <symbol id="ic-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M19 12H5"/><path d="m12 19-7-7 7-7"/>
+  </symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m4 12.5 5 5L20 6"/>
+  </symbol>
+  <symbol id="ic-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="4.5" y="10" width="15" height="10" rx="2"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10"/>
+  </symbol>
+  <symbol id="ic-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="4.5" width="18" height="15" rx="2.5"/><circle cx="8.5" cy="10" r="1.6"/>
+    <path d="m4 17 4.5-4.5 3.5 3.5 3-2.5 4 3.5"/>
+  </symbol>
+  <symbol id="ic-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 16V4"/><path d="m7.5 8.5 4.5-4.5 4.5 4.5"/><path d="M4 16v2.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V16"/>
+  </symbol>
+  <symbol id="ic-gas" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 20V5.5A1.5 1.5 0 0 1 5.5 4h6A1.5 1.5 0 0 1 13 5.5V20"/><path d="M2.5 20h12"/><path d="M4 11h9"/>
+    <path d="M16 8.5 18 6.5V15a2 2 0 0 0 3 0v-3.5l-2.5-3"/>
+  </symbol>
+  <symbol id="ic-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m6 9 6 6 6-6"/>
+  </symbol>
+  <symbol id="ic-xlogo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 3h3.6l4.6 6.3L17.8 3H21l-7.1 8.2L21.4 21h-3.6l-5-6.8L6.2 21H3l7.4-8.6z"/>
+  </symbol>
+  <symbol id="ic-tg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 4.5 2.8 11.3c-.7.3-.7 1.2 0 1.4l4.5 1.4L19 6.6"/>
+    <path d="m7.3 14.1.5 4.6c.3.2.7.2 1-.1l2.3-2.2 4.6 3.4c.6.4 1.3.1 1.5-.6L21 4.5"/>
+    <path d="m11.1 16.4-3.8-2.3"/>
+  </symbol>
+  <symbol id="ic-scales" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3v18M7 21h10M3 8l4-3 4 3M3 8l2 5h4l2-5M13 8l4-3 4 3M13 8l2 5h4l2-5"/>
+  </symbol>
+  <symbol id="ic-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 2.5c1.6 3.4.4 5.3-1 7.1-1.5 1.9-2.6 3.6-2.6 5.6a5.6 5.6 0 0 0 11.2 0c0-3-1.6-4.6-3-6.4-.5 1.4-1.3 2-2.2 2.4.6-3.1-.6-6.2-2.4-8.7z"/>
+  </symbol>
+</svg>
+
+<!-- ============ header ============ -->
+<div class="sticky top-0 z-30">
+<header class="border-b-[3px] border-ink bg-paper2/95 backdrop-blur">
+  <div class="max-w-[100rem] mx-auto px-4 py-2 flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <a href="/" class="flex items-center gap-2 group shrink-0">
+        <img src="https://vlad-hood.xyz/photo_1_2026-07-21_06-14-24.jpg?v=2" alt="Vladhood" class="w-11 h-11 rounded-full border-[3px] border-ink rough-shadow-sm group-hover:rotate-6 transition" />
+        <span class="font-marker text-2xl text-forest tracking-wide">VLADHOOD</span>
+        <span class="font-marker text-mustard text-xl hidden sm:inline">$VLAD</span>
+      </a>
+      <a href="/launchpad/" class="hidden md:inline-flex items-center gap-1.5 font-hand text-lg text-ink hover:text-forest hover:underline decoration-wavy decoration-mustard">
+        <svg class="ic" aria-hidden="true"><use href="#ic-back"/></svg>
+        Back to Launchpad
+      </a>
+    </div>
+    <a href="/" class="font-hand text-lg text-ink hover:text-forest hover:underline decoration-wavy decoration-mustard shrink-0">&larr; Back to site</a>
+  </div>
+</header>
+
+<!-- ============ honesty banner — unmissable ============ -->
+<div class="border-b-[3px] border-ink text-paper" style="background:#c0392b">
+  <div class="max-w-[100rem] mx-auto px-4 py-2.5 flex items-start gap-2.5">
+    <svg class="ic text-2xl shrink-0 mt-0.5" aria-hidden="true"><use href="#ic-alert"/></svg>
+    <p class="font-hand text-base sm:text-lg leading-snug">
+      <b class="font-marker tracking-wide">DEMO — UI PREVIEW ONLY.</b>
+      This form does <b>not</b> deploy anything. There are no launchpad smart contracts, no wallet call and no fee.
+      Nothing you type is uploaded or saved, and no token will appear on the board.
+    </p>
+  </div>
+</div>
+</div>
+
+<main class="flex-1 max-w-[80rem] w-full mx-auto px-4 py-5 md:py-8">
+
+  <!-- back chip -->
+  <a href="/launchpad/" class="inline-flex items-center gap-2 sketch-2 bg-paper2 px-3 py-1.5 rough-shadow-sm font-hand text-lg hover:bg-mustard transition">
+    <svg class="ic" aria-hidden="true"><use href="#ic-back"/></svg>
+    Back to Launchpad
+  </a>
+
+  <h1 class="font-marker text-forest text-4xl sm:text-5xl md:text-6xl leading-[1.25] mt-6 -rotate-1 break-words">
+    <span class="scribble-underline">Launch token</span>
+  </h1>
+  <p class="font-caveat text-2xl sm:text-3xl text-brown mt-5">Draw up your meme — watch it take shape on the right.</p>
+  <p class="font-hand text-lg text-ink/75 mt-1">A pretend fair launch on the Robinhood Chain. Every field below is a drawing of a field.</p>
+
+  <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] xl:grid-cols-[minmax(0,1fr)_minmax(0,24rem)] gap-6 lg:gap-8 mt-7 items-start">
+
+    <!-- ================= LEFT: the form ================= -->
+    <form id="launch-form" novalidate class="relative bg-paper2 sketch rough-shadow p-4 sm:p-6 min-w-0">
+      <span class="pin"></span>
+      <span class="tape font-caveat text-ink">UI preview</span>
+
+      <h2 class="font-marker text-forest text-2xl sm:text-3xl mt-1">Launch token</h2>
+      <p class="font-caveat text-xl text-brown mt-1">fill it in — nothing leaves this page</p>
+
+      <!-- ---------- 1. name ---------- -->
+      <div class="mt-6">
+        <div class="flex items-baseline justify-between gap-2">
+          <label for="f-name" class="font-marker text-lg text-ink">Name</label>
+          <span id="name-count" class="font-hand text-sm text-ink/55 num">0 / 32</span>
+        </div>
+        <div id="name-box" class="box sketch-2 rough-shadow-sm px-3 py-2 mt-1.5">
+          <input id="f-name" class="bare text-xl" type="text" placeholder="Token name" autocomplete="off" spellcheck="false"
+                 maxlength="32" aria-describedby="name-hint" />
+        </div>
+        <p id="name-hint" class="font-hand text-sm text-ink/60 mt-1.5">Letters, numbers, and spaces. 32 characters max.</p>
+        <p id="name-err" class="font-hand text-sm text-crayred mt-0.5" hidden>Only letters, numbers and spaces are allowed.</p>
+      </div>
+
+      <!-- ---------- 2. ticker ---------- -->
+      <div class="mt-5">
+        <div class="flex items-baseline justify-between gap-2">
+          <label for="f-ticker" class="font-marker text-lg text-ink">Ticker</label>
+          <span id="ticker-count" class="font-hand text-sm text-ink/55 num">0 / 10</span>
+        </div>
+        <div id="ticker-box" class="box sketch-2 rough-shadow-sm px-3 py-2 mt-1.5 flex items-center gap-2">
+          <span class="font-marker text-xl text-brown shrink-0">$</span>
+          <input id="f-ticker" class="bare text-xl min-w-0" type="text" placeholder="symbol" autocomplete="off" spellcheck="false"
+                 maxlength="10" aria-describedby="ticker-hint" />
+        </div>
+        <p id="ticker-hint" class="font-hand text-sm text-ink/60 mt-1.5">Letters and numbers. 10 characters max.</p>
+        <p id="ticker-err" class="font-hand text-sm text-crayred mt-0.5" hidden>Only letters and numbers are allowed.</p>
+      </div>
+
+      <!-- ---------- 3. description ---------- -->
+      <div class="mt-5">
+        <div class="flex items-baseline justify-between gap-2">
+          <label for="f-desc" class="font-marker text-lg text-ink">Description</label>
+          <span id="desc-count" class="font-hand text-sm text-ink/55 num">0 / 256</span>
+        </div>
+        <div id="desc-box" class="box sketch-2 rough-shadow-sm px-3 py-2 mt-1.5">
+          <textarea id="f-desc" class="bare text-lg" rows="4" placeholder="A short description of the token"
+                    spellcheck="true" aria-describedby="desc-hint"></textarea>
+        </div>
+        <p id="desc-hint" class="font-hand text-sm text-ink/60 mt-1.5">No links. 256 characters max.</p>
+        <p id="desc-err" class="font-hand text-sm text-crayred mt-0.5" hidden>Links are not allowed in the description.</p>
+      </div>
+
+      <!-- ---------- 4. token image ---------- -->
+      <div class="mt-6">
+        <p class="font-marker text-lg text-ink">Token image</p>
+
+        <label for="f-consent" class="flex items-start gap-2.5 mt-2 cursor-pointer select-none">
+          <input id="f-consent" type="checkbox" class="sr-only peer" />
+          <span class="check-box mt-0.5" aria-hidden="true">
+            <svg class="check-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12.5 5 5L20 6"/></svg>
+          </span>
+          <span class="font-hand text-[17px] leading-snug text-ink/85">
+            I understand that selected artwork will be moderated and uploaded to public IPFS.
+          </span>
+        </label>
+
+        <label id="drop" for="f-image" class="drop mt-3 p-5 text-center" data-locked="true">
+          <input id="f-image" type="file" accept="image/*" class="sr-only" disabled />
+          <span id="drop-empty" class="flex flex-col items-center gap-2">
+            <span class="inline-flex items-center justify-center w-12 h-12 border-2 border-ink rounded-full bg-paper2 text-ink text-2xl">
+              <svg class="ic" aria-hidden="true"><use href="#ic-upload"/></svg>
+            </span>
+            <span id="drop-title" class="font-marker text-lg text-ink">Confirm public upload first</span>
+            <span id="drop-sub" class="font-hand text-sm text-ink/60">Tick the box above to pick artwork.</span>
+          </span>
+
+          <span id="drop-filled" class="flex items-center gap-3 text-left" hidden>
+            <img id="drop-thumb" alt="Selected artwork preview" class="w-20 h-20 object-cover border-[2.4px] border-ink rounded-[14px] shrink-0 bg-paper" />
+            <span class="min-w-0 flex-1">
+              <span id="drop-name" class="font-hand text-lg text-ink block truncate">artwork</span>
+              <span id="drop-size" class="font-hand text-sm text-ink/55 block num">&nbsp;</span>
+              <span class="font-caveat text-lg text-brown block leading-tight">stays in this browser</span>
+            </span>
+          </span>
+        </label>
+
+        <div class="flex flex-wrap items-center gap-2 mt-2">
+          <button type="button" id="img-clear" class="font-hand text-sm px-2.5 py-1 sketch-2 bg-paper hover:bg-crayred hover:text-paper transition" hidden>Remove image</button>
+          <p id="img-err" class="font-hand text-sm text-crayred" hidden>That file is not an image.</p>
+        </div>
+
+        <p class="font-caveat text-lg text-brown mt-2 leading-tight">
+          nothing is uploaded — the file is only read locally in your browser and never leaves this device
+        </p>
+      </div>
+
+      <!-- ---------- 5 + 6. socials ---------- -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+        <div class="min-w-0">
+          <label for="f-x" class="font-marker text-lg text-ink inline-flex items-center gap-2">
+            <svg class="ic text-ink/70" aria-hidden="true"><use href="#ic-xlogo"/></svg>
+            X profile
+          </label>
+          <div class="box sketch-2 rough-shadow-sm px-3 py-2 mt-1.5 flex items-center gap-1 min-w-0">
+            <span class="font-hand text-lg text-ink/50 shrink-0">x.com/</span>
+            <input id="f-x" class="bare text-lg min-w-0" type="text" placeholder="handle" autocomplete="off" spellcheck="false" maxlength="30" />
+          </div>
+          <p class="font-hand text-sm text-ink/60 mt-1.5">Optional.</p>
+        </div>
+
+        <div class="min-w-0">
+          <label for="f-tg" class="font-marker text-lg text-ink inline-flex items-center gap-2">
+            <svg class="ic text-ink/70" aria-hidden="true"><use href="#ic-tg"/></svg>
+            Telegram
+          </label>
+          <div class="box sketch-2 rough-shadow-sm px-3 py-2 mt-1.5 flex items-center gap-1 min-w-0">
+            <span class="font-hand text-lg text-ink/50 shrink-0">t.me/</span>
+            <input id="f-tg" class="bare text-lg min-w-0" type="text" placeholder="community" autocomplete="off" spellcheck="false" maxlength="32" />
+          </div>
+          <p class="font-hand text-sm text-ink/60 mt-1.5">Optional.</p>
+        </div>
+      </div>
+
+      <!-- ---------- 7. developer buy ---------- -->
+      <div class="mt-6">
+        <div class="flex items-baseline justify-between gap-2">
+          <label for="f-buy" class="font-marker text-lg text-ink">Developer buy</label>
+          <span class="font-caveat text-lg text-brown">optional</span>
+        </div>
+
+        <div id="buy-box" class="box sketch-2 rough-shadow-sm px-3 py-3 mt-1.5 flex items-center gap-2">
+          <input id="f-buy" class="bare font-marker text-3xl num min-w-0" type="text" inputmode="decimal"
+                 autocomplete="off" spellcheck="false" value="0.00" aria-describedby="buy-hint" />
+          <button type="button" id="buy-max" class="font-marker text-sm px-2.5 py-1 sketch-2 bg-mustard text-ink hover:bg-forest hover:text-paper transition shrink-0">Max</button>
+          <span class="font-marker text-sm px-2.5 py-1.5 sketch-2 bg-paper2 whitespace-nowrap shrink-0">ETH</span>
+        </div>
+
+        <p id="buy-hint" class="font-hand text-sm text-ink/60 mt-1.5 num">Max <span id="buy-max-txt">0.0678</span> &middot; 5% of supply</p>
+        <p id="buy-err" class="font-hand text-sm text-crayred mt-0.5" hidden>Clamped to the maximum developer buy.</p>
+      </div>
+
+      <!-- ---------- 8. advanced ---------- -->
+      <details class="knobs mt-6 bg-paper sketch-2 rough-shadow-sm">
+        <summary class="flex items-center justify-between gap-2 px-3.5 py-2.5">
+          <span class="font-marker text-lg text-ink">Advanced</span>
+          <span class="font-hand text-sm text-ink/55 inline-flex items-center gap-2">
+            preview only
+            <svg class="ic knobs-chev text-xl" aria-hidden="true"><use href="#ic-chev"/></svg>
+          </span>
+        </summary>
+
+        <div class="px-3.5 pb-4 pt-1 border-t-2 border-ink/15">
+          <div class="mt-3">
+            <label for="f-supply" class="font-hand text-[17px] text-ink/80">Initial supply</label>
+            <div class="box sketch-2 px-3 py-2 mt-1 flex items-center gap-2" style="box-shadow:none">
+              <input id="f-supply" class="bare font-marker text-xl num min-w-0" type="text" value="1,000,000,000" readonly aria-readonly="true" />
+              <span class="font-hand text-sm px-2 py-1 sketch-2 bg-paper2 whitespace-nowrap shrink-0">tokens</span>
+            </div>
+            <p class="font-hand text-sm text-ink/60 mt-1.5">Fixed in this preview — the field is read-only because there is no contract to configure.</p>
+          </div>
+
+          <div class="mt-4">
+            <p class="font-hand text-[17px] text-ink/80">Creator fee share</p>
+            <div class="bg-paper2 sketch-2 px-3 py-2 mt-1 flex items-center justify-between gap-2">
+              <span class="font-marker text-xl num">70%</span>
+              <span class="leader" aria-hidden="true"></span>
+              <span class="font-hand text-[17px] text-ink/70">creator &middot; 30% protocol</span>
+            </div>
+            <p class="font-hand text-sm text-ink/60 mt-1.5">Illustrative split, not adjustable and not enforced by anything.</p>
+          </div>
+
+          <p class="font-caveat text-lg text-brown mt-4 leading-tight">
+            these knobs are drawings — they configure nothing
+          </p>
+        </div>
+      </details>
+
+      <!-- ---------- 9. footer row ---------- -->
+      <div class="mt-6 pt-4 border-t-2 border-ink/15">
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+          <span class="font-hand text-[17px] text-ink/70 inline-flex items-center gap-2">
+            <svg class="ic text-xl text-brown" aria-hidden="true"><use href="#ic-gas"/></svg>
+            Uniswap &middot; ETH 0.0005 due
+          </span>
+          <span class="font-caveat text-lg text-brown">illustrative figure</span>
+        </div>
+
+        <button type="submit" id="submit-btn" disabled
+          class="cta w-full mt-3 sketch-2 bg-mustard text-ink font-marker text-xl sm:text-2xl px-5 py-3.5 rough-shadow-sm hover:bg-forest hover:text-paper inline-flex items-center justify-center gap-2">
+          <span id="submit-label">Add a name</span>
+          <svg id="submit-arrow" class="ic text-2xl" aria-hidden="true" hidden><use href="#ic-arrow"/></svg>
+        </button>
+
+        <p class="font-hand text-xs text-ink/55 text-center mt-3 leading-snug">
+          The button opens an explainer, not a transaction. No contract is deployed, no wallet is touched and no fee is charged.
+        </p>
+      </div>
+    </form>
+
+    <!-- ================= RIGHT: live preview ================= -->
+    <aside class="min-w-0 lg:sticky lg:top-[9.5rem]">
+      <div class="relative bg-paper2 sketch-2 rough-shadow p-4 sm:p-5 min-w-0">
+        <span class="pin"></span>
+        <p class="font-caveat text-xl text-brown leading-none mt-1">live preview</p>
+
+        <!-- square artwork slot -->
+        <div class="mt-3 bg-paper sketch rough-shadow-sm overflow-hidden">
+          <div class="relative w-full" style="padding-top:100%">
+            <div class="absolute inset-0 flex items-center justify-center">
+              <img id="pv-img" alt="Token artwork preview" class="w-full h-full object-cover" hidden />
+              <div id="pv-img-empty" class="flex flex-col items-center gap-2 text-ink/40 px-4 text-center">
+                <svg class="ic text-6xl" aria-hidden="true"><use href="#ic-image"/></svg>
+                <span class="font-hand text-sm">no artwork yet</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h2 id="pv-name" class="font-marker text-forest text-2xl mt-4 leading-tight break-words">Your token</h2>
+        <p id="pv-ticker" class="font-hand text-lg text-brown leading-none mt-1 break-words">ticker</p>
+
+        <!-- stat list -->
+        <dl class="mt-4 flex flex-col gap-1.5 font-hand text-[17px]">
+          <div class="flex items-baseline gap-1">
+            <dt class="text-ink/70 shrink-0">Launch fee</dt>
+            <span class="leader" aria-hidden="true"></span>
+            <dd class="num shrink-0">0.0005 ETH</dd>
+          </div>
+          <div class="flex items-baseline gap-1">
+            <dt class="text-ink/70 shrink-0">Trading fees</dt>
+            <span class="leader" aria-hidden="true"></span>
+            <dd class="shrink-0 text-right">70% creator / 30% protocol</dd>
+          </div>
+          <div class="flex items-baseline gap-1">
+            <dt class="text-ink/70 shrink-0">Graduation</dt>
+            <span class="leader" aria-hidden="true"></span>
+            <dd class="num shrink-0">4.2 ETH</dd>
+          </div>
+          <div class="flex items-baseline gap-1">
+            <dt class="text-ink/70 shrink-0">Liquidity</dt>
+            <span class="leader" aria-hidden="true"></span>
+            <dd class="shrink-0 inline-flex items-center gap-1.5">
+              <svg class="ic text-forest" aria-hidden="true"><use href="#ic-lock"/></svg>
+              Locked
+            </dd>
+          </div>
+        </dl>
+
+        <p class="font-caveat text-lg text-brown mt-2 leading-tight">
+          illustrative figures — no fee is charged and nothing graduates
+        </p>
+
+        <!-- developer buy echo -->
+        <div id="pv-buy-wrap" class="mt-4 bg-paper sketch-2 px-3 py-2 flex items-baseline gap-1" hidden>
+          <span class="text-ink/70 shrink-0">Developer buy</span>
+          <span class="leader" aria-hidden="true"></span>
+          <span id="pv-buy" class="font-marker num shrink-0">0.00 ETH</span>
+        </div>
+
+        <!-- description preview -->
+        <div id="pv-desc-wrap" class="mt-4" hidden>
+          <p class="font-marker text-lg text-forest">About</p>
+          <p id="pv-desc" class="font-hand text-[17px] leading-snug text-ink/85 mt-1 break-words whitespace-pre-line"></p>
+        </div>
+
+        <!-- socials preview -->
+        <div id="pv-socials-wrap" class="mt-4" hidden>
+          <p class="font-marker text-lg text-forest">Socials</p>
+          <div class="flex flex-wrap gap-2 mt-2">
+            <span id="pv-x" class="font-hand text-sm px-2.5 py-1 sketch-2 bg-paper inline-flex items-center gap-1.5 max-w-full" hidden>
+              <svg class="ic shrink-0" aria-hidden="true"><use href="#ic-xlogo"/></svg>
+              <span id="pv-x-txt" class="truncate">x.com/</span>
+            </span>
+            <span id="pv-tg" class="font-hand text-sm px-2.5 py-1 sketch-2 bg-paper inline-flex items-center gap-1.5 max-w-full" hidden>
+              <svg class="ic shrink-0" aria-hidden="true"><use href="#ic-tg"/></svg>
+              <span id="pv-tg-txt" class="truncate">t.me/</span>
+            </span>
+          </div>
+          <p class="font-caveat text-lg text-brown mt-2 leading-tight">preview chips — they are not links</p>
+        </div>
+
+        <p class="font-hand text-xs text-ink/55 mt-4 leading-snug">
+          This card is a mock-up of a listing. It is never published, never saved and never sent anywhere.
+        </p>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ============ closing honesty note ============ -->
+  <div class="bg-paper2 sketch rough-shadow-sm p-5 mt-8 flex items-start gap-3">
+    <span class="inline-flex items-center justify-center w-10 h-10 border-2 border-ink rounded-full bg-crayred text-paper text-xl shrink-0">
+      <svg class="ic" aria-hidden="true"><use href="#ic-lock"/></svg>
+    </span>
+    <p class="font-hand text-base sm:text-lg text-ink/85 leading-snug">
+      <b class="font-marker text-crayred">Read this twice.</b>
+      <span data-disclaimer-long>The Vladhood Launchpad is a design mock-up. There is no launchpad contract, no escrow,
+      no token sale and no way to deposit here — the buttons open an explainer instead. Every meme listed is invented,
+      and every raise, cap, market cap and holder count is generated demo data.</span>
+      The launch fee, graduation target and fee split shown on this page are illustrative numbers for the layout.
+      If you want a real on-chain action, the only live thing on this site is the
+      <a href="/swap" class="text-forest underline decoration-wavy decoration-mustard hover:text-crayred">$VLAD swap</a>.
+      $VLAD is a community meme coin for entertainment only — not financial advice.
+    </p>
+  </div>
+</main>
+
+<!-- ============ footer ============ -->
+<footer class="border-t-[3px] border-ink" style="background:#2f6b2f">
+  <div class="max-w-[100rem] mx-auto px-4 py-6 text-center text-paper">
+    <p class="font-marker text-2xl">VLADHOOD · $VLAD</p>
+    <p class="font-caveat text-xl text-mustard mt-1">Green candles forever.</p>
+    <p class="font-hand text-sm text-paper/75 mt-3 max-w-2xl mx-auto">
+      Launchpad is a UI preview with demo data — no contracts deployed, no funds involved.
+      $VLAD is a community meme coin for entertainment only. Not financial advice. DYOR.
+    </p>
+    <p class="font-hand text-sm text-paper/60 mt-2">© 2026 Vladhood · $VLAD · Robinhood Chain</p>
+  </div>
+</footer>
+
+<!-- ============ preview modal ============ -->
+<div id="preview-modal" hidden role="dialog" aria-modal="true" aria-labelledby="preview-modal-title"
+     class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div data-modal-backdrop class="absolute inset-0 bg-ink/70 backdrop-blur-sm"></div>
+
+  <div class="relative bg-paper sketch rough-shadow w-full max-w-md p-5 sm:p-6 max-h-[90vh] overflow-y-auto">
+    <span class="pin"></span>
+
+    <button type="button" data-modal-close aria-label="Close"
+      class="absolute top-3 right-3 w-9 h-9 inline-flex items-center justify-center border-2 border-ink rounded-full bg-paper2 text-ink text-lg hover:bg-crayred hover:text-paper transition">
+      <svg class="ic" aria-hidden="true"><use href="#ic-x"/></svg>
+    </button>
+
+    <h2 id="preview-modal-title" class="font-marker text-crayred text-2xl sm:text-3xl mt-2 pr-10">Nothing was launched</h2>
+    <p class="font-caveat text-xl text-brown mt-1" id="preview-modal-sub">UI preview — nothing is deployed.</p>
+
+    <div class="mt-4 space-y-3 font-hand text-lg text-ink/85 leading-snug">
+      <p data-modal-copy>The Vladhood Launchpad is a front-end preview. There are no launchpad smart contracts, no escrow wallet and no token sale running, so this button cannot deploy a token, take a payment or reserve an allocation.</p>
+    </div>
+
+    <ul class="font-hand text-[17px] mt-3 flex flex-col gap-1.5 text-ink/85">
+      <li class="flex gap-2"><svg class="ic mt-1.5 shrink-0 text-crayred" aria-hidden="true"><use href="#ic-x"/></svg><span>No contract was deployed.</span></li>
+      <li class="flex gap-2"><svg class="ic mt-1.5 shrink-0 text-crayred" aria-hidden="true"><use href="#ic-x"/></svg><span>No wallet was touched and no fee was charged.</span></li>
+      <li class="flex gap-2"><svg class="ic mt-1.5 shrink-0 text-crayred" aria-hidden="true"><use href="#ic-x"/></svg><span>Your artwork was not uploaded — it stayed in this browser.</span></li>
+      <li class="flex gap-2"><svg class="ic mt-1.5 shrink-0 text-forest" aria-hidden="true"><use href="#ic-check"/></svg><span>The token will not appear on the launchpad board.</span></li>
+    </ul>
+
+    <p class="font-caveat text-xl text-brown mt-3">the fee and graduation numbers are illustrative too.</p>
+
+    <div class="mt-5 flex flex-col sm:flex-row gap-3">
+      <a href="/swap" class="flex-1 sketch-2 bg-mustard text-ink font-marker text-lg px-4 py-2.5 rough-shadow-sm hover:bg-forest hover:text-paper transition inline-flex items-center justify-center gap-2">
+        Go to the swap
+        <svg class="ic text-xl" aria-hidden="true"><use href="#ic-arrow"/></svg>
+      </a>
+      <a href="/launchpad/" class="flex-1 sketch bg-paper2 text-ink font-marker text-lg px-4 py-2.5 rough-shadow-sm hover:bg-ink hover:text-paper transition inline-flex items-center justify-center">
+        Back to the board
+      </a>
+    </div>
+
+    <button type="button" data-modal-close class="w-full mt-3 font-hand text-lg text-ink/70 underline decoration-wavy decoration-mustard hover:text-crayred transition">
+      Keep editing the form
+    </button>
+
+    <p class="font-hand text-xs text-ink/55 mt-4">The $VLAD swap is the only part of this site that touches the chain. Crypto is risky — DYOR.</p>
+  </div>
+</div>
+
+<script src="/launchpad.js?v=4"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ---------------------------------------------------------------
+     shared module is optional — the page must work without it
+  --------------------------------------------------------------- */
+  var LP = window.VladLaunchpad || null;
+
+  (function syncDisclaimers() {
+    if (!LP) return;
+    try {
+      var long = document.querySelector('[data-disclaimer-long]');
+      if (long && LP.DISCLAIMER_LONG) long.textContent = LP.DISCLAIMER_LONG;
+      var copy = document.querySelector('[data-modal-copy]');
+      if (copy && LP.MODAL_COPY) copy.textContent = LP.MODAL_COPY;
+    } catch (e) { /* cosmetic only */ }
+  })();
+
+  function fEth(n) {
+    try {
+      if (LP && LP.fmt && LP.fmt.eth) return LP.fmt.eth(n);
+    } catch (e) { /* fall through */ }
+    return (Number(n) || 0).toFixed(4) + ' ETH';
+  }
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ---------------------------------------------------------------
+     constants
+  --------------------------------------------------------------- */
+  var NAME_MAX = 32;
+  var TICKER_MAX = 10;
+  var DESC_MAX = 256;
+  var DEV_BUY_MAX = 0.0678;
+
+  /* ---------------------------------------------------------------
+     elements
+  --------------------------------------------------------------- */
+  var form = $('launch-form');
+
+  var nameEl = $('f-name'), nameBox = $('name-box'), nameCount = $('name-count'), nameErr = $('name-err');
+  var tickEl = $('f-ticker'), tickBox = $('ticker-box'), tickCount = $('ticker-count'), tickErr = $('ticker-err');
+  var descEl = $('f-desc'), descBox = $('desc-box'), descCount = $('desc-count'), descErr = $('desc-err');
+
+  var consentEl = $('f-consent');
+  var dropEl = $('drop'), imageEl = $('f-image');
+  var dropEmpty = $('drop-empty'), dropFilled = $('drop-filled');
+  var dropTitle = $('drop-title'), dropSub = $('drop-sub');
+  var dropThumb = $('drop-thumb'), dropName = $('drop-name'), dropSize = $('drop-size');
+  var imgClear = $('img-clear'), imgErr = $('img-err');
+
+  var xEl = $('f-x'), tgEl = $('f-tg');
+
+  var buyEl = $('f-buy'), buyBox = $('buy-box'), buyMaxBtn = $('buy-max'), buyErr = $('buy-err');
+  var buyMaxTxt = $('buy-max-txt');
+
+  var submitBtn = $('submit-btn'), submitLabel = $('submit-label'), submitArrow = $('submit-arrow');
+
+  var pvImg = $('pv-img'), pvImgEmpty = $('pv-img-empty');
+  var pvName = $('pv-name'), pvTicker = $('pv-ticker');
+  var pvDescWrap = $('pv-desc-wrap'), pvDesc = $('pv-desc');
+  var pvBuyWrap = $('pv-buy-wrap'), pvBuy = $('pv-buy');
+  var pvSocialsWrap = $('pv-socials-wrap');
+  var pvX = $('pv-x'), pvXTxt = $('pv-x-txt');
+  var pvTg = $('pv-tg'), pvTgTxt = $('pv-tg-txt');
+
+  if (buyMaxTxt) buyMaxTxt.textContent = String(DEV_BUY_MAX);
+
+  /* ---------------------------------------------------------------
+     small helpers
+  --------------------------------------------------------------- */
+  function show(el, on) { if (el) el.hidden = !on; }
+  function bad(box, on) { if (box) box.classList.toggle('bad', !!on); }
+
+  /* a "we dropped that character" note is transient — it clears itself so the
+     field does not keep looking broken after the value is already clean */
+  var flashTimers = {};
+  function flash(key, note, box, on) {
+    show(note, on);
+    bad(box, on);
+    if (flashTimers[key]) { clearTimeout(flashTimers[key]); flashTimers[key] = null; }
+    if (on) {
+      flashTimers[key] = setTimeout(function () {
+        show(note, false);
+        bad(box, false);
+        flashTimers[key] = null;
+      }, 2400);
+    }
+  }
+
+  /* strip characters a field does not accept while keeping the caret sane */
+  function sanitize(el, re, max) {
+    var before = el.value;
+    var caret = el.selectionStart;
+    var cleaned = before.replace(re, '');
+    if (max != null && cleaned.length > max) cleaned = cleaned.slice(0, max);
+    if (cleaned === before) return false;
+    if (typeof caret === 'number') {
+      var head = before.slice(0, caret).replace(re, '');
+      if (max != null && head.length > max) head = head.slice(0, max);
+      el.value = cleaned;
+      try { el.setSelectionRange(head.length, head.length); } catch (e) { /* older browsers */ }
+    } else {
+      el.value = cleaned;
+    }
+    return true;
+  }
+
+  /* ---------------------------------------------------------------
+     link detection for the description
+  --------------------------------------------------------------- */
+  var TLDS = 'com|net|org|io|xyz|co|app|fun|gg|me|to|link|finance|eth|sh|dev|ai|info|biz|club|live|site|online|store|tech|top|cc|tv|so|is|it|ru|de|uk|us|fi|money|cash|wtf|lol|pro|press|space|world|team|social|chat|zone';
+  var URLISH = new RegExp(
+    '(https?:\\/\\/|ftp:\\/\\/|www\\.|t\\.me\\/|@[A-Za-z0-9_]{3,}|' +
+    '\\b[a-z0-9][a-z0-9-]*\\.(' + TLDS + ')\\b)', 'i'
+  );
+  function looksLikeLink(s) { return URLISH.test(String(s || '')); }
+
+  /* ---------------------------------------------------------------
+     state
+  --------------------------------------------------------------- */
+  var state = {
+    name: '', ticker: '', desc: '',
+    descBad: false,
+    file: null, fileUrl: '',
+    x: '', tg: '',
+    buy: 0
+  };
+
+  /* ---------------------------------------------------------------
+     field readers
+  --------------------------------------------------------------- */
+  function readName() {
+    var stripped = sanitize(nameEl, /[^A-Za-z0-9 ]+/g, NAME_MAX);
+    state.name = nameEl.value.replace(/\s+/g, ' ').trim();
+    nameCount.textContent = nameEl.value.length + ' / ' + NAME_MAX;
+    flash('name', nameErr, nameBox, stripped);
+  }
+
+  function readTicker() {
+    var raw = tickEl.value;
+    var upper = raw.toUpperCase();
+    if (upper !== raw) {
+      var caret = tickEl.selectionStart;
+      tickEl.value = upper;
+      try { tickEl.setSelectionRange(caret, caret); } catch (e) { /* older browsers */ }
+    }
+    var stripped = sanitize(tickEl, /[^A-Z0-9]+/g, TICKER_MAX);
+    state.ticker = tickEl.value;
+    tickCount.textContent = tickEl.value.length + ' / ' + TICKER_MAX;
+    flash('ticker', tickErr, tickBox, stripped);
+  }
+
+  function readDesc() {
+    if (descEl.value.length > DESC_MAX) {
+      var caret = descEl.selectionStart;
+      descEl.value = descEl.value.slice(0, DESC_MAX);
+      try { descEl.setSelectionRange(Math.min(caret, DESC_MAX), Math.min(caret, DESC_MAX)); } catch (e) { /* older browsers */ }
+    }
+    state.desc = descEl.value.trim();
+    state.descBad = state.desc.length > 0 && looksLikeLink(state.desc);
+    descCount.textContent = descEl.value.length + ' / ' + DESC_MAX;
+    show(descErr, state.descBad);
+    bad(descBox, state.descBad);
+  }
+
+  function readSocials() {
+    var xv = xEl.value.replace(/^@+/, '').replace(/[^A-Za-z0-9_]+/g, '');
+    if (xv !== xEl.value) xEl.value = xv;
+    state.x = xv;
+
+    var tv = tgEl.value.replace(/^@+/, '').replace(/[^A-Za-z0-9_]+/g, '');
+    if (tv !== tgEl.value) tgEl.value = tv;
+    state.tg = tv;
+  }
+
+  function readBuy() {
+    var raw = buyEl.value.replace(/[^0-9.]/g, '');
+    var parts = raw.split('.');
+    if (parts.length > 2) raw = parts.shift() + '.' + parts.join('');
+    var over = false;
+    var n = parseFloat(raw);
+    if (!isFinite(n)) n = 0;
+    if (n > DEV_BUY_MAX) { n = DEV_BUY_MAX; raw = String(DEV_BUY_MAX); over = true; }
+    if (raw !== buyEl.value) buyEl.value = raw;
+    state.buy = n;
+    flash('buy', buyErr, buyBox, over);
+  }
+
+  /* ---------------------------------------------------------------
+     artwork — local only, never uploaded
+  --------------------------------------------------------------- */
+  function setLocked(locked) {
+    dropEl.setAttribute('data-locked', locked ? 'true' : 'false');
+    imageEl.disabled = !!locked;
+    if (locked) {
+      dropTitle.textContent = 'Confirm public upload first';
+      dropSub.textContent = 'Tick the box above to pick artwork.';
+    } else {
+      dropTitle.textContent = 'Drop artwork here, or click to choose';
+      dropSub.textContent = 'PNG, JPG, GIF or SVG — previewed locally, never sent.';
+    }
+  }
+
+  function humanSize(bytes) {
+    var b = Number(bytes) || 0;
+    if (b < 1024) return b + ' B';
+    if (b < 1024 * 1024) return (b / 1024).toFixed(0) + ' KB';
+    return (b / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  function clearImage() {
+    if (state.fileUrl) {
+      try { URL.revokeObjectURL(state.fileUrl); } catch (e) { /* ignore */ }
+    }
+    state.file = null;
+    state.fileUrl = '';
+    imageEl.value = '';
+    show(dropFilled, false);
+    show(dropEmpty, true);
+    show(imgClear, false);
+    render();
+  }
+
+  function acceptFile(file) {
+    if (!file) return;
+    if (!/^image\//.test(file.type || '')) {
+      show(imgErr, true);
+      return;
+    }
+    show(imgErr, false);
+    if (state.fileUrl) {
+      try { URL.revokeObjectURL(state.fileUrl); } catch (e) { /* ignore */ }
+    }
+    state.file = file;
+    /* URL.createObjectURL keeps the bytes in this tab — no network request happens */
+    state.fileUrl = URL.createObjectURL(file);
+    dropThumb.src = state.fileUrl;
+    dropName.textContent = file.name || 'artwork';
+    dropSize.textContent = humanSize(file.size);
+    show(dropEmpty, false);
+    show(dropFilled, true);
+    show(imgClear, true);
+    render();
+  }
+
+  consentEl.addEventListener('change', function () {
+    setLocked(!consentEl.checked);
+    if (!consentEl.checked) clearImage();
+    else render();
+  });
+
+  imageEl.addEventListener('change', function () {
+    acceptFile(imageEl.files && imageEl.files[0]);
+  });
+
+  imgClear.addEventListener('click', function (ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    clearImage();
+  });
+
+  ['dragenter', 'dragover'].forEach(function (evt) {
+    dropEl.addEventListener(evt, function (ev) {
+      if (imageEl.disabled) return;
+      ev.preventDefault();
+      dropEl.classList.add('is-over');
+    });
+  });
+  ['dragleave', 'dragend'].forEach(function (evt) {
+    dropEl.addEventListener(evt, function () { dropEl.classList.remove('is-over'); });
+  });
+  dropEl.addEventListener('drop', function (ev) {
+    if (imageEl.disabled) return;
+    ev.preventDefault();
+    dropEl.classList.remove('is-over');
+    var dt = ev.dataTransfer;
+    if (dt && dt.files && dt.files.length) acceptFile(dt.files[0]);
+  });
+
+  /* ---------------------------------------------------------------
+     developer buy chips
+  --------------------------------------------------------------- */
+  buyMaxBtn.addEventListener('click', function () {
+    buyEl.value = String(DEV_BUY_MAX);
+    readBuy();
+    render();
+  });
+
+  /* ---------------------------------------------------------------
+     what is still missing? drives the button label
+  --------------------------------------------------------------- */
+  function missingLabel() {
+    if (!state.name) return 'Add a name';
+    if (!state.ticker) return 'Add a ticker';
+    if (state.descBad) return 'Remove the link';
+    if (!consentEl.checked) return 'Confirm image upload';
+    if (!state.file) return 'Add token image';
+    return '';
+  }
+
+  /* ---------------------------------------------------------------
+     render everything that mirrors the form
+  --------------------------------------------------------------- */
+  function render() {
+    /* preview: artwork */
+    if (state.fileUrl) {
+      pvImg.src = state.fileUrl;
+      show(pvImg, true);
+      show(pvImgEmpty, false);
+    } else {
+      pvImg.removeAttribute('src');
+      show(pvImg, false);
+      show(pvImgEmpty, true);
+    }
+
+    /* preview: name + ticker */
+    pvName.textContent = state.name || 'Your token';
+    pvName.classList.toggle('text-ink/40', !state.name);
+    pvName.classList.toggle('text-forest', !!state.name);
+    pvTicker.textContent = state.ticker ? '$' + state.ticker : 'ticker';
+
+    /* preview: developer buy */
+    if (state.buy > 0) {
+      pvBuy.textContent = fEth(state.buy);
+      show(pvBuyWrap, true);
+    } else {
+      show(pvBuyWrap, false);
+    }
+
+    /* preview: description */
+    if (state.desc && !state.descBad) {
+      pvDesc.textContent = state.desc;
+      show(pvDescWrap, true);
+    } else {
+      show(pvDescWrap, false);
+    }
+
+    /* preview: socials */
+    var anySocial = !!(state.x || state.tg);
+    show(pvSocialsWrap, anySocial);
+    show(pvX, !!state.x);
+    if (state.x) pvXTxt.textContent = 'x.com/' + state.x;
+    show(pvTg, !!state.tg);
+    if (state.tg) pvTgTxt.textContent = 't.me/' + state.tg;
+
+    /* the call to action reflects state */
+    var missing = missingLabel();
+    submitBtn.disabled = !!missing;
+    submitBtn.setAttribute('aria-disabled', missing ? 'true' : 'false');
+    submitLabel.textContent = missing || 'Launch token';
+    show(submitArrow, !missing);
+  }
+
+  /* ---------------------------------------------------------------
+     wiring
+  --------------------------------------------------------------- */
+  function on(el, fn) {
+    if (!el) return;
+    el.addEventListener('input', function () { fn(); render(); });
+  }
+  on(nameEl, readName);
+  on(tickEl, readTicker);
+  on(descEl, readDesc);
+  on(xEl, readSocials);
+  on(tgEl, readSocials);
+  on(buyEl, readBuy);
+
+  buyEl.addEventListener('blur', function () {
+    var n = state.buy;
+    buyEl.value = n ? String(n) : '0.00';
+    flash('buy', buyErr, buyBox, false);
+    render();
+  });
+
+  /* ---------------------------------------------------------------
+     preview modal — the "launch" button never deploys anything
+  --------------------------------------------------------------- */
+  var modal = $('preview-modal');
+  var modalSub = $('preview-modal-sub');
+  var lastFocused = null;
+
+  function openModal() {
+    lastFocused = document.activeElement;
+    var label = state.ticker ? ('$' + state.ticker) : (state.name || 'this token');
+    modalSub.textContent = 'You pressed "Launch token" for ' + label + ' — but there is nothing to launch.';
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    var closeBtn = modal.querySelector('[data-modal-close]');
+    if (closeBtn) closeBtn.focus();
+  }
+
+  function closeModal() {
+    modal.hidden = true;
+    document.body.style.overflow = '';
+    if (lastFocused && lastFocused.focus) lastFocused.focus();
+    lastFocused = null;
+  }
+
+  form.addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    if (missingLabel()) return;   /* nothing to explain yet */
+    openModal();
+  });
+
+  document.addEventListener('click', function (ev) {
+    if (!ev.target || !ev.target.closest) return;
+    if (ev.target.closest('[data-modal-close]') || ev.target.closest('[data-modal-backdrop]')) closeModal();
+  });
+
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Escape' && !modal.hidden) closeModal();
+  });
+
+  window.addEventListener('pagehide', function () {
+    if (state.fileUrl) {
+      try { URL.revokeObjectURL(state.fileUrl); } catch (e) { /* ignore */ }
+    }
+  });
+
+  /* ---------------------------------------------------------------
+     first paint — honour values restored by the browser
+  --------------------------------------------------------------- */
+  setLocked(!consentEl.checked);
+  readName(); readTicker(); readDesc(); readSocials(); readBuy();
+  render();
+})();
+</script>
+</body>
+</html>
