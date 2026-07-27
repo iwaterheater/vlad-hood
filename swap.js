@@ -344,6 +344,9 @@
       q('.vs-conn-txt').textContent = addr ? (addr.slice(0, 6) + '…' + addr.slice(-4)) : 'Connect wallet';
       var pill = q('.vs-connect'); pill.title = addr ? 'Disconnect wallet' : 'Connect wallet';
       q('.vs-conn-ic').innerHTML = addr ? DISC_IC : WALLET_IC;
+      /* let the points module know who is connected */
+      window.VLAD_ACCOUNT = addr || null;
+      try { window.dispatchEvent(new CustomEvent('vlad:account', { detail: addr || null })); } catch (e) {}
     }
     async function disconnect() {
       try { localStorage.removeItem('vlad_connected'); localStorage.removeItem('vlad_wallet'); } catch (e) {}

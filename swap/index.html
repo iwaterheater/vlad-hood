@@ -74,6 +74,22 @@
 
   <div class="vlad-stats w-full max-w-2xl mx-auto mt-8"></div>
 
+  <!-- Vladhood Points -->
+  <div class="w-full max-w-4xl mt-10">
+    <h2 class="font-marker text-forest text-4xl md:text-5xl text-center mb-2 rotate-1">
+      <span class="scribble-underline">Vladhood Points</span>
+    </h2>
+    <p class="text-center font-caveat text-2xl text-brown mb-8">earn VP on every swap — counted straight from the chain</p>
+    <div class="flex flex-col lg:flex-row gap-6 items-start">
+      <div class="bg-paper2 sketch rough-shadow p-4 md:p-5 w-full max-w-md mx-auto lg:mx-0 lg:flex-1">
+        <div class="vlad-points"></div>
+      </div>
+      <div class="bg-paper2 sketch rough-shadow p-4 md:p-5 w-full max-w-md mx-auto lg:mx-0 lg:flex-1">
+        <div class="vlad-leaderboard"></div>
+      </div>
+    </div>
+  </div>
+
   <div class="flex flex-wrap gap-4 justify-center mt-8">
     <a href="https://dexscreener.com/robinhood/0xac870e97fc1fe981f4d887e5f453203745a15ef4" target="_blank" rel="noopener"
        class="sketch-2 bg-ink text-paper font-marker text-lg px-5 py-2 rough-shadow-sm hover:bg-forest transition inline-flex items-center gap-2">
@@ -96,6 +112,7 @@
 </footer>
 
 <!-- custom swap (vanilla JS on LI.FI API) -->
-<script src="/swap.js?v=15"></script>
+<script src="/swap.js?v=16"></script>
+<script src="/points.js?v=1"></script>
 </body>
 </html>
