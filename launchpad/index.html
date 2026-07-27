@@ -269,10 +269,10 @@
       <!-- ten per page: five across, two rows -->
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mt-2" data-grad-grid></div>
 
-      <div class="flex items-center justify-center gap-2 mt-2.5" data-grad-pager hidden>
-        <button type="button" class="grad-page font-marker text-[11px] px-2.5 py-1 border-2 border-ink rounded-full bg-paper rough-shadow-sm" data-grad-prev>&larr; Prev</button>
-        <span class="num text-xs text-ink/70" data-grad-pageinfo></span>
-        <button type="button" class="grad-page font-marker text-[11px] px-2.5 py-1 border-2 border-ink rounded-full bg-paper rough-shadow-sm" data-grad-next>Next &rarr;</button>
+      <div class="flex items-center justify-center gap-1.5 mt-2" data-grad-pager hidden>
+        <button type="button" class="grad-page font-marker text-[9px] leading-none px-2 py-1 border-2 border-ink rounded-full bg-paper" data-grad-prev>&larr; Prev</button>
+        <span class="num text-[10px] text-ink/70" data-grad-pageinfo></span>
+        <button type="button" class="grad-page font-marker text-[9px] leading-none px-2 py-1 border-2 border-ink rounded-full bg-paper" data-grad-next>Next &rarr;</button>
       </div>
     </div>
   </section>
@@ -547,8 +547,7 @@
 
   function gradChipHtml(meme) {
     var bg = (meme.avatar && meme.avatar.bg) ? meme.avatar.bg : '#a8d5a2';
-    var ch = Number(meme.change24h) || 0;
-    var tone = ch > 0 ? 'text-forest2' : (ch < 0 ? 'text-crayred' : 'text-ink/60');
+    var born = fAgo(meme.startsAt);
     return '' +
       '<a class="grad-chip flex flex-col gap-1 bg-paper border-2 border-ink rounded-xl px-2 py-1.5 rough-shadow-sm" ' +
         'href="/launchpad/meme.html?id=' + encodeURIComponent(meme.id) + '">' +
@@ -559,10 +558,11 @@
             '<span class="block num text-[11px] text-brown mt-0.5 truncate">$' + esc(meme.symbol) + '</span>' +
           '</span>' +
         '</span>' +
-        '<span class="flex items-baseline justify-between gap-1 leading-none">' +
-          '<span class="num text-xs text-ink truncate">' + esc(fUsd(meme.marketCap)) + '</span>' +
-          '<span class="num text-xs ' + tone + ' shrink-0">' + esc(fPct(ch)) + '</span>' +
-        '</span>' +
+        '<span class="num text-xs text-ink leading-none">' + esc(fUsd(meme.marketCap)) +
+          '<span class="font-hand text-[10px] text-brown ml-1">MC</span></span>' +
+        '<span class="num text-[10px] text-ink/60 leading-none truncate" title="' + esc(meme.contract) + '">' +
+          esc(fAddr(meme.contract)) + '</span>' +
+        '<span class="num text-[10px] text-brown leading-none truncate">launched ' + esc(born) + '</span>' +
       '</a>';
   }
 
