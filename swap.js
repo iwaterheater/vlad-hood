@@ -110,6 +110,17 @@
       '.vt-row:hover .vt-hash{text-decoration:underline}',
       '.vt-time{color:#8a5a2b;font-size:13px;flex:none;min-width:26px;text-align:right}',
       '.vt-empty{color:#8a5a2b;font-size:15px;text-align:center;padding:24px}',
+      /* wallet picker */
+      '.vw-ov{position:absolute;inset:-6px;background:rgba(244,236,216,.98);border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px;z-index:30;animation:vsFade .2s ease}',
+      '.vw-title{font-family:"Permanent Marker",cursive;font-size:22px;color:#2b2620;margin-bottom:14px}',
+      '.vw-list{display:flex;flex-direction:column;gap:8px;width:100%;max-width:300px;max-height:320px;overflow-y:auto}',
+      '.vw-item{display:flex;align-items:center;gap:11px;padding:11px 14px;background:#ece3cf;border:2px solid #2b2620;border-radius:14px;cursor:pointer;font-family:"Patrick Hand",cursive;font-size:17px;color:#2b2620;text-align:left;width:100%}',
+      '.vw-item:hover{background:#2f6b2f;color:#f4ecd8}',
+      '.vw-item img{width:26px;height:26px;border-radius:7px;flex:none}',
+      '.vw-ph{width:26px;height:26px;border-radius:7px;background:#d8cdb2;flex:none}',
+      '.vw-none{font-family:"Patrick Hand",cursive;font-size:15px;color:#8a5a2b;text-align:center;max-width:280px;line-height:1.4}',
+      '.vw-none a{color:#2f6b2f;text-decoration:underline}',
+      '.vw-close{margin-top:14px;font-family:"Patrick Hand",cursive;font-size:15px;color:#8a5a2b;background:none;border:0;cursor:pointer;text-decoration:underline}',
       /* stats tiles */
       '.vstat-row{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;width:100%}',
       '.vstat{flex:1;min-width:150px;background:#efe6cf;border:2.4px solid #2b2620;border-radius:16px;box-shadow:3px 4px 0 rgba(43,38,32,.8);padding:14px 16px;text-align:center}',
@@ -144,7 +155,28 @@
     return n.toLocaleString('en-US', { maximumFractionDigits: 2 });
   }
   function pad(a) { return a.toLowerCase().replace(/^0x/, '').padStart(64, '0'); }
-  function eth() { return window.ethereum; }
+  /* ---------- multi-wallet discovery (EIP-6963) ---------- */
+  var WALLETS = [];          /* [{uuid, name, icon, provider}] */
+  var chosen = null;         /* provider picked by the user */
+
+  function addWallet(d) {
+    if (!d || !d.info || !d.provider) return;
+    for (var i = 0; i < WALLETS.length; i++) if (WALLETS[i].uuid === d.info.uuid) return;
+    WALLETS.push({ uuid: d.info.uuid, rdns: d.info.rdns, name: d.info.name, icon: d.info.icon, provider: d.provider });
+  }
+  window.addEventListener('eip6963:announceProvider', function (e) { addWallet(e.detail); });
+  try { window.dispatchEvent(new Event('eip6963:requestProvider')); } catch (e) {}
+
+  function wallets() {
+    var list = WALLETS.slice();
+    /* legacy fallback: a wallet that only exposes window.ethereum */
+    if (!list.length && window.ethereum) {
+      var n = window.ethereum.isMetaMask ? 'MetaMask' : (window.ethereum.isPhantom ? 'Phantom' : (window.ethereum.isRabby ? 'Rabby' : 'Browser Wallet'));
+      list.push({ uuid: 'legacy', name: n, icon: '', provider: window.ethereum });
+    }
+    return list;
+  }
+  function eth() { return chosen || window.ethereum; }
 
   /* ---------- LI.FI ---------- */
   function quoteUrl(dir, wei, addr, slip) {
@@ -314,12 +346,13 @@
       q('.vs-conn-ic').innerHTML = addr ? DISC_IC : WALLET_IC;
     }
     async function disconnect() {
-      try { localStorage.removeItem('vlad_connected'); } catch (e) {}
+      try { localStorage.removeItem('vlad_connected'); localStorage.removeItem('vlad_wallet'); } catch (e) {}
       setConnected(null); st.balEth = st.balVlad = null; st.quote = null;
       amtEl.value = ''; st.amount = ''; outEl.textContent = '—'; outEl.className = 'vs-out muted';
       sendUsd.textContent = ''; recvUsd.textContent = ''; hideOverlay(); setStatus('Wallet disconnected'); paint();
       /* revoke so the next connect shows the account picker (pick another wallet) */
       try { if (eth() && eth().request) await eth().request({ method: 'wallet_revokePermissions', params: [{ eth_accounts: {} }] }); } catch (e) {}
+      chosen = null;   /* next connect starts from the wallet picker again */
     }
 
     var timer = null;
@@ -373,15 +406,50 @@
       }
     }
 
+    /* wallet picker overlay — lists every wallet installed in the browser */
+    function pickWallet() {
+      try { window.dispatchEvent(new Event('eip6963:requestProvider')); } catch (e) {}
+      return new Promise(function (resolve) {
+        var list = wallets();
+        if (list.length === 1) { resolve(list[0].provider); return; }
+        var box = document.createElement('div'); box.className = 'vw-ov';
+        var inner = '<div class="vw-title">Connect a wallet</div>';
+        if (!list.length) {
+          inner += '<div class="vw-none">No browser wallet found.<br/>Install <a href="https://metamask.io/download/" target="_blank" rel="noopener">MetaMask</a>, ' +
+            '<a href="https://phantom.com/download" target="_blank" rel="noopener">Phantom</a> or ' +
+            '<a href="https://robinhood.com/wallet/" target="_blank" rel="noopener">Robinhood Wallet</a> — then reload this page.</div>';
+        } else {
+          inner += '<div class="vw-list">' + list.map(function (w, i) {
+            var ic = w.icon ? ('<img src="' + w.icon + '" alt=""/>') : '<span class="vw-ph"></span>';
+            return '<button class="vw-item" data-i="' + i + '">' + ic + '<span>' + w.name + '</span></button>';
+          }).join('') + '</div>';
+        }
+        inner += '<button class="vw-close">cancel</button>';
+        box.innerHTML = inner;
+        panel().appendChild(box);
+        function done(p) { box.remove(); resolve(p); }
+        box.querySelectorAll('.vw-item').forEach(function (b) {
+          b.addEventListener('click', function () { done(list[parseInt(b.getAttribute('data-i'), 10)].provider); });
+        });
+        box.querySelector('.vw-close').addEventListener('click', function () { done(null); });
+      });
+    }
+
     async function onAction() {
       if (st.busy) return;
       try {
-        if (!eth()) { setStatus('No wallet found — install MetaMask.', true); return; }
         if (!st.account) {
+          var prov = await pickWallet();
+          if (!prov) return;                       /* user cancelled / no wallet */
+          chosen = prov;
           st.busy = true; updateBtn(); setStatus('Connecting…');
           var a = await eth().request({ method: 'eth_requestAccounts' });
           setConnected(a && a[0]); await ensureChain();
-          try { localStorage.setItem('vlad_connected', '1'); } catch (e) {}
+          try {
+            localStorage.setItem('vlad_connected', '1');
+            var picked = wallets().filter(function (w) { return w.provider === prov; })[0];
+            if (picked && picked.rdns) localStorage.setItem('vlad_wallet', picked.rdns);
+          } catch (e) {}
           st.busy = false; setStatus(''); bindEvents(); paint(); fetchBalances(); refreshQuote(); return;
         }
         var wei = toWei(st.amount, 18);
@@ -435,12 +503,19 @@
     });
 
     paint();   /* render icons immediately — NO wallet call on first visit (avoids auto-connect popups like Phantom) */
-    var wasConnected = false;
-    try { wasConnected = localStorage.getItem('vlad_connected') === '1'; } catch (e) {}
-    if (wasConnected && eth() && eth().request) {
-      eth().request({ method: 'eth_accounts' }).then(function (a) {
-        if (a && a[0]) { setConnected(a[0]); bindEvents(); paint(); fetchBalances(); }
-      }).catch(function () {});
+    var wasConnected = false, savedRdns = null;
+    try { wasConnected = localStorage.getItem('vlad_connected') === '1'; savedRdns = localStorage.getItem('vlad_wallet'); } catch (e) {}
+    if (wasConnected) {
+      setTimeout(function () {                       /* let EIP-6963 wallets announce themselves first */
+        if (savedRdns) {
+          var w = wallets().filter(function (x) { return x.rdns === savedRdns; })[0];
+          if (w) chosen = w.provider;
+        }
+        if (!eth() || !eth().request) return;
+        eth().request({ method: 'eth_accounts' }).then(function (a) {
+          if (a && a[0]) { setConnected(a[0]); bindEvents(); paint(); fetchBalances(); }
+        }).catch(function () {});
+      }, 350);
     }
   }
 
