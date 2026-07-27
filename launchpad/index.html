@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Launchpad Memes — Vladhood</title>
+<meta name="description" content="Vladhood Launchpad — a UI preview of a fair-launch meme launchpad on the Robinhood Chain. Demo data only, no contracts deployed." />
+<link rel="icon" href="https://vlad-hood.xyz/photo_1_2026-07-21_06-14-24.jpg?v=2" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Patrick+Hand&family=Caveat:wght@500;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { paper:'#f4ecd8', paper2:'#efe6cf', ink:'#2b2620', forest:'#2f6b2f', forest2:'#3f8b3d', mustard:'#e0a51e', brown:'#8a5a2b', crayred:'#c0392b' },
+    fontFamily: { marker:['"Permanent Marker"','cursive'], hand:['"Patrick Hand"','cursive'], caveat:['"Caveat"','cursive'] },
+  } } };
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body {
+    background-color:#f4ecd8;
+    background-image:
+      repeating-linear-gradient(35deg, rgba(90,80,60,0.035) 0 1px, transparent 1px 6px),
+      repeating-linear-gradient(180deg, transparent 0 33px, rgba(90,120,160,0.13) 33px 34px),
+      linear-gradient(90deg, transparent 0 46px, rgba(192,57,43,0.2) 46px 48px, transparent 48px);
+    color:#2b2620;
+  }
+  .sketch { border:2.4px solid #2b2620; border-radius:255px 15px 225px 15px/15px 225px 15px 255px; }
+  .sketch-2 { border:2.4px solid #2b2620; border-radius:15px 225px 15px 255px/255px 15px 225px 15px; }
+  .rough-shadow { box-shadow:4px 5px 0 rgba(43,38,32,0.85), 6px 8px 0 rgba(43,38,32,0.18); }
+  .rough-shadow-sm { box-shadow:3px 4px 0 rgba(43,38,32,0.8); }
+  .scribble-underline { position:relative; display:inline-block; }
+  .scribble-underline::after {
+    content:''; position:absolute; left:-4%; right:-4%; bottom:-10px; height:12px;
+    background:no-repeat center/100% 100% url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 12'%3E%3Cpath d='M2 8 C 60 2, 120 12, 180 6 S 280 2, 298 7' fill='none' stroke='%23e0a51e' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E");
+  }
+  .pin { position:absolute; top:-12px; left:50%; transform:translateX(-50%); width:20px; height:20px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #ff7b6b, #c0392b 65%); border:2px solid #2b2620; box-shadow:1px 3px 3px rgba(0,0,0,0.3); z-index:6; }
+
+  /* ---------- launchpad-only helpers ---------- */
+  .ic { display:inline-block; width:1em; height:1em; vertical-align:-0.15em; }
+
+  /* small strip of sticky-tape at the corners of the hero badge */
+  .taped { position:relative; }
+  .taped::before, .taped::after {
+    content:''; position:absolute; top:-8px; width:32px; height:15px;
+    background:rgba(224,165,30,0.5); border:1px solid rgba(43,38,32,0.28);
+  }
+  .taped::before { left:-13px; transform:rotate(-8deg); }
+  .taped::after  { right:-13px; transform:rotate(8deg); }
+
+  .tab-pill { transition:background-color .15s, color .15s, transform .15s; }
+  .tab-pill[aria-selected="true"] { background:#2b2620; color:#f4ecd8; }
+  .tab-pill[aria-selected="false"]:hover { background:rgba(224,165,30,.45); }
+
+  .meme-card { transition:transform .15s, box-shadow .15s; }
+  .meme-card:hover { transform:translate(-2px,-2px); box-shadow:6px 7px 0 rgba(43,38,32,0.85), 9px 11px 0 rgba(43,38,32,0.18); }
+  .meme-card:focus-within { outline:3px dashed #e0a51e; outline-offset:3px; }
+
+  .bar-track { border:2px solid #2b2620; background:#f4ecd8; height:14px; overflow:hidden; border-radius:8px; }
+  .bar-fill { height:100%; border-right:2px solid rgba(43,38,32,.55); transition:width .4s ease; }
+
+  /* the sort <select> keeps the hand-drawn look on every browser */
+  .paper-select {
+    appearance:none; -webkit-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232b2620' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right .6rem center; background-size:18px 18px;
+    padding-right:2.2rem;
+  }
+
+  #preview-modal[hidden] { display:none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior:auto; }
+    * { animation:none !important; transition:none !important; }
+  }
+</style>
+</head>
+<body class="font-hand min-h-screen flex flex-col selection:bg-mustard/60">
+
+<!-- ============ inline icon sprite (no emoji anywhere) ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="ic-scales" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3v18M7 21h10M3 8l4-3 4 3M3 8l2 5h4l2-5M13 8l4-3 4 3M13 8l2 5h4l2-5"/>
+  </symbol>
+  <symbol id="ic-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3l7 3v6c0 4.2-2.9 7.6-7 9-4.1-1.4-7-4.8-7-9V6l7-3z"/><path d="m9 12 2 2 4-4"/>
+  </symbol>
+  <symbol id="ic-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M16 20v-1.5A3.5 3.5 0 0 0 12.5 15h-5A3.5 3.5 0 0 0 4 18.5V20"/><circle cx="10" cy="8" r="3.2"/>
+    <path d="M20 20v-1.5a3.5 3.5 0 0 0-2.6-3.4M15.5 5.2a3.2 3.2 0 0 1 0 5.6"/>
+  </symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m4 12.5 5 5L20 6"/>
+  </symbol>
+  <symbol id="ic-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="9"/><path d="M12 7v5.5l3.5 2"/>
+  </symbol>
+  <symbol id="ic-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 2.5c1.6 3.4.4 5.3-1 7.1-1.5 1.9-2.6 3.6-2.6 5.6a5.6 5.6 0 0 0 11.2 0c0-3-1.6-4.6-3-6.4-.5 1.4-1.3 2-2.2 2.4.6-3.1-.6-6.2-2.4-8.7z"/>
+  </symbol>
+  <symbol id="ic-flag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5 21V4"/><path d="M5 5h11l-2 3.5L16 12H5"/>
+  </symbol>
+  <symbol id="ic-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>
+  </symbol>
+  <symbol id="ic-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 4.5 21 20H3z"/><path d="M12 10v4"/><path d="M12 17h.01"/>
+  </symbol>
+  <symbol id="ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 6 18 18M18 6 6 18"/>
+  </symbol>
+  <symbol id="ic-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 12h15"/><path d="m13 6 6 6-6 6"/>
+  </symbol>
+  <symbol id="ic-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="4.5" y="10" width="15" height="10" rx="2"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10"/>
+  </symbol>
+</svg>
+
+<!-- ============ header ============ -->
+<div class="sticky top-0 z-30">
+<header class="border-b-[3px] border-ink bg-paper2/95 backdrop-blur">
+  <div class="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between gap-3">
+    <a href="/" class="flex items-center gap-2 group shrink-0">
+      <img src="https://vlad-hood.xyz/photo_1_2026-07-21_06-14-24.jpg?v=2" alt="Vladhood" class="w-11 h-11 rounded-full border-[3px] border-ink rough-shadow-sm group-hover:rotate-6 transition" />
+      <span class="font-marker text-2xl text-forest tracking-wide">VLADHOOD</span>
+      <span class="font-marker text-mustard text-xl hidden sm:inline">$VLAD</span>
+    </a>
+    <a href="/" class="font-hand text-lg text-ink hover:text-forest hover:underline decoration-wavy decoration-mustard shrink-0">&larr; Back to site</a>
+  </div>
+</header>
+
+<!-- ============ honesty banner — unmissable ============ -->
+<div class="border-b-[3px] border-ink text-paper" style="background:#c0392b">
+  <div class="max-w-6xl mx-auto px-4 py-2.5 flex items-start gap-2.5">
+    <svg class="ic text-2xl shrink-0 mt-0.5" aria-hidden="true"><use href="#ic-alert"/></svg>
+    <p class="font-hand text-base sm:text-lg leading-snug">
+      <b class="font-marker tracking-wide">DEMO — UI PREVIEW ONLY.</b>
+      This launchpad has <b>no smart contracts</b> behind it. Every meme, number, chart and countdown below is
+      made-up sample data. Nothing here can take, hold or move real funds, and no sale is actually running.
+    </p>
+  </div>
+</div>
+</div>
+
+<main class="flex-1">
+
+  <!-- ============ hero ============ -->
+  <section class="max-w-6xl mx-auto px-4 pt-10 pb-6">
+    <div class="grid gap-10 lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_400px] items-start">
+
+      <!-- hero copy -->
+      <div>
+        <p class="taped inline-block bg-crayred text-paper font-marker text-xs sm:text-sm tracking-wide px-4 py-1.5 -rotate-1 border-2 border-ink rough-shadow-sm">
+          The forest needs new legends.
+        </p>
+
+        <h1 class="font-marker text-forest text-5xl sm:text-6xl md:text-7xl leading-[1.25] mt-7 -rotate-1 break-words">
+          <span class="scribble-underline">LAUNCHPAD</span><br class="hidden sm:block" />
+          <span class="text-mustard">MEMES</span>
+        </h1>
+
+        <p class="font-caveat text-2xl sm:text-3xl text-brown mt-6">The home for the next 100x memes.</p>
+        <p class="font-hand text-lg sm:text-xl text-ink/80 mt-1">Fair launches. Community first. Built on Robinhood Chain.</p>
+
+        <!-- feature blurbs -->
+        <div class="grid sm:grid-cols-3 gap-4 mt-8">
+          <div class="bg-paper2/70 sketch rough-shadow-sm p-4">
+            <span class="inline-flex items-center justify-center w-10 h-10 border-2 border-ink rounded-full bg-mustard text-ink text-xl">
+              <svg class="ic" aria-hidden="true"><use href="#ic-scales"/></svg>
+            </span>
+            <h3 class="font-marker text-forest text-lg mt-3">Fair Launch</h3>
+            <p class="font-hand text-base text-ink/80 leading-snug mt-1">No presale. No VC. Just the community.</p>
+          </div>
+          <div class="bg-paper2/70 sketch-2 rough-shadow-sm p-4">
+            <span class="inline-flex items-center justify-center w-10 h-10 border-2 border-ink rounded-full bg-forest text-paper text-xl">
+              <svg class="ic" aria-hidden="true"><use href="#ic-shield"/></svg>
+            </span>
+            <h3 class="font-marker text-forest text-lg mt-3">Safe &amp; Transparent</h3>
+            <p class="font-hand text-base text-ink/80 leading-snug mt-1">LP locked. Verified contracts. Rugproof by design.</p>
+          </div>
+          <div class="bg-paper2/70 sketch rough-shadow-sm p-4">
+            <span class="inline-flex items-center justify-center w-10 h-10 border-2 border-ink rounded-full bg-brown text-paper text-xl">
+              <svg class="ic" aria-hidden="true"><use href="#ic-users"/></svg>
+            </span>
+            <h3 class="font-marker text-forest text-lg mt-3">Community Powered</h3>
+            <p class="font-hand text-base text-ink/80 leading-snug mt-1">Vote, support and pump the next big meme.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- create your meme card -->
+      <aside class="relative bg-paper2 sketch rough-shadow p-5 md:p-6 w-full max-w-md mx-auto lg:mx-0 lg:sticky lg:top-24">
+        <span class="pin"></span>
+        <h2 class="font-marker text-forest text-2xl md:text-3xl mt-1">Create your meme</h2>
+        <p class="font-caveat text-xl text-brown mt-1">Launch your idea to the forest.</p>
+
+        <ul class="mt-4 space-y-2.5">
+          <li class="flex items-start gap-2.5 font-hand text-lg leading-snug">
+            <svg class="ic text-xl text-forest2 shrink-0 mt-0.5" aria-hidden="true"><use href="#ic-check"/></svg>
+            <span>Fair launch on Robinhood Chain</span>
+          </li>
+          <li class="flex items-start gap-2.5 font-hand text-lg leading-snug">
+            <svg class="ic text-xl text-forest2 shrink-0 mt-0.5" aria-hidden="true"><use href="#ic-check"/></svg>
+            <span>Locked liquidity</span>
+          </li>
+          <li class="flex items-start gap-2.5 font-hand text-lg leading-snug">
+            <svg class="ic text-xl text-forest2 shrink-0 mt-0.5" aria-hidden="true"><use href="#ic-check"/></svg>
+            <span>Verified &amp; community driven</span>
+          </li>
+          <li class="flex items-start gap-2.5 font-hand text-lg leading-snug">
+            <svg class="ic text-xl text-forest2 shrink-0 mt-0.5" aria-hidden="true"><use href="#ic-check"/></svg>
+            <span>Get your meme in front of degens</span>
+          </li>
+        </ul>
+
+        <button type="button" data-preview-trigger
+          class="mt-6 w-full sketch-2 bg-mustard text-ink font-marker text-xl md:text-2xl px-5 py-3 rough-shadow-sm hover:bg-forest hover:text-paper transition inline-flex items-center justify-center gap-2">
+          LAUNCH A MEME
+          <svg class="ic text-2xl" aria-hidden="true"><use href="#ic-arrow"/></svg>
+        </button>
+
+        <p class="font-caveat text-xl text-brown text-center mt-2">Launch fee: 20 $VLAD</p>
+        <p class="font-hand text-xs text-ink/55 text-center mt-3 leading-snug">
+          Preview button — it opens an explainer, not a transaction. No wallet is touched.
+        </p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============ toolbar ============ -->
+  <section class="max-w-6xl mx-auto px-4 pt-4 pb-2">
+    <div class="bg-paper2 sketch rough-shadow-sm p-3 sm:p-4 flex flex-col lg:flex-row lg:items-center gap-3">
+
+      <!-- tabs -->
+      <div role="tablist" aria-label="Filter memes by status" class="flex flex-wrap gap-2 lg:flex-1">
+        <button role="tab" type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-tab="all" aria-selected="true">All Memes</button>
+        <button role="tab" type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-tab="upcoming" aria-selected="false">Upcoming</button>
+        <button role="tab" type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-tab="live" aria-selected="false">Live Now</button>
+        <button role="tab" type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-tab="finished" aria-selected="false">Finished</button>
+      </div>
+
+      <!-- search -->
+      <div class="relative w-full lg:w-64">
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-ink/55 text-xl pointer-events-none">
+          <svg class="ic" aria-hidden="true"><use href="#ic-search"/></svg>
+        </span>
+        <label class="sr-only" for="meme-search">Search memes</label>
+        <input id="meme-search" type="search" autocomplete="off" placeholder="Search memes..."
+          class="w-full font-hand text-lg bg-paper border-2 border-ink rounded-full pl-10 pr-3 py-2 outline-none focus:ring-2 focus:ring-mustard placeholder:text-ink/45" />
+      </div>
+
+      <!-- sort -->
+      <div class="flex items-center gap-2 w-full lg:w-auto">
+        <label for="meme-sort" class="font-caveat text-xl text-brown shrink-0">Sort by</label>
+        <select id="meme-sort" class="paper-select flex-1 lg:flex-none font-hand text-lg bg-paper border-2 border-ink rounded-full pl-3 py-2 outline-none focus:ring-2 focus:ring-mustard cursor-pointer">
+          <option value="newest">Newest</option>
+          <option value="raised">Most raised</option>
+          <option value="ending">Ending soon</option>
+          <option value="mcap">Market cap</option>
+        </select>
+      </div>
+    </div>
+
+    <p class="font-caveat text-xl text-brown mt-2 px-1" id="result-count" aria-live="polite"></p>
+  </section>
+
+  <!-- ============ grid ============ -->
+  <section class="max-w-6xl mx-auto px-4 pb-14">
+    <div id="meme-sections"></div>
+
+    <div id="empty-state" hidden class="bg-paper2 sketch rough-shadow-sm p-8 text-center mt-6">
+      <p class="font-marker text-2xl text-forest">Nothing in these woods</p>
+      <p class="font-hand text-lg text-ink/70 mt-2">No meme matches that filter. Try another tab or clear the search.</p>
+    </div>
+  </section>
+
+  <!-- ============ closing honesty note ============ -->
+  <section class="max-w-6xl mx-auto px-4 pb-14">
+    <div class="bg-paper2 sketch-2 rough-shadow-sm p-5 flex items-start gap-3">
+      <span class="inline-flex items-center justify-center w-10 h-10 border-2 border-ink rounded-full bg-crayred text-paper text-xl shrink-0">
+        <svg class="ic" aria-hidden="true"><use href="#ic-lock"/></svg>
+      </span>
+      <p class="font-hand text-base sm:text-lg text-ink/85 leading-snug">
+        <b class="font-marker text-crayred">Read this twice.</b>
+        <span data-disclaimer-long>The Vladhood Launchpad is a design mock-up. There is no launchpad contract, no escrow,
+        no token sale and no way to deposit here — the buttons open an explainer instead. Every meme listed is invented,
+        and every raise, cap, market cap and holder count is generated demo data.</span>
+        If you want a real on-chain action, the only live thing on this site is the
+        <a href="/swap" class="text-forest underline decoration-wavy decoration-mustard hover:text-crayred">$VLAD swap</a>.
+        $VLAD is a community meme coin for entertainment only — not financial advice.
+      </p>
+    </div>
+  </section>
+</main>
+
+<!-- ============ footer ============ -->
+<footer class="border-t-[3px] border-ink" style="background:#2f6b2f">
+  <div class="max-w-6xl mx-auto px-4 py-6 text-center text-paper">
+    <p class="font-marker text-2xl">VLADHOOD · $VLAD</p>
+    <p class="font-caveat text-xl text-mustard mt-1">Green candles forever.</p>
+    <p class="font-hand text-sm text-paper/75 mt-3 max-w-2xl mx-auto">
+      Launchpad is a UI preview with demo data — no contracts deployed, no funds involved.
+      $VLAD is a community meme coin for entertainment only. Not financial advice. DYOR.
+    </p>
+    <p class="font-hand text-sm text-paper/60 mt-2">© 2026 Vladhood · $VLAD · Robinhood Chain</p>
+  </div>
+</footer>
+
+<!-- ============ preview modal ============ -->
+<div id="preview-modal" hidden role="dialog" aria-modal="true" aria-labelledby="preview-modal-title"
+     class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div data-modal-backdrop class="absolute inset-0 bg-ink/70 backdrop-blur-sm"></div>
+
+  <div class="relative bg-paper sketch rough-shadow w-full max-w-md p-5 sm:p-6 max-h-[90vh] overflow-y-auto">
+    <span class="pin"></span>
+
+    <button type="button" data-modal-close aria-label="Close"
+      class="absolute top-3 right-3 w-9 h-9 inline-flex items-center justify-center border-2 border-ink rounded-full bg-paper2 text-ink text-lg hover:bg-crayred hover:text-paper transition">
+      <svg class="ic" aria-hidden="true"><use href="#ic-x"/></svg>
+    </button>
+
+    <h2 id="preview-modal-title" class="font-marker text-crayred text-2xl sm:text-3xl mt-2 pr-10">This one is just a drawing</h2>
+    <p class="font-caveat text-xl text-brown mt-1" id="preview-modal-sub">UI preview — nothing is deployed.</p>
+
+    <div class="mt-4 space-y-3 font-hand text-lg text-ink/85 leading-snug">
+      <p data-modal-copy>The Vladhood Launchpad is a front-end preview. There are no launchpad smart contracts, no escrow wallet and no token sale running, so this button cannot take a payment, reserve an allocation or launch a token.</p>
+      <p>Every listing, raise bar and countdown you see is <b>demo data</b> made up to show how the page would work. Nothing was signed, sent or charged just now.</p>
+    </div>
+
+    <div class="mt-5 flex flex-col sm:flex-row gap-3">
+      <a href="/swap" class="flex-1 sketch-2 bg-mustard text-ink font-marker text-lg px-4 py-2.5 rough-shadow-sm hover:bg-forest hover:text-paper transition inline-flex items-center justify-center gap-2">
+        Go to the swap
+        <svg class="ic text-xl" aria-hidden="true"><use href="#ic-arrow"/></svg>
+      </a>
+      <button type="button" data-modal-close class="flex-1 sketch bg-paper2 text-ink font-marker text-lg px-4 py-2.5 rough-shadow-sm hover:bg-ink hover:text-paper transition">
+        Back to the list
+      </button>
+    </div>
+
+    <p class="font-hand text-xs text-ink/55 mt-4">The $VLAD swap is the only part of this site that touches the chain. Crypto is risky — DYOR.</p>
+  </div>
+</div>
+
+<script src="/launchpad.js?v=1"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ---------------------------------------------------------------
+     data access — /launchpad.js is the single source of truth
+  --------------------------------------------------------------- */
+  var LP = window.VladLaunchpad || null;
+  var MEMES = (LP && Array.isArray(LP.memes)) ? LP.memes.slice() : [];
+
+  // tolerant formatters: fall back to something readable if fmt is unavailable
+  var F = (LP && LP.fmt) ? LP.fmt : {};
+  function fEth(n)  { try { return F.eth ? F.eth(n) : (+n).toFixed(2) + ' ETH'; } catch (e) { return n + ' ETH'; } }
+  // funding progress is a share, never a delta — so it must not pick up the +/- sign fmt.pct adds
+  function fFunded(n) { return (+n).toFixed(1) + '%'; }
+  function fLeft(t) { try { return F.timeLeft ? F.timeLeft(t) : ''; } catch (e) { return ''; } }
+  function fAgo(t)  { try { return F.ago ? F.ago(t) : ''; } catch (e) { return ''; } }
+  function fComp(n) { try { return F.compact ? F.compact(n) : String(n); } catch (e) { return String(n); } }
+  function avatarSvg(meme, size) {
+    try { return (LP && LP.avatar) ? LP.avatar(meme, size) : ''; } catch (e) { return ''; }
+  }
+
+  // Prefer the module's shared honesty copy so every launchpad page says the same
+  // thing; the markup already carries equivalent text if the module is missing.
+  (function syncDisclaimers() {
+    if (!LP) return;
+    var long = document.querySelector('[data-disclaimer-long]');
+    if (long && LP.DISCLAIMER_LONG) long.textContent = LP.DISCLAIMER_LONG;
+    var modalCopy = document.querySelector('[data-modal-copy]');
+    if (modalCopy && LP.MODAL_COPY) modalCopy.textContent = LP.MODAL_COPY;
+  })();
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  /* ---------------------------------------------------------------
+     status vocabulary
+  --------------------------------------------------------------- */
+  var SECTIONS = [
+    { key: 'upcoming', title: 'UPCOMING LAUNCHES', icon: '#ic-clock' },
+    { key: 'live',     title: 'LIVE NOW',          icon: '#ic-spark' },
+    { key: 'finished', title: 'FINISHED',          icon: '#ic-flag'  }
+  ];
+
+  var STATUS = {
+    upcoming: { label: 'UPCOMING', pill: 'bg-mustard text-ink',   fill: '#e0a51e', cta: 'View Details' },
+    live:     { label: 'LIVE',     pill: 'bg-forest text-paper',  fill: '#3f8b3d', cta: 'Join Now'     },
+    finished: { label: 'FINISHED', pill: 'bg-ink text-paper',     fill: '#8a5a2b', cta: 'View Details' }
+  };
+
+  function statusOf(meme) { return STATUS[meme.status] ? meme.status : 'upcoming'; }
+
+  function countdownText(meme) {
+    var s = statusOf(meme);
+    if (s === 'upcoming') { var a = fLeft(meme.startsAt); return a ? 'Starts in ' + a : 'Starting soon'; }
+    if (s === 'live')     { var b = fLeft(meme.endsAt);   return b ? 'Ends in ' + b : 'Ending soon'; }
+    var c = fAgo(meme.endsAt);
+    return c ? 'Ended ' + c : 'Ended';
+  }
+
+  function progressPct(meme) {
+    var goal = Number(meme.hardCap) || 0;
+    var got = Number(meme.raised) || 0;
+    if (goal <= 0) return 0;
+    return Math.max(0, Math.min(100, (got / goal) * 100));
+  }
+
+  /* ---------------------------------------------------------------
+     card markup
+  --------------------------------------------------------------- */
+  function cardHtml(meme) {
+    var s = statusOf(meme);
+    var st = STATUS[s];
+    var pct = progressPct(meme);
+    var bg = (meme.avatar && meme.avatar.bg) ? meme.avatar.bg : '#a8d5a2';
+    var href = '/launchpad/meme.html?id=' + encodeURIComponent(meme.id);
+    var isLive = s === 'live';
+
+    var capRow = (s === 'upcoming')
+      ? '<div><span class="block font-caveat text-lg text-brown leading-none">Soft cap</span>' +
+        '<span class="font-marker text-lg text-ink">' + esc(fEth(meme.softCap)) + '</span></div>' +
+        '<div class="text-right"><span class="block font-caveat text-lg text-brown leading-none">Hard cap</span>' +
+        '<span class="font-marker text-lg text-ink">' + esc(fEth(meme.hardCap)) + '</span></div>'
+      : '<div><span class="block font-caveat text-lg text-brown leading-none">Raised</span>' +
+        '<span class="font-marker text-lg text-forest">' + esc(fEth(meme.raised)) + '</span></div>' +
+        '<div class="text-right"><span class="block font-caveat text-lg text-brown leading-none">Goal</span>' +
+        '<span class="font-marker text-lg text-ink">' + esc(fEth(meme.hardCap)) + '</span></div>';
+
+    return '' +
+      '<article class="meme-card bg-paper2 sketch rough-shadow overflow-hidden flex flex-col cursor-pointer" ' +
+        'data-meme-card data-id="' + esc(meme.id) + '" data-status="' + esc(s) + '">' +
+
+        // avatar band
+        '<div class="relative border-b-[2.4px] border-ink flex items-center justify-center h-36 sm:h-40" style="background:' + esc(bg) + '">' +
+          '<div class="w-24 h-24 sm:w-28 sm:h-28 pointer-events-none" aria-hidden="true">' + avatarSvg(meme, 112) + '</div>' +
+          '<span class="absolute top-2 left-2 font-marker text-[11px] tracking-wide px-2.5 py-1 border-2 border-ink rounded-full rough-shadow-sm ' + st.pill + '">' + st.label + '</span>' +
+          '<span class="absolute top-2 right-2 font-hand text-sm px-2.5 py-1 border-2 border-ink rounded-full bg-paper text-ink inline-flex items-center gap-1" data-countdown data-id="' + esc(meme.id) + '">' +
+            '<svg class="ic text-base" aria-hidden="true"><use href="#ic-clock"/></svg>' +
+            '<span data-countdown-text>' + esc(countdownText(meme)) + '</span>' +
+          '</span>' +
+        '</div>' +
+
+        // body
+        '<div class="p-4 flex flex-col flex-1">' +
+          '<h3 class="font-marker text-xl text-forest leading-tight">' + esc(meme.name) + '</h3>' +
+          '<p class="font-hand text-base text-ink/75 leading-snug mt-1 min-h-[2.6rem]">' + esc(meme.tagline) + '</p>' +
+
+          '<div class="flex items-end justify-between gap-2 mt-3">' + capRow + '</div>' +
+
+          '<div class="mt-2">' +
+            '<div class="bar-track" role="img" aria-label="' + esc(fFunded(pct)) + ' of hard cap">' +
+              '<div class="bar-fill" style="width:' + pct.toFixed(1) + '%;background:' + st.fill + '"></div>' +
+            '</div>' +
+            '<div class="flex justify-between font-caveat text-lg text-brown mt-1">' +
+              '<span>' + esc(fFunded(pct)) + ' funded</span>' +
+              '<span>' + esc(fComp(meme.participants)) + ' in</span>' +
+            '</div>' +
+          '</div>' +
+
+          '<div class="mt-4 pt-3 border-t-2 border-dashed border-ink/25">' +
+            (isLive
+              ? '<button type="button" data-preview-trigger data-meme-name="' + esc(meme.name) + '" ' +
+                'class="w-full sketch-2 bg-forest text-paper font-marker text-lg px-4 py-2 rough-shadow-sm hover:bg-mustard hover:text-ink transition">Join Now</button>'
+              : '<a href="' + href + '" data-card-link ' +
+                'class="block text-center w-full sketch-2 bg-paper text-ink font-marker text-lg px-4 py-2 rough-shadow-sm hover:bg-ink hover:text-paper transition">View Details</a>'
+            ) +
+          '</div>' +
+        '</div>' +
+      '</article>';
+  }
+
+  function sectionHtml(section, memes) {
+    var cards = memes.map(cardHtml).join('');
+    return '' +
+      '<section class="mt-10 first:mt-2">' +
+        '<h2 class="font-marker text-forest text-2xl sm:text-3xl flex items-center gap-2.5 -rotate-1">' +
+          '<span class="inline-flex items-center justify-center w-9 h-9 border-2 border-ink rounded-full bg-paper2 text-ink text-lg shrink-0">' +
+            '<svg class="ic" aria-hidden="true"><use href="' + section.icon + '"/></svg>' +
+          '</span>' +
+          '<span>' + section.title +
+            ' <span class="font-hand text-lg text-ink/55">(' + memes.length + ')</span>' +
+          '</span>' +
+        '</h2>' +
+        '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 mt-5">' + cards + '</div>' +
+      '</section>';
+  }
+
+  /* ---------------------------------------------------------------
+     filtering + sorting
+  --------------------------------------------------------------- */
+  var state = { tab: 'all', q: '', sort: 'newest' };
+
+  var SORTERS = {
+    newest: function (a, b) { return (b.startsAt || 0) - (a.startsAt || 0); },
+    raised: function (a, b) { return (b.raised || 0) - (a.raised || 0); },
+    ending: function (a, b) { return (a.endsAt || 0) - (b.endsAt || 0); },
+    mcap:   function (a, b) { return (b.marketCap || 0) - (a.marketCap || 0); }
+  };
+
+  function matches(meme) {
+    if (state.tab !== 'all' && statusOf(meme) !== state.tab) return false;
+    if (!state.q) return true;
+    var hay = [meme.name, meme.tagline, meme.id, meme.about].join(' ').toLowerCase();
+    return hay.indexOf(state.q) !== -1;
+  }
+
+  var sectionsEl = document.getElementById('meme-sections');
+  var emptyEl = document.getElementById('empty-state');
+  var countEl = document.getElementById('result-count');
+
+  function render() {
+    if (!MEMES.length) {
+      sectionsEl.innerHTML =
+        '<div class="bg-paper2 sketch rough-shadow-sm p-8 text-center mt-4">' +
+          '<p class="font-marker text-2xl text-crayred">Demo data did not load</p>' +
+          '<p class="font-hand text-lg text-ink/70 mt-2">The launchpad sample data (/launchpad.js) is missing, so there is nothing to show. Nothing is broken on-chain — there is no chain here.</p>' +
+        '</div>';
+      emptyEl.hidden = true;
+      countEl.textContent = '';
+      return;
+    }
+
+    var visible = MEMES.filter(matches).sort(SORTERS[state.sort] || SORTERS.newest);
+
+    var html = SECTIONS
+      .filter(function (sec) { return state.tab === 'all' || state.tab === sec.key; })
+      .map(function (sec) {
+        var group = visible.filter(function (m) { return statusOf(m) === sec.key; });
+        return group.length ? sectionHtml(sec, group) : '';
+      })
+      .join('');
+
+    sectionsEl.innerHTML = html;
+    emptyEl.hidden = visible.length > 0;
+
+    countEl.textContent = visible.length
+      ? 'Showing ' + visible.length + ' of ' + MEMES.length + ' demo memes'
+      : '';
+
+    tickCountdowns();
+  }
+
+  /* ---------------------------------------------------------------
+     live countdown refresh
+  --------------------------------------------------------------- */
+  function tickCountdowns() {
+    var nodes = sectionsEl.querySelectorAll('[data-countdown]');
+    for (var i = 0; i < nodes.length; i++) {
+      var node = nodes[i];
+      var meme = LP && LP.get ? LP.get(node.getAttribute('data-id')) : null;
+      if (!meme) continue;
+      var target = node.querySelector('[data-countdown-text]');
+      if (target) target.textContent = countdownText(meme);
+    }
+  }
+  setInterval(tickCountdowns, 1000);
+
+  /* ---------------------------------------------------------------
+     toolbar wiring
+  --------------------------------------------------------------- */
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('[data-tab]'));
+  tabs.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      state.tab = btn.getAttribute('data-tab');
+      tabs.forEach(function (b) { b.setAttribute('aria-selected', String(b === btn)); });
+      render();
+    });
+  });
+
+  var searchEl = document.getElementById('meme-search');
+  searchEl.addEventListener('input', function () {
+    state.q = searchEl.value.trim().toLowerCase();
+    render();
+  });
+
+  var sortEl = document.getElementById('meme-sort');
+  sortEl.addEventListener('change', function () {
+    state.sort = sortEl.value;
+    render();
+  });
+
+  /* ---------------------------------------------------------------
+     card navigation (whole card is clickable)
+  --------------------------------------------------------------- */
+  sectionsEl.addEventListener('click', function (ev) {
+    if (ev.target.closest('[data-preview-trigger]')) return;   // handled by the modal
+    if (ev.target.closest('a')) return;                        // let real links work
+    var card = ev.target.closest('[data-meme-card]');
+    if (!card) return;
+    window.location.href = '/launchpad/meme.html?id=' + encodeURIComponent(card.getAttribute('data-id'));
+  });
+
+  /* ---------------------------------------------------------------
+     preview modal
+  --------------------------------------------------------------- */
+  var modal = document.getElementById('preview-modal');
+  var modalSub = document.getElementById('preview-modal-sub');
+  var lastFocused = null;
+
+  function openModal(memeName) {
+    lastFocused = document.activeElement;
+    modalSub.textContent = memeName
+      ? 'You tapped "Join Now" on ' + memeName + ' — but there is nothing to join.'
+      : 'UI preview — nothing is deployed.';
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    var closeBtn = modal.querySelector('[data-modal-close]');
+    if (closeBtn) closeBtn.focus();
+  }
+
+  function closeModal() {
+    modal.hidden = true;
+    document.body.style.overflow = '';
+    if (lastFocused && lastFocused.focus) lastFocused.focus();
+    lastFocused = null;
+  }
+
+  document.addEventListener('click', function (ev) {
+    var trigger = ev.target.closest('[data-preview-trigger]');
+    if (trigger) {
+      ev.preventDefault();
+      openModal(trigger.getAttribute('data-meme-name'));
+      return;
+    }
+    if (ev.target.closest('[data-modal-close]') || ev.target.closest('[data-modal-backdrop]')) {
+      closeModal();
+    }
+  });
+
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Escape' && !modal.hidden) closeModal();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

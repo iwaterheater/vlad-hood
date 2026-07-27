@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Meme Detail — Vladhood Launchpad (demo)</title>
+<meta name="description" content="Vladhood Launchpad meme detail page — a design preview with demo data only. No smart contracts, no token sale, no real funds." />
+<meta name="robots" content="noindex" />
+<link rel="icon" href="https://vlad-hood.xyz/photo_1_2026-07-21_06-14-24.jpg?v=2" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Patrick+Hand&family=Caveat:wght@500;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { paper:'#f4ecd8', paper2:'#efe6cf', ink:'#2b2620', forest:'#2f6b2f', forest2:'#3f8b3d', mustard:'#e0a51e', brown:'#8a5a2b', crayred:'#c0392b' },
+    fontFamily: { marker:['"Permanent Marker"','cursive'], hand:['"Patrick Hand"','cursive'], caveat:['"Caveat"','cursive'] },
+  } } };
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body {
+    background-color:#f4ecd8;
+    background-image:
+      repeating-linear-gradient(35deg, rgba(90,80,60,0.035) 0 1px, transparent 1px 6px),
+      repeating-linear-gradient(180deg, transparent 0 33px, rgba(90,120,160,0.13) 33px 34px),
+      linear-gradient(90deg, transparent 0 46px, rgba(192,57,43,0.2) 46px 48px, transparent 48px);
+    color:#2b2620;
+  }
+  .sketch { border:2.4px solid #2b2620; border-radius:255px 15px 225px 15px/15px 225px 15px 255px; }
+  .sketch-2 { border:2.4px solid #2b2620; border-radius:15px 225px 15px 255px/255px 15px 225px 15px; }
+  .rough-shadow { box-shadow:4px 5px 0 rgba(43,38,32,0.85), 6px 8px 0 rgba(43,38,32,0.18); }
+  .rough-shadow-sm { box-shadow:3px 4px 0 rgba(43,38,32,0.8); }
+  .scribble-underline { position:relative; display:inline-block; }
+  .scribble-underline::after {
+    content:''; position:absolute; left:-4%; right:-4%; bottom:-10px; height:12px;
+    background:no-repeat center/100% 100% url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 12'%3E%3Cpath d='M2 8 C 60 2, 120 12, 180 6 S 280 2, 298 7' fill='none' stroke='%23e0a51e' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E");
+  }
+  .pin { position:absolute; top:-12px; left:50%; transform:translateX(-50%); width:20px; height:20px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #ff7b6b, #c0392b 65%); border:2px solid #2b2620; box-shadow:1px 3px 3px rgba(0,0,0,0.3); z-index:6; }
+
+  /* ---- page-local helpers (still the same notebook look) ---- */
+  header, main, footer { overflow-x: clip; }
+  .ic { width:1em; height:1em; display:inline-block; vertical-align:-0.12em; }
+  .leader { flex:1 1 auto; border-bottom:2px dotted rgba(43,38,32,0.3); margin:0 8px; transform:translateY(-4px); }
+  .tab-btn { border-bottom:3px solid transparent; }
+  .tab-btn[aria-selected="true"] { border-bottom-color:#2f6b2f; color:#2f6b2f; }
+  .chart-wrap { position:relative; }
+  .chart-svg { display:block; width:100%; height:auto; touch-action:pan-y; }
+  .chart-tip { position:absolute; z-index:6; pointer-events:none; transform:translate(-50%,-100%);
+    background:#f4ecd8; border:2px solid #2b2620; border-radius:12px 4px 12px 4px/4px 12px 4px 12px;
+    box-shadow:3px 4px 0 rgba(43,38,32,0.8); padding:4px 9px 5px; white-space:nowrap; }
+  .num { font-variant-numeric: tabular-nums; }
+  input.bare { background:transparent; border:0; outline:none; width:100%; }
+  input.bare::placeholder { color:rgba(43,38,32,0.35); }
+  input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  .pill-on { background:#2b2620; color:#f4ecd8; }
+  .tape { position:absolute; top:-10px; right:14px; transform:rotate(6deg); background:rgba(224,165,30,0.75);
+    border:1px dashed rgba(43,38,32,0.5); padding:1px 10px; font-size:13px; }
+  .barbg { background:rgba(43,38,32,0.14); border:2px solid #2b2620; border-radius:999px; overflow:hidden; }
+  .scroll-x { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .scroll-x::-webkit-scrollbar { height:6px; }
+  .scroll-x::-webkit-scrollbar-thumb { background:rgba(43,38,32,0.25); border-radius:99px; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } * { transition:none !important; } }
+</style>
+</head>
+<body class="font-hand min-h-screen flex flex-col selection:bg-mustard/60">
+
+<!-- ============ header ============ -->
+<div class="sticky top-0 z-30">
+<header class="border-b-[3px] border-ink bg-paper2/95 backdrop-blur">
+  <div class="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <a href="/" class="flex items-center gap-2 group shrink-0">
+        <img src="https://vlad-hood.xyz/photo_1_2026-07-21_06-14-24.jpg?v=2" alt="Vladhood" class="w-11 h-11 rounded-full border-[3px] border-ink rough-shadow-sm group-hover:rotate-6 transition" />
+        <span class="font-marker text-2xl text-forest tracking-wide">VLADHOOD</span>
+        <span class="font-marker text-mustard text-xl hidden sm:inline">$VLAD</span>
+      </a>
+      <a href="/launchpad/" class="hidden md:inline-flex items-center gap-1.5 font-hand text-lg text-ink hover:text-forest hover:underline decoration-wavy decoration-mustard">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+        Back to Launchpad
+      </a>
+    </div>
+    <a href="/" class="font-hand text-lg text-ink hover:text-forest hover:underline decoration-wavy decoration-mustard shrink-0">back to site</a>
+  </div>
+</header>
+
+<!-- ============ demo notice (unmissable) ============ -->
+<div class="border-b-[3px] border-ink text-paper" style="background:#c0392b">
+  <div class="max-w-6xl mx-auto px-4 py-2 flex items-start gap-2">
+    <svg class="w-6 h-6 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+    <p class="font-hand text-[15px] sm:text-lg leading-snug">
+      <span class="font-marker">PREVIEW / DEMO.</span>
+      The Vladhood Launchpad is an interface mock-up. There are <strong>no smart contracts</strong>, no token sale and
+      <strong>no real funds</strong> anywhere on this page — every price, holder, trade and chart point below is made-up demo data.
+    </p>
+  </div>
+</div>
+</div>
+
+<main class="flex-1 max-w-6xl w-full mx-auto px-4 py-5 md:py-8">
+
+  <!-- back chip (left) -->
+  <a href="/launchpad/" class="inline-flex items-center gap-2 sketch-2 bg-paper2 px-3 py-1.5 rough-shadow-sm font-hand text-lg hover:bg-mustard transition">
+    <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+    Back to Launchpad
+  </a>
+
+  <!-- ============ NOT FOUND STATE ============ -->
+  <section id="notfound" class="hidden mt-8">
+    <div class="relative bg-paper2 sketch rough-shadow p-6 md:p-10 max-w-2xl mx-auto text-center">
+      <span class="pin"></span>
+      <svg class="w-16 h-16 mx-auto text-brown" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/><path d="M8.5 11h5"/>
+      </svg>
+      <h1 class="font-marker text-4xl md:text-5xl text-forest mt-3 -rotate-1"><span class="scribble-underline">Meme not found</span></h1>
+      <p class="font-hand text-xl mt-6" id="nfMsg">We looked all over Sherwood and could not find that one.</p>
+      <p class="font-caveat text-2xl text-brown mt-2">maybe it ran off with the sheriff's gold</p>
+      <div id="nfList" class="mt-6 flex flex-wrap gap-2 justify-center"></div>
+      <a href="/launchpad/" class="inline-flex items-center gap-2 mt-7 sketch bg-forest text-paper font-marker text-lg px-5 py-2 rough-shadow-sm hover:bg-forest2 transition">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+        Back to the Launchpad
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ DETAIL ============ -->
+  <section id="detail" class="hidden">
+
+    <!-- ---- title row ---- -->
+    <div class="mt-5 flex flex-col lg:flex-row lg:items-start gap-5 lg:gap-6">
+      <div class="flex items-start gap-4 min-w-0 flex-1">
+        <div id="avatar" class="w-20 h-20 sm:w-28 sm:h-28 rounded-full border-[3px] border-ink rough-shadow-sm overflow-hidden shrink-0 bg-paper2 flex items-center justify-center"></div>
+        <div class="min-w-0">
+          <div class="flex flex-wrap items-center gap-2">
+            <h1 id="memeName" class="font-marker text-forest text-3xl sm:text-5xl leading-tight -rotate-1 break-words">&nbsp;</h1>
+            <span id="statusPill" class="font-marker text-xs px-2 py-0.5 sketch-2 bg-paper2"></span>
+            <span id="verifiedPill" class="hidden items-center gap-1 font-hand text-sm px-2 py-0.5 sketch-2 bg-paper2">
+              <svg class="ic text-forest" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg>
+              verified art
+            </span>
+          </div>
+          <p id="memeTagline" class="font-caveat text-2xl sm:text-3xl text-brown mt-1"></p>
+          <div class="flex flex-wrap gap-2 mt-3">
+            <span class="font-hand text-sm px-2.5 py-0.5 sketch-2 bg-paper2 rough-shadow-sm inline-flex items-center gap-1.5">
+              <svg class="ic text-forest" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h18"/><path d="M12 3v18"/></svg>
+              Fair Launch
+            </span>
+            <span class="font-hand text-sm px-2.5 py-0.5 sketch-2 bg-paper2 rough-shadow-sm inline-flex items-center gap-1.5">
+              <svg class="ic text-brown" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 4 6v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6Z"/></svg>
+              Robinhood Chain
+            </span>
+            <span class="font-hand text-sm px-2.5 py-0.5 sketch-2 bg-paper2 rough-shadow-sm inline-flex items-center gap-1.5">
+              <svg class="ic text-mustard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="3.2"/><path d="M22 20v-2a4 4 0 0 0-3-3.8"/><path d="M16 3.3a4 4 0 0 1 0 7.4"/></svg>
+              Community
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- stat cards -->
+      <div class="grid grid-cols-2 gap-3 w-full lg:w-auto lg:min-w-[330px]">
+        <div class="relative bg-paper2 sketch-2 rough-shadow-sm p-3">
+          <p class="font-caveat text-xl text-brown leading-none">PRICE</p>
+          <p id="priceVal" class="font-marker text-xl sm:text-2xl mt-1 num break-all">—</p>
+          <p class="font-hand text-xs text-ink/55 -mt-0.5">VLAD per token</p>
+          <p id="priceChange" class="font-marker text-lg mt-1 num">—</p>
+        </div>
+        <div class="relative bg-paper2 sketch rough-shadow-sm p-3">
+          <p class="font-caveat text-xl text-brown leading-none">MARKET CAP</p>
+          <p id="mcapVal" class="font-marker text-xl sm:text-2xl mt-1 num break-all">—</p>
+          <p class="font-hand text-xs text-ink/55 -mt-0.5">USD, fully diluted</p>
+          <p id="mcapSub" class="font-hand text-sm mt-1 num text-ink/70">—</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---- 3 column body ---- -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 mt-7">
+
+      <!-- ======== LEFT ======== -->
+      <aside class="lg:col-span-3 flex flex-col gap-5 min-w-0">
+
+        <div class="bg-paper2 sketch rough-shadow-sm p-4">
+          <h2 id="aboutTitle" class="font-marker text-forest text-xl">About</h2>
+          <p id="aboutShort" class="font-hand text-[17px] leading-snug mt-2 text-ink/85"></p>
+        </div>
+
+        <div class="bg-paper2 sketch-2 rough-shadow-sm p-4">
+          <h2 class="font-marker text-forest text-xl">Token Info</h2>
+          <div id="tokenInfo" class="mt-2 flex flex-col gap-1.5 font-hand text-[17px]"></div>
+        </div>
+
+        <div class="bg-paper2 sketch rough-shadow-sm p-4">
+          <h2 class="font-marker text-forest text-xl">Community Sentiment</h2>
+          <div class="flex items-center justify-between mt-2 font-hand text-lg">
+            <span id="sentUpTxt" class="text-forest inline-flex items-center gap-1">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10v11H3V10z"/><path d="M7 10 12 3a2.4 2.4 0 0 1 2.3 3l-.8 3H20a2 2 0 0 1 2 2.4l-1.4 6A2 2 0 0 1 18.6 19H7"/></svg>
+              <span id="sentUp">—</span>
+            </span>
+            <span id="sentDownTxt" class="text-crayred inline-flex items-center gap-1">
+              <span id="sentDown">—</span>
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 14V3h4v11z"/><path d="m17 14-5 7a2.4 2.4 0 0 1-2.3-3l.8-3H4a2 2 0 0 1-2-2.4l1.4-6A2 2 0 0 1 5.4 5H17"/></svg>
+            </span>
+          </div>
+          <div class="barbg h-4 mt-2">
+            <div id="sentBar" class="h-full bg-forest2" style="width:0%"></div>
+          </div>
+          <p id="sentVotes" class="font-caveat text-xl text-brown mt-1.5">—</p>
+        </div>
+
+        <div class="bg-paper2 sketch-2 rough-shadow-sm p-4">
+          <h2 class="font-marker text-forest text-xl">Socials</h2>
+          <div id="socials" class="flex flex-wrap gap-2 mt-3"></div>
+          <p class="font-caveat text-lg text-brown mt-3 leading-tight">demo links — they go nowhere</p>
+        </div>
+      </aside>
+
+      <!-- ======== CENTER ======== -->
+      <div class="lg:col-span-6 min-w-0">
+        <div class="bg-paper2 sketch rough-shadow p-3 sm:p-4">
+
+          <!-- tab strip -->
+          <div class="scroll-x -mx-1 px-1 border-b-2 border-ink/25" role="tablist" aria-label="Meme detail sections">
+            <div class="flex gap-1 sm:gap-3 min-w-max">
+              <button class="tab-btn font-marker text-base sm:text-lg px-2.5 sm:px-3 py-2 hover:text-forest transition" role="tab" data-tab="chart" aria-selected="true" aria-controls="panel-chart">Chart</button>
+              <button class="tab-btn font-marker text-base sm:text-lg px-2.5 sm:px-3 py-2 hover:text-forest transition" role="tab" data-tab="holders" aria-selected="false" aria-controls="panel-holders">Holders</button>
+              <button class="tab-btn font-marker text-base sm:text-lg px-2.5 sm:px-3 py-2 hover:text-forest transition" role="tab" data-tab="tx" aria-selected="false" aria-controls="panel-tx">Transactions</button>
+              <button class="tab-btn font-marker text-base sm:text-lg px-2.5 sm:px-3 py-2 hover:text-forest transition" role="tab" data-tab="about" aria-selected="false" aria-controls="panel-about">About</button>
+            </div>
+          </div>
+
+          <!-- ---- chart panel ---- -->
+          <div id="panel-chart" role="tabpanel" class="pt-3">
+            <div class="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p class="font-caveat text-xl text-brown leading-none">price history</p>
+                <p class="flex items-baseline gap-2 mt-1">
+                  <span id="chartPrice" class="font-marker text-2xl sm:text-3xl num">—</span>
+                  <span class="font-hand text-sm text-ink/55">VLAD</span>
+                  <span id="chartChange" class="font-marker text-lg num">—</span>
+                </p>
+              </div>
+              <div id="rangePills" class="flex gap-1.5">
+                <button data-range="1h" class="font-marker text-sm px-2.5 py-1 sketch-2 bg-paper hover:bg-mustard transition">1H</button>
+                <button data-range="4h" class="font-marker text-sm px-2.5 py-1 sketch-2 bg-paper hover:bg-mustard transition">4H</button>
+                <button data-range="1d" class="font-marker text-sm px-2.5 py-1 sketch-2 bg-paper hover:bg-mustard transition">1D</button>
+                <button data-range="all" class="font-marker text-sm px-2.5 py-1 sketch-2 bg-paper hover:bg-mustard transition">ALL</button>
+              </div>
+            </div>
+
+            <div id="chartBox" class="chart-wrap mt-3 bg-paper sketch-2 p-1.5 sm:p-2"></div>
+
+            <div id="chartStats" class="grid grid-cols-3 gap-2 mt-3"></div>
+            <p class="font-caveat text-lg text-brown mt-2 leading-tight">
+              a hand-drawn line over invented numbers — nothing here is a real market
+            </p>
+          </div>
+
+          <!-- ---- holders panel ---- -->
+          <div id="panel-holders" role="tabpanel" class="pt-4 hidden">
+            <div class="flex items-baseline justify-between gap-2 flex-wrap">
+              <h2 class="font-marker text-forest text-2xl">Top Holders</h2>
+              <p id="holdersCount" class="font-hand text-lg text-ink/70 num"></p>
+            </div>
+            <div id="holdersList" class="mt-3 flex flex-col gap-3"></div>
+            <p class="font-caveat text-lg text-brown mt-4 leading-tight">demo wallets — these addresses are not real</p>
+          </div>
+
+          <!-- ---- transactions panel ---- -->
+          <div id="panel-tx" role="tabpanel" class="pt-4 hidden">
+            <div class="flex items-baseline justify-between gap-2 flex-wrap">
+              <h2 class="font-marker text-forest text-2xl">Recent Trades</h2>
+              <p id="txParticipants" class="font-hand text-lg text-ink/70 num"></p>
+            </div>
+            <div class="scroll-x mt-3">
+              <table class="w-full min-w-[440px] border-collapse">
+                <thead>
+                  <tr class="font-caveat text-xl text-brown text-left">
+                    <th class="py-1 pr-2 font-normal">side</th>
+                    <th class="py-1 pr-2 font-normal">ETH</th>
+                    <th class="py-1 pr-2 font-normal">tokens</th>
+                    <th class="py-1 pr-2 font-normal text-right">when</th>
+                  </tr>
+                </thead>
+                <tbody id="txBody" class="font-hand text-[17px]"></tbody>
+              </table>
+            </div>
+            <p class="font-caveat text-lg text-brown mt-4 leading-tight">no chain was harmed — this table is fiction</p>
+          </div>
+
+          <!-- ---- about panel ---- -->
+          <div id="panel-about" role="tabpanel" class="pt-4 hidden">
+            <h2 id="aboutLongTitle" class="font-marker text-forest text-2xl">About</h2>
+            <p id="aboutLong" class="font-hand text-lg leading-snug mt-2 text-ink/85"></p>
+            <h3 class="font-marker text-forest text-xl mt-5">Key facts</h3>
+            <div id="factGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ======== RIGHT ======== -->
+      <aside class="lg:col-span-3 flex flex-col gap-5 min-w-0">
+
+        <!-- trade panel -->
+        <div class="relative bg-paper2 sketch rough-shadow p-4">
+          <span class="pin"></span>
+          <span class="tape font-caveat text-ink">UI preview</span>
+          <h2 id="tradeTitle" class="font-marker text-forest text-xl mt-1">Trade</h2>
+
+          <div class="grid grid-cols-2 gap-2 mt-3">
+            <button id="buyBtn" class="font-marker text-lg py-1.5 sketch-2 bg-forest text-paper rough-shadow-sm transition">Buy</button>
+            <button id="sellBtn" class="font-marker text-lg py-1.5 sketch-2 bg-paper text-ink rough-shadow-sm transition">Sell</button>
+          </div>
+
+          <div class="mt-3 bg-paper sketch-2 p-3">
+            <div class="flex items-center justify-between">
+              <p class="font-caveat text-lg text-brown leading-none">You Pay</p>
+              <button data-preview="Balance" class="font-hand text-xs px-1.5 py-0.5 sketch-2 bg-paper2 hover:bg-mustard transition">MAX</button>
+            </div>
+            <div class="flex items-center gap-2 mt-1.5">
+              <input id="payAmt" class="bare font-marker text-2xl num min-w-0" inputmode="decimal" autocomplete="off" spellcheck="false" value="1" aria-label="amount you pay" />
+              <span id="payPill" class="font-marker text-sm px-2 py-1 sketch-2 bg-paper2 whitespace-nowrap shrink-0">ETH</span>
+            </div>
+          </div>
+
+          <div class="relative h-0">
+            <button id="flipBtn" title="switch direction" aria-label="switch direction"
+              class="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-0 w-9 h-9 rounded-full border-[2.4px] border-ink bg-mustard rough-shadow-sm flex items-center justify-center hover:bg-forest hover:text-paper transition z-10">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v14"/><path d="m3 13 4 4 4-4"/><path d="M17 21V7"/><path d="m13 11 4-4 4 4"/></svg>
+            </button>
+          </div>
+
+          <div class="mt-3 bg-paper sketch-2 p-3">
+            <p class="font-caveat text-lg text-brown leading-none">You Receive</p>
+            <div class="flex items-center gap-2 mt-1.5">
+              <input id="recvAmt" class="bare font-marker text-2xl num min-w-0" inputmode="decimal" autocomplete="off" spellcheck="false" readonly aria-label="amount you receive" />
+              <span id="recvPill" class="font-marker text-sm px-2 py-1 sketch-2 bg-paper2 whitespace-nowrap shrink-0">TOKEN</span>
+            </div>
+            <p id="recvUsd" class="font-hand text-sm text-ink/55 num mt-0.5">&nbsp;</p>
+          </div>
+
+          <!-- deliberately NOT styled like the real swap CTA on /swap: dashed outline,
+               paper fill and a "(demo)" label so it can never be mistaken for a live control -->
+          <button data-preview="Connect Wallet" class="w-full mt-4 sketch bg-paper2 text-ink font-marker text-xl py-2.5 rough-shadow-sm border-2 border-dashed border-crayred hover:bg-mustard transition flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H19a1 1 0 0 1 1 1v2"/><path d="M3 7.5V17a2 2 0 0 0 2 2h14a1 1 0 0 0 1-1v-3"/><path d="M20 10.5h-4a2.5 2.5 0 0 0 0 5h4z"/></svg>
+            Connect Wallet (demo)
+          </button>
+
+          <div class="flex items-center justify-between gap-2 mt-3">
+            <span class="font-hand text-[17px] text-ink/70 inline-flex items-center gap-1.5">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19 19 5"/><circle cx="7.5" cy="7.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/></svg>
+              Slippage
+            </span>
+            <span id="slipPills" class="flex gap-1">
+              <button data-slip="0.5" class="font-hand text-sm px-2 py-0.5 sketch-2 bg-paper hover:bg-mustard transition num">0.5%</button>
+              <button data-slip="1" class="font-hand text-sm px-2 py-0.5 sketch-2 bg-paper hover:bg-mustard transition num">1%</button>
+              <button data-slip="2" class="font-hand text-sm px-2 py-0.5 sketch-2 bg-paper hover:bg-mustard transition num">2%</button>
+            </span>
+          </div>
+          <div class="flex items-center justify-between gap-2 mt-1.5 font-hand text-[15px] text-ink/60">
+            <span>Min received</span><span id="minRecv" class="num">—</span>
+          </div>
+          <div class="flex items-center justify-between gap-2 font-hand text-[15px] text-ink/60">
+            <span>Rate</span><span id="rateRow" class="num text-right">—</span>
+          </div>
+          <p class="font-caveat text-lg text-brown mt-2 leading-tight">
+            buttons are decoration — nothing connects, nothing moves
+          </p>
+        </div>
+
+        <!-- pool info -->
+        <div class="bg-paper2 sketch-2 rough-shadow-sm p-4">
+          <h2 class="font-marker text-forest text-xl">Pool Info</h2>
+          <div id="poolInfo" class="mt-2 flex flex-col gap-1.5 font-hand text-[17px]"></div>
+        </div>
+
+        <!-- performance -->
+        <div class="bg-paper2 sketch rough-shadow-sm p-4">
+          <h2 class="font-marker text-forest text-xl">Token Performance</h2>
+          <div id="perfList" class="mt-2 flex flex-col gap-1.5 font-hand text-[17px]"></div>
+          <p class="font-caveat text-lg text-brown mt-2 leading-tight">numbers invented for the mock-up</p>
+        </div>
+      </aside>
+    </div>
+
+    <p class="font-hand text-sm text-ink/60 mt-8 max-w-2xl mx-auto text-center">
+      Reminder: the Vladhood Launchpad is a design preview. No contracts are deployed, no sale is running, and no wallet
+      can spend anything here. $VLAD itself is a community meme coin for entertainment only — not financial advice. DYOR.
+    </p>
+  </section>
+</main>
+
+<!-- ============ preview modal ============ -->
+<div id="modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div id="modalBackdrop" class="absolute inset-0 bg-ink/60"></div>
+  <div class="relative bg-paper sketch rough-shadow p-5 sm:p-6 max-w-md w-full">
+    <span class="pin"></span>
+    <h3 id="modalTitle" class="font-marker text-forest text-2xl mt-1">This is a UI preview</h3>
+    <p id="modalBody" class="font-hand text-lg mt-3 leading-snug"></p>
+    <ul class="font-hand text-[17px] mt-3 flex flex-col gap-1.5 text-ink/80">
+      <li class="flex gap-2"><svg class="ic mt-1.5 shrink-0 text-crayred" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span>No smart contract is deployed for this meme.</span></li>
+      <li class="flex gap-2"><svg class="ic mt-1.5 shrink-0 text-crayred" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span>No wallet is connected and no funds can move.</span></li>
+      <li class="flex gap-2"><svg class="ic mt-1.5 shrink-0 text-forest" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg><span>Everything you see is demo data for layout testing.</span></li>
+    </ul>
+    <p class="font-caveat text-xl text-brown mt-3">want the real thing? swap $VLAD on the live page.</p>
+    <div class="flex flex-wrap gap-2 mt-5">
+      <button id="modalClose" class="sketch-2 bg-ink text-paper font-marker text-lg px-5 py-2 rough-shadow-sm hover:bg-forest transition">Got it</button>
+      <a href="/swap/" class="sketch bg-mustard text-ink font-marker text-lg px-5 py-2 rough-shadow-sm hover:bg-forest hover:text-paper transition">Real swap</a>
+    </div>
+  </div>
+</div>
+
+<footer class="border-t-[3px] border-ink" style="background:#2f6b2f">
+  <div class="max-w-6xl mx-auto px-4 py-5 text-center text-paper">
+    <p class="font-caveat text-xl text-mustard">Green candles forever.</p>
+    <p class="font-hand text-sm text-paper/80 mt-1">Launchpad = demo interface. No contracts, no sale, no real funds.</p>
+    <p class="font-hand text-sm text-paper/70 mt-1">© 2026 Vladhood · $VLAD · drawn in the back of a notebook</p>
+  </div>
+</footer>
+
+<script src="/launchpad.js?v=1"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ---------------- data + safe formatters ---------------- */
+  var LP  = window.VladLaunchpad || null;
+  var FMT = (LP && LP.fmt) || {};
+
+  function num(v, d) { v = Number(v); return isFinite(v) ? v : (d === undefined ? 0 : d); }
+  function esc(s) {
+    return String(s === undefined || s === null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function fEth(n)     { try { return FMT.eth ? FMT.eth(n) : num(n).toFixed(3) + ' ETH'; } catch (e) { return num(n).toFixed(3) + ' ETH'; } }
+  function fUsd(n)     { try { return FMT.usd ? FMT.usd(n) : '$' + Math.round(num(n)).toLocaleString('en-US'); } catch (e) { return '$' + Math.round(num(n)).toLocaleString('en-US'); } }
+  function fPct(n)     { try { return FMT.pct ? FMT.pct(n) : (num(n) >= 0 ? '+' : '') + num(n).toFixed(2) + '%'; } catch (e) { return num(n).toFixed(2) + '%'; } }
+  function fCompact(n) { try { return FMT.compact ? FMT.compact(n) : Math.round(num(n)).toLocaleString('en-US'); } catch (e) { return String(n); } }
+  function fAgo(ts)    { try { return FMT.ago ? FMT.ago(ts) : new Date(num(ts)).toLocaleDateString(); } catch (e) { return '—'; } }
+  function fLeft(ts)   { try { return FMT.timeLeft ? FMT.timeLeft(ts) : new Date(num(ts)).toLocaleDateString(); } catch (e) { return '—'; } }
+  function fAddr(a)    { try { return FMT.addr ? FMT.addr(a) : String(a || '—'); } catch (e) { return String(a || '—'); } }
+
+  /* price of a meme token, quoted in VLAD — tiny numbers need adaptive decimals */
+  function fPrice(p) {
+    p = Number(p);
+    if (!isFinite(p) || p <= 0) return '—';
+    if (p >= 1000) return p.toLocaleString(undefined, { maximumFractionDigits: 2 });
+    if (p >= 1)    return p.toFixed(4);
+    if (p >= 0.01) return p.toFixed(5);
+    /* keep ~4 significant digits, then drop the dead trailing zeros */
+    var dec = Math.min(18, Math.max(2, 3 - Math.floor(Math.log10(p))));
+    return p.toFixed(dec).replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
+  }
+  function fAmount(v) {
+    v = Number(v);
+    if (!isFinite(v)) return '0';
+    if (v === 0) return '0';
+    if (Math.abs(v) >= 1000) return Math.round(v).toLocaleString('en-US');
+    if (Math.abs(v) >= 1) return v.toFixed(3).replace(/\.?0+$/, '');
+    return v.toPrecision(4).replace(/0+$/, '').replace(/\.$/, '');
+  }
+  function signCls(n) { return num(n) >= 0 ? 'text-forest' : 'text-crayred'; }
+  function signColor(n) { return num(n) >= 0 ? '#3f8b3d' : '#c0392b'; }
+
+  var $ = function (sel, root) { return (root || document).querySelector(sel); };
+
+  /* ---------------- resolve the meme from ?id= ---------------- */
+  var params = new URLSearchParams(window.location.search);
+  var wantedId = params.get('id');
+  var meme = null;
+  try { if (LP && typeof LP.get === 'function' && wantedId) meme = LP.get(wantedId); } catch (e) { meme = null; }
+
+  /* ---------------- modal (shared by every action button) ---------------- */
+  var modal = $('#modal');
+  var modalBody = $('#modalBody');
+  var lastFocus = null;
+
+  function openModal(action) {
+    lastFocus = document.activeElement;
+    var name = meme ? meme.name : 'this meme';
+    var txt;
+    if (action === 'Connect Wallet') txt = 'There is no wallet connection behind this button. The Launchpad is a mock-up of what a $VLAD meme launch page could look like.';
+    else if (action === 'Buy')  txt = 'Nothing was bought. "Buy ' + name + '" is a drawing of a button — no order is placed and no funds leave anywhere.';
+    else if (action === 'Sell') txt = 'Nothing was sold. "Sell ' + name + '" is a drawing of a button — no order is placed and no funds leave anywhere.';
+    else if (action === 'Balance') txt = 'There is no balance to max out — no wallet is connected and no token exists for ' + name + '.';
+    else txt = 'This control is part of an interface preview. It does not touch a chain, a wallet or any money.';
+    modalBody.textContent = txt;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    var btn = $('#modalClose');
+    if (btn) btn.focus();
+  }
+  function closeModal() {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  $('#modalClose').addEventListener('click', closeModal);
+  $('#modalBackdrop').addEventListener('click', closeModal);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+  });
+  document.addEventListener('click', function (e) {
+    var t = e.target && e.target.closest ? e.target.closest('[data-preview]') : null;
+    if (!t) return;
+    e.preventDefault();
+    openModal(t.getAttribute('data-preview'));
+  });
+
+  /* ---------------- not-found state ---------------- */
+  function showNotFound() {
+    var nf = $('#notfound');
+    nf.classList.remove('hidden');
+    var msg = $('#nfMsg');
+    if (!LP) {
+      msg.textContent = 'The launchpad demo data could not be loaded (launchpad.js is missing).';
+    } else if (!wantedId) {
+      msg.textContent = 'No meme id in the address. A detail page needs something like ?id=hood-doge';
+    } else {
+      msg.textContent = 'There is no demo meme with the id "' + wantedId + '".';
+    }
+    var list = $('#nfList');
+    var memes = (LP && LP.memes) || [];
+    if (memes.length) {
+      var html = '<p class="w-full font-caveat text-xl text-brown">try one of these instead</p>';
+      memes.slice(0, 8).forEach(function (m) {
+        html += '<a href="?id=' + encodeURIComponent(m.id) + '" class="sketch-2 bg-paper px-3 py-1 rough-shadow-sm font-marker text-sm hover:bg-mustard transition">' + esc(m.name) + '</a>';
+      });
+      list.innerHTML = html;
+    }
+    document.title = 'Meme not found — Vladhood Launchpad (demo)';
+  }
+
+  if (!meme) { showNotFound(); return; }
+
+  /* ---------------- derived values ---------------- */
+  var NOW = Date.now();
+  var sym = (String(meme.name || 'MEME').replace(/[^A-Za-z0-9 ]/g, '').split(/\s+/)[0] || 'MEME').toUpperCase().slice(0, 8);
+  var chart = Array.isArray(meme.chart) ? meme.chart.filter(function (d) { return d && isFinite(d.p) && isFinite(d.t); }).slice().sort(function (a, b) { return a.t - b.t; }) : [];
+  var poolEth = num(meme.poolEth, 0);
+  var poolTok = num(meme.poolToken, 0);
+  var tokPerEth = (poolEth > 0 && poolTok > 0) ? poolTok / poolEth : 0;
+  var usdPerTok = (num(meme.supply) > 0) ? num(meme.marketCap) / num(meme.supply) : 0;
+  var launched = num(meme.startsAt, 0);
+  var isFuture = launched > NOW;
+
+  document.title = meme.name + ' — Vladhood Launchpad (demo)';
+  $('#detail').classList.remove('hidden');
+
+  /* ---------------- title row ---------------- */
+  var av = $('#avatar');
+  var avSvg = '';
+  try { if (LP && typeof LP.avatar === 'function') avSvg = LP.avatar(meme, 112) || ''; } catch (e) { avSvg = ''; }
+  if (meme.avatar && meme.avatar.bg) av.style.background = meme.avatar.bg;
+  if (avSvg) { av.innerHTML = avSvg; var s = av.querySelector('svg'); if (s) { s.setAttribute('width', '100%'); s.setAttribute('height', '100%'); s.style.display = 'block'; } }
+  else { av.innerHTML = '<span class="font-marker text-3xl text-ink">' + esc(sym.slice(0, 2)) + '</span>'; }
+
+  $('#memeName').textContent = meme.name || 'Untitled meme';
+  $('#memeTagline').textContent = meme.tagline || '';
+  $('#aboutTitle').textContent = 'About ' + (meme.name || '');
+  $('#aboutLongTitle').textContent = 'About ' + (meme.name || '');
+  $('#aboutShort').textContent = meme.about || 'No description in the demo data.';
+  $('#aboutLong').textContent = meme.about || 'No description in the demo data.';
+  $('#tradeTitle').textContent = 'Trade ' + (meme.name || sym);
+
+  var statusPill = $('#statusPill');
+  var st = String(meme.status || '').toLowerCase();
+  statusPill.textContent = st === 'live' ? 'LIVE' : st === 'upcoming' ? 'UPCOMING' : st === 'finished' ? 'FINISHED' : 'DEMO';
+  statusPill.className = 'font-marker text-xs px-2 py-0.5 sketch-2 ' +
+    (st === 'live' ? 'bg-forest text-paper' : st === 'upcoming' ? 'bg-mustard text-ink' : 'bg-paper2 text-ink');
+
+  if (meme.verified) { var vp = $('#verifiedPill'); vp.classList.remove('hidden'); vp.classList.add('inline-flex'); }
+
+  $('#priceVal').textContent = fPrice(meme.priceVlad);
+  var pc = $('#priceChange');
+  pc.textContent = fPct(meme.change24h) + ' 24h';
+  pc.className = 'font-marker text-lg mt-1 num ' + signCls(meme.change24h);
+  $('#mcapVal').textContent = fUsd(meme.marketCap);
+  $('#mcapSub').textContent = fCompact(meme.supply) + ' supply · ' + fCompact(meme.holdersCount) + ' holders';
+
+  /* ---------------- left: token info ---------------- */
+  function row(label, valueHtml, extraCls) {
+    return '<div class="flex items-baseline ' + (extraCls || '') + '">' +
+      '<span class="text-ink/70 shrink-0">' + esc(label) + '</span>' +
+      '<span class="leader"></span>' +
+      '<span class="text-right num">' + valueHtml + '</span></div>';
+  }
+  var copyIcon = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
+  var contractHtml =
+    '<span class="inline-flex items-center gap-1.5">' +
+      '<span title="' + esc(meme.contract) + '">' + esc(fAddr(meme.contract)) + '</span>' +
+      '<button id="copyBtn" data-copy="' + esc(meme.contract) + '" title="copy demo address" aria-label="copy demo contract address" ' +
+        'class="px-1 py-0.5 sketch-2 bg-paper hover:bg-mustard transition">' + copyIcon + '</button>' +
+    '</span>';
+
+  $('#tokenInfo').innerHTML =
+    row('Total Supply', esc(fCompact(meme.supply)) + ' ' + esc(sym)) +
+    row('Liquidity Locked', meme.lpLocked
+      ? '<span class="text-forest">Yes · ' + esc(num(meme.lockMonths)) + ' mo</span>'
+      : '<span class="text-crayred">No</span>') +
+    row('Contract', contractHtml) +
+    row('Decimals', esc(num(meme.decimals, 18))) +
+    row('Tax', esc(num(meme.taxBuy)) + '% Buy / ' + esc(num(meme.taxSell)) + '% Sell') +
+    row(isFuture ? 'Launches' : 'Launched', esc(isFuture ? fLeft(launched) : fAgo(launched))) +
+    row('Creator', '<span title="' + esc(meme.creator) + '">' + esc(fAddr(meme.creator)) + '</span>');
+
+  var copyBtn = $('#copyBtn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function () {
+      var val = copyBtn.getAttribute('data-copy') || '';
+      var done = function () {
+        copyBtn.innerHTML = '<svg class="ic text-forest" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.5 12.5 5 5 10-11"/></svg>';
+        setTimeout(function () { copyBtn.innerHTML = copyIcon; }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(val).then(done, done);
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = val; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta); done();
+      }
+    });
+  }
+
+  /* ---------------- left: sentiment ---------------- */
+  var up = Math.max(0, Math.min(100, num(meme.sentiment && meme.sentiment.up, 50)));
+  var votes = num(meme.sentiment && meme.sentiment.votes, 0);
+  $('#sentUp').textContent = up.toFixed(0) + '%';
+  $('#sentDown').textContent = (100 - up).toFixed(0) + '%';
+  $('#sentBar').style.width = up + '%';
+  $('#sentVotes').textContent = fCompact(votes) + ' demo votes';
+
+  /* ---------------- left: socials ---------------- */
+  var socialDefs = [
+    { key: 'x',   label: 'X',        svg: '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3h3.6l4.6 6.3L17.8 3H21l-7.1 8.2L21.4 21h-3.6l-5-6.8L6.2 21H3l7.4-8.6z"/></svg>' },
+    { key: 'tg',  label: 'Telegram', svg: '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 4.5 2.8 11.3c-.7.3-.7 1.2 0 1.4l4.5 1.4L19 6.6"/><path d="m7.3 14.1.5 4.6c.3.2.7.2 1-.1l2.3-2.2 4.6 3.4c.6.4 1.3.1 1.5-.6L21 4.5"/><path d="m11.1 16.4-3.8-2.3"/></svg>' },
+    { key: 'web', label: 'Website',  svg: '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.6 3.8 5.7 3.8 9S14.5 18.4 12 21c-2.5-2.6-3.8-5.7-3.8-9S9.5 5.6 12 3Z"/></svg>' }
+  ];
+  var socialHtml = '';
+  socialDefs.forEach(function (d) {
+    var href = (meme.socials && meme.socials[d.key]) || '#';
+    var dead = (!href || href === '#');
+    socialHtml += '<a href="' + esc(href) + '"' + (dead ? '' : ' target="_blank" rel="noopener nofollow"') +
+      (dead ? ' data-preview="Social link"' : '') +
+      ' title="' + esc(d.label) + '" aria-label="' + esc(d.label) + '"' +
+      ' class="w-10 h-10 sketch-2 bg-paper rough-shadow-sm flex items-center justify-center hover:bg-mustard transition">' + d.svg + '</a>';
+  });
+  $('#socials').innerHTML = socialHtml;
+
+  /* ================================================================
+     CHART — self-drawn SVG, area fill, grid, min/max, hover tooltip
+     ================================================================ */
+  var RANGES = { '1h': 3600e3, '4h': 4 * 3600e3, '1d': 24 * 3600e3, 'all': Infinity };
+  var MIN_PTS = 6; /* a window thinner than this falls back to the last MIN_PTS samples */
+  var curRange = 'all';
+  var curData = [];
+  var chartBox = $('#chartBox');
+  var lastNarrow = null;
+
+  function seriesFor(key) {
+    if (chart.length < 2) return chart.slice();
+    if (key === 'all') return chart.slice();
+    var end = chart[chart.length - 1].t;
+    var win = RANGES[key] || Infinity;
+    var sub = chart.filter(function (d) { return end - d.t <= win; });
+    if (sub.length < MIN_PTS) sub = chart.slice(-Math.min(MIN_PTS, chart.length));
+    /* keep the line readable if a window ever holds a huge number of points */
+    if (sub.length > 90) {
+      var step = Math.ceil(sub.length / 90), out = [];
+      for (var i = 0; i < sub.length; i += step) out.push(sub[i]);
+      if (out[out.length - 1] !== sub[sub.length - 1]) out.push(sub[sub.length - 1]);
+      sub = out;
+    }
+    return sub;
+  }
+
+  function smoothPath(pts) {
+    if (!pts.length) return '';
+    if (pts.length < 3) return 'M ' + pts.map(function (p) { return p.x.toFixed(1) + ' ' + p.y.toFixed(1); }).join(' L ');
+    var T = 0.72, d = 'M ' + pts[0].x.toFixed(1) + ' ' + pts[0].y.toFixed(1);
+    for (var i = 0; i < pts.length - 1; i++) {
+      var p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || pts[i + 1];
+      var lo = Math.min(p1.y, p2.y) - 1, hi = Math.max(p1.y, p2.y) + 1;
+      var c1x = p1.x + (p2.x - p0.x) / 6 * T, c1y = p1.y + (p2.y - p0.y) / 6 * T;
+      var c2x = p2.x - (p3.x - p1.x) / 6 * T, c2y = p2.y - (p3.y - p1.y) / 6 * T;
+      c1y = Math.max(lo, Math.min(hi, c1y));
+      c2y = Math.max(lo, Math.min(hi, c2y));
+      d += ' C ' + c1x.toFixed(1) + ' ' + c1y.toFixed(1) + ', ' + c2x.toFixed(1) + ' ' + c2y.toFixed(1) + ', ' + p2.x.toFixed(1) + ' ' + p2.y.toFixed(1);
+    }
+    return d;
+  }
+
+  var LOC = 'en-GB'; /* the whole site is English — keep dates readable and stable */
+  function timeLabel(ts, spanMs) {
+    var d = new Date(ts);
+    if (spanMs > 48 * 3600e3) return d.toLocaleDateString(LOC, { month: 'short', day: 'numeric' });
+    return d.toLocaleTimeString(LOC, { hour: '2-digit', minute: '2-digit' });
+  }
+  function humanSpan(ms) {
+    ms = Math.max(0, num(ms));
+    var m = Math.round(ms / 60000);
+    if (m < 90) return m + 'm';
+    var h = ms / 3600000;
+    if (h < 48) return (h < 10 ? h.toFixed(1).replace(/\.0$/, '') : Math.round(h)) + 'h';
+    return Math.round(h / 24) + 'd';
+  }
+  function fullTime(ts) {
+    var d = new Date(ts);
+    return d.toLocaleDateString(LOC, { month: 'short', day: 'numeric' }) + ' · ' +
+           d.toLocaleTimeString(LOC, { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function renderChart(key) {
+    curRange = key;
+    var data = seriesFor(key);
+    curData = data;
+
+    /* range pills state */
+    Array.prototype.forEach.call(document.querySelectorAll('#rangePills button'), function (b) {
+      var on = b.getAttribute('data-range') === key;
+      b.classList.toggle('pill-on', on);
+      b.classList.toggle('bg-paper', !on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+
+    if (data.length < 2) {
+      chartBox.innerHTML = '<p class="font-hand text-lg text-ink/60 text-center py-10">no chart points in the demo data</p>';
+      $('#chartStats').innerHTML = '';
+      return;
+    }
+
+    var narrow = chartBox.clientWidth ? chartBox.clientWidth < 470 : (window.innerWidth < 500);
+    lastNarrow = narrow;
+
+    var W = 760, H = narrow ? 430 : 320;
+    var PL = 14, PR = narrow ? 76 : 88, PT = 18, PB = 34;
+    var iw = W - PL - PR, ih = H - PT - PB;
+    var base = H - PB;
+
+    var ps = data.map(function (d) { return d.p; });
+    var lo = Math.min.apply(null, ps), hi = Math.max.apply(null, ps);
+    if (!(hi > lo)) { hi = hi * 1.02 || 1; lo = lo * 0.98 || 0; }
+    var span = hi - lo;
+    var top = hi + span * 0.18, bot = lo - span * 0.22;
+
+    var n = data.length;
+    var X = function (i) { return PL + (n === 1 ? iw / 2 : (i * iw) / (n - 1)); };
+    var Y = function (p) { return PT + (1 - (p - bot) / (top - bot)) * ih; };
+
+    var pts = data.map(function (d, i) { return { x: X(i), y: Y(d.p), t: d.t, p: d.p }; });
+    var line = smoothPath(pts);
+    var area = line + ' L ' + pts[n - 1].x.toFixed(1) + ' ' + base + ' L ' + pts[0].x.toFixed(1) + ' ' + base + ' Z';
+
+    var first = data[0].p, last = data[n - 1].p;
+    var rise = first > 0 ? ((last - first) / first) * 100 : 0;
+    var col = signColor(rise);
+    var gid = 'g' + Math.random().toString(36).slice(2, 8);
+
+    /* grid + price ticks */
+    var grid = '', ticks = 4;
+    for (var k = 0; k <= ticks; k++) {
+      var gy = (PT + (k * ih) / ticks);
+      var gp = bot + (1 - k / ticks) * (top - bot);
+      grid += '<line x1="' + PL + '" y1="' + gy.toFixed(1) + '" x2="' + (PL + iw) + '" y2="' + gy.toFixed(1) +
+              '" stroke="rgba(43,38,32,0.13)" stroke-width="1" stroke-dasharray="2 6"/>' +
+              '<text x="' + (W - 6) + '" y="' + (gy + 4).toFixed(1) + '" text-anchor="end" font-family="Patrick Hand, cursive" font-size="' +
+              (narrow ? 16 : 14) + '" fill="rgba(43,38,32,0.5)">' + esc(fPrice(gp)) + '</text>';
+    }
+
+    /* time labels */
+    var idxs = [0, Math.round((n - 1) / 3), Math.round((2 * (n - 1)) / 3), n - 1];
+    var timeTxt = '';
+    idxs.forEach(function (i, j) {
+      var anchor = j === 0 ? 'start' : (j === 3 ? 'end' : 'middle');
+      timeTxt += '<text x="' + X(i).toFixed(1) + '" y="' + (H - 10) + '" text-anchor="' + anchor +
+                 '" font-family="Patrick Hand, cursive" font-size="' + (narrow ? 17 : 15) +
+                 '" fill="rgba(43,38,32,0.5)">' + esc(timeLabel(data[i].t, data[n - 1].t - data[0].t)) + '</text>';
+    });
+
+    /* min / max markers */
+    var hiI = 0, loI = 0;
+    for (var i2 = 1; i2 < n; i2++) { if (ps[i2] > ps[hiI]) hiI = i2; if (ps[i2] < ps[loI]) loI = i2; }
+    function marker(i, isHigh) {
+      var x = X(i), y = Y(ps[i]);
+      var ly = isHigh ? y - 12 : y + 20;
+      var anchor = x > PL + iw * 0.8 ? 'end' : (x < PL + iw * 0.2 ? 'start' : 'middle');
+      return '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="3.4" fill="#f4ecd8" stroke="' + col + '" stroke-width="2.2"/>' +
+             '<text x="' + x.toFixed(1) + '" y="' + ly.toFixed(1) + '" text-anchor="' + anchor +
+             '" font-family="Patrick Hand, cursive" font-size="' + (narrow ? 17 : 14) + '" fill="rgba(43,38,32,0.62)">' +
+             (isHigh ? 'high ' : 'low ') + esc(fPrice(ps[i])) + '</text>';
+    }
+
+    var lastX = pts[n - 1].x, lastY = pts[n - 1].y;
+
+    var svg =
+      '<svg class="chart-svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Demo price history for ' + esc(meme.name) + '">' +
+        '<defs>' +
+          '<linearGradient id="' + gid + '" x1="0" y1="0" x2="0" y2="1">' +
+            '<stop offset="0%" stop-color="' + col + '" stop-opacity="0.36"/>' +
+            '<stop offset="70%" stop-color="' + col + '" stop-opacity="0.08"/>' +
+            '<stop offset="100%" stop-color="' + col + '" stop-opacity="0"/>' +
+          '</linearGradient>' +
+        '</defs>' +
+        grid +
+        '<text x="' + (PL + 6) + '" y="' + (base - 8) + '" font-family="Caveat, cursive" font-size="' + (narrow ? 22 : 18) +
+          '" fill="rgba(43,38,32,0.20)">demo data — not a real market</text>' +
+        '<path d="' + area + '" fill="url(#' + gid + ')"/>' +
+        '<path d="' + line + '" fill="none" stroke="' + col + '" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>' +
+        marker(hiI, true) + marker(loI, false) +
+        '<line x1="' + PL + '" y1="' + base + '" x2="' + (PL + iw) + '" y2="' + base + '" stroke="rgba(43,38,32,0.35)" stroke-width="1.6"/>' +
+        '<circle cx="' + lastX.toFixed(1) + '" cy="' + lastY.toFixed(1) + '" r="9" fill="' + col + '" opacity="0.18"/>' +
+        '<circle cx="' + lastX.toFixed(1) + '" cy="' + lastY.toFixed(1) + '" r="4.4" fill="' + col + '" stroke="#2b2620" stroke-width="1.8"/>' +
+        timeTxt +
+        '<g id="cx" opacity="0">' +
+          '<line id="cxLine" x1="0" y1="' + PT + '" x2="0" y2="' + base + '" stroke="rgba(43,38,32,0.45)" stroke-width="1.4" stroke-dasharray="3 4"/>' +
+          '<circle id="cxDot" cx="0" cy="0" r="5.2" fill="#f4ecd8" stroke="' + col + '" stroke-width="3"/>' +
+        '</g>' +
+        '<rect id="cxHit" x="0" y="0" width="' + W + '" height="' + H + '" fill="transparent" style="cursor:crosshair"/>' +
+      '</svg>' +
+      '<div id="chartTip" class="chart-tip hidden"></div>';
+
+    chartBox.innerHTML = svg;
+
+    /* head readout — label the span actually drawn, not just the pill */
+    $('#chartPrice').textContent = fPrice(last);
+    var cc = $('#chartChange');
+    cc.textContent = fPct(rise) + ' · ' + humanSpan(data[n - 1].t - data[0].t);
+    cc.className = 'font-marker text-lg num ' + signCls(rise);
+
+    /* range stats */
+    $('#chartStats').innerHTML =
+      '<div class="bg-paper sketch-2 p-2 text-center"><p class="font-caveat text-lg text-brown leading-none">high</p>' +
+        '<p class="font-marker text-sm sm:text-base num mt-1 break-all">' + esc(fPrice(hi)) + '</p></div>' +
+      '<div class="bg-paper sketch-2 p-2 text-center"><p class="font-caveat text-lg text-brown leading-none">low</p>' +
+        '<p class="font-marker text-sm sm:text-base num mt-1 break-all">' + esc(fPrice(lo)) + '</p></div>' +
+      '<div class="bg-paper sketch-2 p-2 text-center"><p class="font-caveat text-lg text-brown leading-none">range</p>' +
+        '<p class="font-marker text-sm sm:text-base num mt-1 ' + signCls(rise) + '">' + esc(fPct(rise)) + '</p></div>';
+
+    /* ---- hover / touch tooltip ---- */
+    var svgEl = chartBox.querySelector('svg');
+    var g = chartBox.querySelector('#cx');
+    var cxLine = chartBox.querySelector('#cxLine');
+    var cxDot = chartBox.querySelector('#cxDot');
+    var tip = chartBox.querySelector('#chartTip');
+    var hit = chartBox.querySelector('#cxHit');
+
+    function move(ev) {
+      var r = svgEl.getBoundingClientRect();
+      if (!r.width) return;
+      var cx = (ev.clientX - r.left) * (W / r.width);
+      var idx = Math.round(((cx - PL) / (iw || 1)) * (n - 1));
+      idx = Math.max(0, Math.min(n - 1, idx));
+      var p = pts[idx];
+      g.setAttribute('opacity', '1');
+      cxLine.setAttribute('x1', p.x.toFixed(1));
+      cxLine.setAttribute('x2', p.x.toFixed(1));
+      cxDot.setAttribute('cx', p.x.toFixed(1));
+      cxDot.setAttribute('cy', p.y.toFixed(1));
+
+      tip.classList.remove('hidden');
+      tip.innerHTML = '<span class="font-marker text-[15px] num">' + esc(fPrice(p.p)) + '</span>' +
+                      '<span class="font-hand text-[13px] text-ink/60"> VLAD</span><br>' +
+                      '<span class="font-hand text-[13px] text-ink/70">' + esc(fullTime(p.t)) + '</span>';
+      var scale = r.width / W;
+      var bw = chartBox.clientWidth || r.width;
+      var left = p.x * scale + (r.left - chartBox.getBoundingClientRect().left);
+      var tw = tip.offsetWidth || 120;
+      left = Math.max(tw / 2 + 2, Math.min(bw - tw / 2 - 2, left));
+      tip.style.left = left + 'px';
+      tip.style.top = Math.max(26, p.y * scale + (r.top - chartBox.getBoundingClientRect().top) - 10) + 'px';
+    }
+    function leave() {
+      g.setAttribute('opacity', '0');
+      tip.classList.add('hidden');
+    }
+    hit.addEventListener('mousemove', move);
+    hit.addEventListener('mouseleave', leave);
+    hit.addEventListener('touchstart', function (e) { if (e.touches[0]) move(e.touches[0]); }, { passive: true });
+    hit.addEventListener('touchmove', function (e) { if (e.touches[0]) move(e.touches[0]); }, { passive: true });
+    hit.addEventListener('touchend', leave, { passive: true });
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('#rangePills button'), function (b) {
+    b.addEventListener('click', function () { renderChart(b.getAttribute('data-range')); });
+  });
+  renderChart('all');
+
+  var rzT = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(rzT);
+    rzT = setTimeout(function () {
+      var narrow = chartBox.clientWidth ? chartBox.clientWidth < 470 : (window.innerWidth < 500);
+      if (narrow !== lastNarrow) renderChart(curRange);
+    }, 180);
+  });
+
+  /* ---------------- holders ---------------- */
+  var holders = Array.isArray(meme.topHolders) ? meme.topHolders : [];
+  $('#holdersCount').textContent = fCompact(meme.holdersCount) + ' holders (demo)';
+  var maxPct = holders.reduce(function (m, h) { return Math.max(m, num(h.pct)); }, 0) || 1;
+  $('#holdersList').innerHTML = holders.length ? holders.map(function (h, i) {
+    var w = Math.max(3, (num(h.pct) / maxPct) * 100);
+    return '<div>' +
+      '<div class="flex items-baseline gap-2 font-hand text-[17px]">' +
+        '<span class="font-marker text-brown w-6 shrink-0">#' + (i + 1) + '</span>' +
+        '<span class="num truncate" title="' + esc(h.addr) + '">' + esc(fAddr(h.addr)) + '</span>' +
+        (h.label ? '<span class="font-caveat text-lg text-brown whitespace-nowrap">' + esc(h.label) + '</span>' : '') +
+        '<span class="ml-auto font-marker num whitespace-nowrap">' + esc(num(h.pct).toFixed(2)) + '%</span>' +
+      '</div>' +
+      '<div class="barbg h-3 mt-1"><div class="h-full bg-mustard" style="width:' + w.toFixed(1) + '%"></div></div>' +
+      '</div>';
+  }).join('') : '<p class="font-hand text-lg text-ink/60">no holder data in the demo set</p>';
+
+  /* ---------------- transactions ---------------- */
+  var trades = Array.isArray(meme.trades) ? meme.trades : [];
+  $('#txParticipants').textContent = fCompact(meme.participants) + ' participants (demo)';
+  $('#txBody').innerHTML = trades.length ? trades.map(function (t) {
+    var buy = String(t.side).toLowerCase() === 'buy';
+    return '<tr class="border-t border-ink/15">' +
+      '<td class="py-1.5 pr-2"><span class="font-marker text-sm px-2 py-0.5 sketch-2 ' +
+        (buy ? 'bg-forest text-paper' : 'bg-crayred text-paper') + '">' + (buy ? 'BUY' : 'SELL') + '</span></td>' +
+      '<td class="py-1.5 pr-2 num">' + esc(fEth(t.eth)) + '</td>' +
+      '<td class="py-1.5 pr-2 num">' + esc(fCompact(t.amount)) + ' ' + esc(sym) + '</td>' +
+      '<td class="py-1.5 pr-2 num text-right text-ink/65">' + esc(fAgo(t.ts)) + '</td>' +
+      '</tr>';
+  }).join('') : '<tr><td colspan="4" class="py-3 text-ink/60">no trades in the demo set</td></tr>';
+
+  /* ---------------- about tab facts ---------------- */
+  function fact(k, v) {
+    return '<div class="bg-paper sketch-2 p-2.5">' +
+      '<p class="font-caveat text-lg text-brown leading-none">' + esc(k) + '</p>' +
+      '<p class="font-hand text-[17px] num mt-1 break-words">' + v + '</p></div>';
+  }
+  $('#factGrid').innerHTML =
+    fact('Status', esc(statusPill.textContent)) +
+    fact('Total supply', esc(fCompact(meme.supply)) + ' ' + esc(sym)) +
+    fact('Holders', esc(fCompact(meme.holdersCount))) +
+    fact('Participants', esc(fCompact(meme.participants))) +
+    fact('Soft / Hard cap', esc(fEth(meme.softCap)) + ' / ' + esc(fEth(meme.hardCap))) +
+    fact('Raised (demo)', esc(fEth(meme.raised))) +
+    fact(isFuture ? 'Starts' : 'Launched', esc(isFuture ? fLeft(launched) : fAgo(launched))) +
+    fact('Sale ends', esc(num(meme.endsAt) > NOW ? fLeft(meme.endsAt) : fAgo(meme.endsAt))) +
+    fact('Tax', esc(num(meme.taxBuy)) + '% buy / ' + esc(num(meme.taxSell)) + '% sell') +
+    fact('Contract', '<span title="' + esc(meme.contract) + '">' + esc(fAddr(meme.contract)) + '</span>');
+
+  /* ---------------- tabs ---------------- */
+  var panels = { chart: $('#panel-chart'), holders: $('#panel-holders'), tx: $('#panel-tx'), about: $('#panel-about') };
+  Array.prototype.forEach.call(document.querySelectorAll('.tab-btn'), function (btn) {
+    btn.addEventListener('click', function () {
+      var key = btn.getAttribute('data-tab');
+      Array.prototype.forEach.call(document.querySelectorAll('.tab-btn'), function (b) {
+        b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
+      });
+      Object.keys(panels).forEach(function (k) {
+        if (panels[k]) panels[k].classList.toggle('hidden', k !== key);
+      });
+      if (key === 'chart') renderChart(curRange);
+    });
+  });
+
+  /* ---------------- trade panel (preview only) ---------------- */
+  var side = 'buy';
+  var slip = 1;
+  var payAmt = $('#payAmt'), recvAmt = $('#recvAmt'), payPill = $('#payPill'), recvPill = $('#recvPill');
+  var buyBtn = $('#buyBtn'), sellBtn = $('#sellBtn'), actionBtn = document.querySelector('[data-preview="Connect Wallet"]');
+
+  function setSlipPills() {
+    Array.prototype.forEach.call(document.querySelectorAll('#slipPills button'), function (b) {
+      var on = Number(b.getAttribute('data-slip')) === slip;
+      b.classList.toggle('pill-on', on);
+      b.classList.toggle('bg-paper', !on);
+    });
+  }
+  function recalc() {
+    var v = parseFloat(String(payAmt.value).replace(/,/g, '')) || 0;
+    var out = 0;
+    if (side === 'buy') {
+      payPill.textContent = 'ETH';
+      recvPill.textContent = sym;
+      out = v * tokPerEth;
+      recvAmt.value = out ? fAmount(out) : '';
+      $('#recvUsd').textContent = out && usdPerTok ? '≈ ' + fUsd(Math.round(out * usdPerTok)) + ' (demo)' : ' ';
+    } else {
+      payPill.textContent = sym;
+      recvPill.textContent = 'ETH';
+      out = tokPerEth ? v / tokPerEth : 0;
+      recvAmt.value = out ? fAmount(out) : '';
+      $('#recvUsd').textContent = out ? '≈ ' + fEth(out) + ' (demo)' : ' ';
+    }
+    $('#minRecv').textContent = out ? fAmount(out * (1 - slip / 100)) + ' ' + (side === 'buy' ? sym : 'ETH') : '—';
+    $('#rateRow').textContent = tokPerEth ? '1 ETH ≈ ' + fCompact(tokPerEth) + ' ' + sym : 'no pool data';
+  }
+  function setSide(s) {
+    side = s;
+    buyBtn.className = 'font-marker text-lg py-1.5 sketch-2 rough-shadow-sm transition ' + (s === 'buy' ? 'bg-forest text-paper' : 'bg-paper text-ink');
+    sellBtn.className = 'font-marker text-lg py-1.5 sketch-2 rough-shadow-sm transition ' + (s === 'sell' ? 'bg-crayred text-paper' : 'bg-paper text-ink');
+    if (actionBtn) {
+      actionBtn.setAttribute('data-preview', 'Connect Wallet');
+      actionBtn.classList.toggle('bg-forest', true);
+    }
+    payAmt.value = s === 'buy' ? '1' : String(Math.round(tokPerEth) || 1000);
+    recalc();
+  }
+  buyBtn.addEventListener('click', function () { setSide('buy'); });
+  sellBtn.addEventListener('click', function () { setSide('sell'); });
+  $('#flipBtn').addEventListener('click', function () { setSide(side === 'buy' ? 'sell' : 'buy'); });
+  payAmt.addEventListener('input', function () {
+    payAmt.value = payAmt.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
+    recalc();
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#slipPills button'), function (b) {
+    b.addEventListener('click', function () { slip = Number(b.getAttribute('data-slip')) || 1; setSlipPills(); recalc(); });
+  });
+  setSlipPills();
+  setSide('buy');
+
+  /* ---------------- pool info ---------------- */
+  var lockExpires = '—';
+  if (meme.lpLocked && num(meme.lockMonths) > 0) {
+    var d0 = new Date(launched || NOW);
+    d0.setMonth(d0.getMonth() + num(meme.lockMonths));
+    lockExpires = d0.toLocaleDateString(LOC, { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+  $('#poolInfo').innerHTML =
+    row('ETH Liquidity', esc(fEth(poolEth))) +
+    row('Token Liquidity', esc(fCompact(poolTok)) + ' ' + esc(sym)) +
+    row('LP Locked', meme.lpLocked
+      ? '<span class="text-forest inline-flex items-center gap-1"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10.5" width="16" height="10" rx="2.5"/><path d="M8 10.5V7.6a4 4 0 0 1 8 0v2.9"/></svg>Yes</span>'
+      : '<span class="text-crayred">No</span>') +
+    row('Lock Expires', esc(lockExpires));
+
+  /* ---------------- performance (derived from the demo series) ---------------- */
+  function fromIndex(frac) {
+    if (chart.length < 2) return 0;
+    var i = Math.min(chart.length - 2, Math.max(0, Math.floor(chart.length * frac)));
+    var a = chart[i].p, b = chart[chart.length - 1].p;
+    return a > 0 ? ((b - a) / a) * 100 : 0;
+  }
+  var perf = [
+    ['24h', num(meme.change24h)],
+    ['7d', fromIndex(0.55)],
+    ['30d', fromIndex(0.2)],
+    ['All Time', fromIndex(0)]
+  ];
+  $('#perfList').innerHTML = perf.map(function (p) {
+    return row(p[0], '<span class="' + signCls(p[1]) + ' font-marker">' + esc(fPct(p[1])) + '</span>');
+  }).join('');
+
+})();
+</script>
+</body>
+</html>
