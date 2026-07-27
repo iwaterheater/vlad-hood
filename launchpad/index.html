@@ -345,7 +345,7 @@
   </div>
 </div>
 
-<script src="/launchpad.js?v=2"></script>
+<script src="/launchpad.js?v=3"></script>
 <script>
 (function () {
   'use strict';
@@ -363,6 +363,8 @@
   function fFunded(n) { return (+n).toFixed(1) + '%'; }
   function fLeft(t) { try { return F.timeLeft ? F.timeLeft(t) : ''; } catch (e) { return ''; } }
   function fAgo(t)  { try { return F.ago ? F.ago(t) : ''; } catch (e) { return ''; } }
+  function fUsd(n)  { try { return F.usd ? F.usd(n) : '$' + n; } catch (e) { return '$' + n; } }
+  function fAddr(a) { try { return F.addr ? F.addr(a) : String(a || ''); } catch (e) { return String(a || ''); } }
   function fComp(n) { try { return F.compact ? F.compact(n) : String(n); } catch (e) { return String(n); } }
   function avatarSvg(meme, size) {
     try { return (LP && LP.avatar) ? LP.avatar(meme, size) : ''; } catch (e) { return ''; }
@@ -427,15 +429,10 @@
     var href = '/launchpad/meme.html?id=' + encodeURIComponent(meme.id);
     var isLive = s === 'live';
 
-    var capRow = (s === 'upcoming')
-      ? '<div><span class="block font-caveat text-lg text-brown leading-none">Soft cap</span>' +
-        '<span class="font-marker text-lg text-ink">' + esc(fEth(meme.softCap)) + '</span></div>' +
-        '<div class="text-right"><span class="block font-caveat text-lg text-brown leading-none">Hard cap</span>' +
-        '<span class="font-marker text-lg text-ink">' + esc(fEth(meme.hardCap)) + '</span></div>'
-      : '<div><span class="block font-caveat text-lg text-brown leading-none">Raised</span>' +
-        '<span class="font-marker text-lg text-forest">' + esc(fEth(meme.raised)) + '</span></div>' +
-        '<div class="text-right"><span class="block font-caveat text-lg text-brown leading-none">Goal</span>' +
-        '<span class="font-marker text-lg text-ink">' + esc(fEth(meme.hardCap)) + '</span></div>';
+    /* last on-chain-looking activity, mirroring how a bonding-curve board reads */
+    var lastTs = (meme.trades && meme.trades.length) ? meme.trades[0].ts
+      : (s === 'upcoming' ? meme.startsAt : meme.endsAt);
+    var lastTxt = (s === 'upcoming') ? ('starts ' + fLeft(meme.startsAt)) : fAgo(lastTs);
 
     return '' +
       '<article class="meme-card bg-paper2 sketch rough-shadow overflow-hidden flex flex-col cursor-pointer" ' +
@@ -444,37 +441,29 @@
         // avatar band
         '<div class="relative border-b-[2.4px] border-ink flex items-center justify-center h-36 sm:h-40" style="background:' + esc(bg) + '">' +
           '<div class="w-24 h-24 sm:w-28 sm:h-28 pointer-events-none" aria-hidden="true">' + avatarSvg(meme, 112) + '</div>' +
-          '<span class="absolute top-2 left-2 font-marker text-[11px] tracking-wide px-2.5 py-1 border-2 border-ink rounded-full rough-shadow-sm ' + st.pill + '">' + st.label + '</span>' +
-          '<span class="absolute top-2 right-2 font-hand text-sm px-2.5 py-1 border-2 border-ink rounded-full bg-paper text-ink inline-flex items-center gap-1" data-countdown data-id="' + esc(meme.id) + '">' +
-            '<svg class="ic text-base" aria-hidden="true"><use href="#ic-clock"/></svg>' +
-            '<span data-countdown-text>' + esc(countdownText(meme)) + '</span>' +
-          '</span>' +
         '</div>' +
 
         // body
         '<div class="p-4 flex flex-col flex-1">' +
           '<h3 class="font-marker text-xl text-forest leading-tight">' + esc(meme.name) + '</h3>' +
-          '<p class="font-hand text-base text-ink/75 leading-snug mt-1 min-h-[2.6rem]">' + esc(meme.tagline) + '</p>' +
+          '<p class="font-hand text-lg text-brown leading-none mt-0.5">$' + esc(meme.symbol) + '</p>' +
 
-          '<div class="flex items-end justify-between gap-2 mt-3">' + capRow + '</div>' +
+          '<p class="font-marker text-2xl text-ink leading-none mt-2">' + esc(fUsd(meme.marketCap)) +
+            '<span class="font-hand text-base text-brown ml-1.5">MC</span></p>' +
 
-          '<div class="mt-2">' +
-            '<div class="bar-track" role="img" aria-label="' + esc(fFunded(pct)) + ' of hard cap">' +
-              '<div class="bar-fill" style="width:' + pct.toFixed(1) + '%;background:' + st.fill + '"></div>' +
+          '<div class="mt-3">' +
+            '<div class="flex items-center gap-2">' +
+              '<div class="bar-track flex-1" role="img" aria-label="' + esc(fFunded(pct)) + ' to graduation">' +
+                '<div class="bar-fill" style="width:' + pct.toFixed(1) + '%;background:' + st.fill + '"></div>' +
+              '</div>' +
+              '<span class="font-marker text-base text-ink shrink-0">' + Math.round(pct) + '%</span>' +
             '</div>' +
-            '<div class="flex justify-between font-caveat text-lg text-brown mt-1">' +
-              '<span>' + esc(fFunded(pct)) + ' funded</span>' +
-              '<span>' + esc(fComp(meme.participants)) + ' in</span>' +
-            '</div>' +
+            '<p class="font-caveat text-lg text-brown mt-0.5">graduating</p>' +
           '</div>' +
 
-          '<div class="mt-4 pt-3 border-t-2 border-dashed border-ink/25">' +
-            (isLive
-              ? '<button type="button" data-preview-trigger data-meme-name="' + esc(meme.name) + '" ' +
-                'class="w-full sketch-2 bg-forest text-paper font-marker text-lg px-4 py-2 rough-shadow-sm hover:bg-mustard hover:text-ink transition">Join Now</button>'
-              : '<a href="' + href + '" data-card-link ' +
-                'class="block text-center w-full sketch-2 bg-paper text-ink font-marker text-lg px-4 py-2 rough-shadow-sm hover:bg-ink hover:text-paper transition">View Details</a>'
-            ) +
+          '<div class="mt-auto pt-3 flex items-center justify-between gap-2 font-hand text-sm">' +
+            '<span class="text-ink/60 truncate" title="' + esc(meme.contract) + '">' + esc(fAddr(meme.contract)) + '</span>' +
+            '<span class="text-forest shrink-0">' + esc(lastTxt) + '</span>' +
           '</div>' +
         '</div>' +
       '</article>';

@@ -346,7 +346,7 @@
   var SPEC = [
     /* ---------------- LIVE ---------------- */
     {
-      id: 'bandit-raccoon', name: 'BANDIT RACCOON',
+      id: 'bandit-raccoon', name: 'BANDIT RACCOON', symbol: 'BANDIT',
       tagline: 'Came for the loot. Stayed for the snacks.',
       about: 'Wears the mask full-time, which the Sheriff considers suspicious and the raccoon considers a fashion statement. ' +
         'Robs the tax cart at midnight, robs the tavern bins at one, and is asleep in a hollow log by two. Has never returned ' +
@@ -358,7 +358,7 @@
       holdersCount: 612, participants: 388, up: 58, votes: 1204, poolEth: 15.7
     },
     {
-      id: 'meow-hood', name: 'MEOW HOOD',
+      id: 'meow-hood', name: 'MEOW HOOD', symbol: 'MEOW',
       tagline: 'Steals from the rich. Naps on the poor.',
       about: 'Sherwood’s smallest outlaw and its loudest one. Claims to have single-pawed-ly liberated forty carts of gold; ' +
         'witnesses report one dropped sausage and a lot of confidence. Wears a tiny green hood with a tiny red feather and will ' +
@@ -370,7 +370,7 @@
       holdersCount: 1244, participants: 903, up: 84, votes: 741, poolEth: 18.8
     },
     {
-      id: 'arrow-ape', name: 'ARROW APE',
+      id: 'arrow-ape', name: 'ARROW APE', symbol: 'ARROW',
       tagline: 'Bullseye. Every time. Eventually.',
       about: 'Undefeated champion of the Nottingham archery fair, mostly because nobody wants to tell him he lost. Draws a bow ' +
         'the size of a fence post and fires it roughly in the direction of the target, the county, and the general concept of hope. ' +
@@ -383,7 +383,7 @@
     },
     /* ---------------- UPCOMING ---------------- */
     {
-      id: 'hood-doge', name: 'HOOD DOGE',
+      id: 'hood-doge', name: 'HOOD DOGE', symbol: 'DOGE',
       tagline: 'The goodest boy in Sherwood.',
       about: 'Robs from the rich and buries it in the poor’s back garden, which everyone agrees is technically redistribution. ' +
         'Eleven seasons on watch at the Great Oak and not one tax collector has walked past without receiving a very stern boop. ' +
@@ -395,7 +395,7 @@
       holdersCount: 0, participants: 26, up: 92, votes: 124, poolEth: 0
     },
     {
-      id: 'mage-pepe', name: 'MAGE PEPE',
+      id: 'mage-pepe', name: 'MAGE PEPE', symbol: 'PEPE',
       tagline: 'Rare frog. Rarer robes.',
       about: 'Third-year dropout of the Nottingham College of Damp Magic, expelled for turning the Sheriff’s ledger into ' +
         'a pond. Now lives under the footbridge casting exactly two spells: one that summons fog for a getaway, and one that ' +
@@ -407,7 +407,7 @@
       holdersCount: 0, participants: 141, up: 76, votes: 318, poolEth: 0
     },
     {
-      id: 'sir-hoots-a-lot', name: 'SIR HOOTS-A-LOT',
+      id: 'sir-hoots-a-lot', name: 'SIR HOOTS-A-LOT', symbol: 'HOOTS',
       tagline: 'Night watch of the north woods.',
       about: 'Sees everything, says most of it. Perched on the tallest oak from dusk until the tavern closes, hooting a running ' +
         'commentary on every cart, patrol and questionable haircut that passes below. Has strong opinions on governance, an ' +
@@ -420,7 +420,7 @@
     },
     /* ---------------- FINISHED ---------------- */
     {
-      id: 'lord-vlad', name: 'LORD $VLAD',
+      id: 'lord-vlad', name: 'LORD $VLAD', symbol: 'LORDV',
       tagline: 'The one who started the whole racket.',
       about: 'Rode into the forest with nothing but a bow, a hood and an unbeatable grin, and rode out owning the road toll. ' +
         'Every outlaw in this list learned the trade at his campfire, and every one of them still owes him for dinner. ' +
@@ -432,7 +432,7 @@
       holdersCount: 4820, participants: 1560, up: 96, votes: 2418, poolEth: 96.4
     },
     {
-      id: 'friar-tuck-inu', name: 'FRIAR TUCK INU',
+      id: 'friar-tuck-inu', name: 'FRIAR TUCK INU', symbol: 'TUCK',
       tagline: 'Blesses your bags. Eats your snacks.',
       about: 'The forest’s chaplain, cellarman and heavyweight champion, in ascending order of seriousness. Will pray over ' +
         'your venture, feed you until you cannot run from the Sheriff, and then flatten the Sheriff himself. The five percent ' +
@@ -444,7 +444,7 @@
       holdersCount: 2130, participants: 940, up: 71, votes: 862, poolEth: 52.5
     },
     {
-      id: 'sherwood-shiba', name: 'SHERWOOD SHIBA',
+      id: 'sherwood-shiba', name: 'SHERWOOD SHIBA', symbol: 'SHIBA',
       tagline: 'Much forest. Very outlaw.',
       about: 'Arrived in Sherwood by accident, stayed because the sticks are excellent. Runs point on every ambush and then ' +
         'ruins it by wagging. What he lacks in stealth he makes up for in morale, which is why the Merry Men vote him ' +
@@ -456,7 +456,7 @@
       holdersCount: 3105, participants: 1180, up: 89, votes: 1533, poolEth: 36.8
     },
     {
-      id: 'maid-marian-fox', name: 'MAID MARIAN FOX',
+      id: 'maid-marian-fox', name: 'MAID MARIAN FOX', symbol: 'MARIAN',
       tagline: 'Outsmarts the Sheriff before breakfast.',
       about: 'Does the part of the job that involves thinking. Walks into the castle through the front door, leaves with the ' +
         'guard rota, the pantry key and a compliment from the guard who handed both over. Has never fired an arrow in anger ' +
@@ -468,7 +468,7 @@
       holdersCount: 1490, participants: 615, up: 80, votes: 604, poolEth: 31.2
     },
     {
-      id: 'tax-man-toad', name: 'TAX MAN TOAD',
+      id: 'tax-man-toad', name: 'TAX MAN TOAD', symbol: 'TOAD',
       tagline: 'Collects nothing. Returns everything.',
       about: 'Spent nine years as the Sheriff’s ledger clerk before working out that the numbers only ever moved one way. ' +
         'Now runs the same books backwards from a lily pad outside Nottingham, and the peasants have started calling the ' +
@@ -480,7 +480,7 @@
       holdersCount: 0, participants: 63, up: 88, votes: 97, poolEth: 0
     },
     {
-      id: 'merry-mouse', name: 'MERRY MOUSE',
+      id: 'merry-mouse', name: 'MERRY MOUSE', symbol: 'MOUSE',
       tagline: 'Smallest outlaw. Loudest opinions.',
       about: 'Fits through the castle grate that defeated everyone else, which is the entire reason the last three heists ' +
         'worked and the entire reason nobody is allowed to mention the word "cheese" at camp meetings. Insists on being ' +
@@ -492,7 +492,7 @@
       holdersCount: 0, participants: 41, up: 84, votes: 58, poolEth: 0
     },
     {
-      id: 'little-john-bear', name: 'LITTLE JOHN BEAR',
+      id: 'little-john-bear', name: 'LITTLE JOHN BEAR', symbol: 'JOHN',
       tagline: 'Holds the bridge. Holds the bags.',
       about: 'Named Little by a man he had just thrown into a river, which tells you most of what you need to know about how ' +
         'nicknames work in this forest. Has never sold. Has never been asked twice. Guards the bridge, the barrel and the ' +
@@ -504,7 +504,7 @@
       holdersCount: 2130, participants: 812, up: 91, votes: 733, poolEth: 44.8
     },
     {
-      id: 'friar-owl', name: 'FRIAR OWL',
+      id: 'friar-owl', name: 'FRIAR OWL', symbol: 'OWL',
       tagline: 'Sermons at dusk. Alpha at dawn.',
       about: 'Preaches patience to a congregation that has never once demonstrated any. Keeps the only accurate map of the ' +
         'forest inside his head and shares it strictly on a need-to-fly basis. Rumoured to have called the top of the last ' +
@@ -516,7 +516,7 @@
       holdersCount: 1180, participants: 470, up: 76, votes: 388, poolEth: 24.1
     },
     {
-      id: 'golden-arrow', name: 'GOLDEN ARROW',
+      id: 'golden-arrow', name: 'GOLDEN ARROW', symbol: 'GOLD',
       tagline: 'The prize everyone shot for.',
       about: 'The Sheriff commissioned it as bait for a tournament nobody was supposed to win, then watched a stranger in a ' +
         'hood put it through the centre of the target from ninety paces. It has changed hands eleven times since and spent ' +
@@ -536,6 +536,7 @@
     var m = {
       id: spec.id,
       name: spec.name,
+      symbol: spec.symbol || String(spec.name || 'MEME').replace(/[^A-Za-z0-9 ]/g, '').split(/\s+/)[0].toUpperCase().slice(0, 8),
       tagline: spec.tagline,
       about: spec.about,
       status: spec.status,
