@@ -315,6 +315,12 @@
   <section class="max-w-[75rem] mx-auto px-5 sm:px-8 lg:px-[3.75rem] pb-14">
     <div id="meme-sections"></div>
 
+    <div class="flex items-center justify-center gap-1.5 mt-5" data-board-pager hidden>
+      <button type="button" class="grad-page font-marker text-[9px] leading-none px-2 py-1 border-2 border-ink rounded-full bg-paper" data-board-prev>&larr; Prev</button>
+      <span class="num text-[10px] text-ink/70" data-board-pageinfo></span>
+      <button type="button" class="grad-page font-marker text-[9px] leading-none px-2 py-1 border-2 border-ink rounded-full bg-paper" data-board-next>Next &rarr;</button>
+    </div>
+
     <div id="empty-state" hidden class="bg-paper2 sketch rough-shadow-sm p-8 text-center mt-6">
       <p class="font-marker text-2xl text-forest">Nothing in these woods</p>
       <p class="font-hand text-lg text-ink/70 mt-2">No live meme matches that filter. Try another period or clear the search.</p>
@@ -388,7 +394,7 @@
   </div>
 </div>
 
-<script src="/launchpad.js?v=10"></script>
+<script src="/launchpad.js?v=11"></script>
 <script>
 (function () {
   'use strict';
@@ -514,8 +520,9 @@
       '</article>';
   }
 
-  function sectionHtml(section, memes) {
+  function sectionHtml(section, memes, total) {
     var cards = memes.map(cardHtml).join('');
+    var count = (total == null) ? memes.length : total;
     return '' +
       '<section class="mt-10 first:mt-2">' +
         '<h2 class="font-marker text-forest text-2xl sm:text-3xl flex items-center gap-2.5 -rotate-1">' +
@@ -523,7 +530,7 @@
             '<svg class="ic" aria-hidden="true"><use href="' + section.icon + '"/></svg>' +
           '</span>' +
           '<span>' + section.title +
-            ' <span class="font-hand text-lg text-ink/55">(' + memes.length + ')</span>' +
+            ' <span class="num text-lg text-ink/55">(' + count + ')</span>' +
           '</span>' +
         '</h2>' +
         '<div class="meme-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5 mt-5">' + cards + '</div>' +
@@ -659,6 +666,25 @@
   var emptyEl = document.getElementById('empty-state');
   var countEl = document.getElementById('result-count');
 
+  /* the board pages ten at a time too, so it never runs past the fold */
+  var BOARD_PER_PAGE = 10;
+  var boardPage = 0;
+  var boardPagerEl = document.querySelector('[data-board-pager]');
+  var boardPrevEl = document.querySelector('[data-board-prev]');
+  var boardNextEl = document.querySelector('[data-board-next]');
+  var boardInfoEl = document.querySelector('[data-board-pageinfo]');
+
+  function turnBoardPage(delta) {
+    boardPage += delta;
+    render();
+    /* keep the first card of the new page in view rather than leaving the
+       reader stranded at the pager they just clicked */
+    var first = sectionsEl.querySelector('[data-meme-card]');
+    if (first) first.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+  if (boardPrevEl) boardPrevEl.addEventListener('click', function () { turnBoardPage(-1); });
+  if (boardNextEl) boardNextEl.addEventListener('click', function () { turnBoardPage(1); });
+
   function render() {
     if (!MEMES.length) {
       sectionsEl.innerHTML =
@@ -669,6 +695,7 @@
       emptyEl.hidden = true;
       countEl.textContent = '';
       if (gradEl) gradEl.hidden = true;
+      if (boardPagerEl) boardPagerEl.hidden = true;
       return;
     }
 
@@ -676,18 +703,33 @@
 
     var visible = BOARD.filter(matches).sort(SORTERS[state.sort] || SORTERS.newest);
 
+    var pages = Math.max(1, Math.ceil(visible.length / BOARD_PER_PAGE));
+    if (boardPage > pages - 1) boardPage = pages - 1;
+    if (boardPage < 0) boardPage = 0;
+    var start = boardPage * BOARD_PER_PAGE;
+    var pageItems = visible.slice(start, start + BOARD_PER_PAGE);
+
     var html = SECTIONS
       .map(function (sec) {
-        var group = visible.filter(function (m) { return statusOf(m) === sec.key; });
-        return group.length ? sectionHtml(sec, group) : '';
+        var onPage = pageItems.filter(function (m) { return statusOf(m) === sec.key; });
+        if (!onPage.length) return '';
+        /* the heading counts every match, not just the slice on screen */
+        var total = visible.filter(function (m) { return statusOf(m) === sec.key; }).length;
+        return sectionHtml(sec, onPage, total);
       })
       .join('');
 
     sectionsEl.innerHTML = html;
     emptyEl.hidden = visible.length > 0;
 
+    if (boardPagerEl) boardPagerEl.hidden = pages < 2;
+    if (boardInfoEl) boardInfoEl.textContent = (boardPage + 1) + ' / ' + pages;
+    if (boardPrevEl) boardPrevEl.disabled = boardPage === 0;
+    if (boardNextEl) boardNextEl.disabled = boardPage >= pages - 1;
+
     countEl.textContent = visible.length
-      ? 'Showing ' + visible.length + ' of ' + BOARD.length + ' demo memes'
+      ? 'Showing ' + (start + 1) + '–' + (start + pageItems.length) +
+        ' of ' + visible.length + ' demo memes'
       : '';
 
     tickCountdowns();
@@ -717,7 +759,7 @@
       btn.addEventListener('click', function () {
         state[key] = btn.getAttribute(attr);
         pills.forEach(function (b) { b.setAttribute('aria-pressed', String(b === btn)); });
-        gradPage = 0;          /* a new filter means a new first page */
+        gradPage = 0; boardPage = 0;   /* a new filter means a new first page */
         render();
       });
     });
@@ -728,7 +770,7 @@
   var searchEl = document.getElementById('meme-search');
   searchEl.addEventListener('input', function () {
     state.q = searchEl.value.trim().toLowerCase();
-    gradPage = 0;              /* a new query means a new first page */
+    gradPage = 0; boardPage = 0;   /* a new query means a new first page */
     render();
   });
 

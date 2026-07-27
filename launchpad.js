@@ -528,6 +528,165 @@
       holdersCount: 3240, participants: 1105, up: 95, votes: 1420, poolEth: 58.6
     },
 
+    /* ---- more of the live board ---------------------------------------
+       Launches still climbing their curve. Their start times fan out from
+       three hours to eight days back so the 24h / 7d pills have something
+       to cut on, and the board pages ten at a time.                    */
+    {
+      id: 'sheriff-snitch', name: 'SHERIFF SNITCH', symbol: 'SNITCH',
+      tagline: 'Sells your plans to both sides.',
+      about: 'Turns up wherever a scheme is being whispered and leaves before it is finished, with a copy. Has been paid ' +
+        'by the castle and the camp in the same week and sees no contradiction in it.',
+      kind: 'raccoon', bg: '#ded5c2', status: 'live',
+      softCap: 12, hardCap: 30, raised: 8.4, startIn: -3, durH: 36,
+      supply: 9e8, decimals: 18, price: 0.00003444, change24h: 14.2,
+      taxBuy: 0, taxSell: 1, lpLocked: true, lockMonths: 9, verified: true,
+      holdersCount: 410, participants: 168, up: 78, votes: 214, poolEth: 9.6
+    },
+    {
+      id: 'longbow-ape', name: 'LONGBOW APE', symbol: 'LONGBOW',
+      tagline: 'Draws a bow nobody else can string.',
+      about: 'Six and a half feet of yew and roughly the same of ape. Nobody has seen him miss, mostly because nobody ' +
+        'has seen him bother to aim.',
+      kind: 'ape', bg: '#cfe0cd', status: 'live',
+      softCap: 20, hardCap: 45, raised: 29.7, startIn: -11, durH: 40,
+      supply: 6e8, decimals: 18, price: 0.00012, change24h: 38.5,
+      taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 12, verified: true,
+      holdersCount: 1320, participants: 510, up: 91, votes: 604, poolEth: 33.8
+    },
+    {
+      id: 'forest-frog', name: 'FOREST FROG', symbol: 'FROG',
+      tagline: 'Lives in the moat. Knows everything.',
+      about: 'Has occupied the same stretch of green water since before the Sheriff took office and has watched every ' +
+        'guard rotation since. Says nothing, which is exactly why everyone trusts him.',
+      kind: 'pepe', bg: '#c8e4bd', status: 'live',
+      softCap: 8, hardCap: 22, raised: 4.9, startIn: -18, durH: 48,
+      supply: 1.4e9, decimals: 18, price: 0.0000112857, change24h: -9.7,
+      taxBuy: 0, taxSell: 2, lpLocked: true, lockMonths: 6, verified: false,
+      holdersCount: 260, participants: 104, up: 62, votes: 138, poolEth: 5.7
+    },
+    {
+      id: 'castle-cat', name: 'CASTLE CAT', symbol: 'CASTLE',
+      tagline: 'Sleeps on the treasury. Owns the treasury.',
+      about: 'The only creature with unquestioned access to every room in the keep, and the only one who has never been ' +
+        'asked what he was doing there. The gang has tried to recruit him four times.',
+      kind: 'cat', bg: '#e2dcee', status: 'live',
+      softCap: 15, hardCap: 34, raised: 19.2, startIn: -23, durH: 44,
+      supply: 8e8, decimals: 18, price: 0.000055625, change24h: 6.1,
+      taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 10, verified: true,
+      holdersCount: 880, participants: 352, up: 84, votes: 418, poolEth: 22.4
+    },
+    {
+      id: 'woodsman-shiba', name: 'WOODSMAN SHIBA', symbol: 'WOODS',
+      tagline: 'Fells the tree. Sits on the tree.',
+      about: 'Keeps the camp in firewood and the camp in stories about the firewood, at roughly equal volume. ' +
+        'Every log comes with an account of how difficult it was.',
+      kind: 'shiba', bg: '#e0d3b6', status: 'live',
+      softCap: 6, hardCap: 16, raised: 2.8, startIn: -31, durH: 60,
+      supply: 2.1e9, decimals: 18, price: 0.0000045714, change24h: -18.4,
+      taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 5, verified: false,
+      holdersCount: 175, participants: 71, up: 55, votes: 96, poolEth: 3.4
+    },
+    {
+      id: 'abbot-coin', name: 'ABBOT COIN', symbol: 'ABBOT',
+      tagline: 'Blesses the treasury. Twice.',
+      about: 'Runs the abbey books and the camp books from the same desk, in the same hand, and has never once mixed ' +
+        'them up in a direction that cost the abbey anything.',
+      kind: 'monk', bg: '#efe0c0', status: 'live',
+      softCap: 18, hardCap: 40, raised: 26.5, startIn: -40, durH: 72,
+      supply: 5e8, decimals: 18, price: 0.000106, change24h: 21.9,
+      taxBuy: 0, taxSell: 1, lpLocked: true, lockMonths: 14, verified: true,
+      holdersCount: 1150, participants: 445, up: 87, votes: 523, poolEth: 30.1
+    },
+    {
+      id: 'vixen-of-sherwood', name: 'VIXEN OF SHERWOOD', symbol: 'VIXEN',
+      tagline: 'Runs the network. Never runs herself.',
+      about: 'Knows which farmhouse will hide a man for a night and which will hand him over by morning, and has never ' +
+        'been wrong about either. Does not carry a weapon and has never needed one.',
+      kind: 'fox', bg: '#f2cdbe', status: 'live',
+      softCap: 10, hardCap: 26, raised: 11.7, startIn: -55, durH: 80,
+      supply: 1.2e9, decimals: 18, price: 0.0000223333, change24h: -3.2,
+      taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 8, verified: true,
+      holdersCount: 605, participants: 248, up: 80, votes: 302, poolEth: 13.9
+    },
+    {
+      id: 'night-watch-owl', name: 'NIGHT WATCH OWL', symbol: 'WATCH',
+      tagline: 'Awake so you do not have to be.',
+      about: 'Takes the watch every night without being asked and reports every morning without being asked either. ' +
+        'The reports are exhaustive and nobody has finished one.',
+      kind: 'owl', bg: '#d9dce6', status: 'live',
+      softCap: 14, hardCap: 32, raised: 17.9, startIn: -68, durH: 96,
+      supply: 7e8, decimals: 18, price: 0.0000548571, change24h: 9.8,
+      taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 11, verified: true,
+      holdersCount: 790, participants: 316, up: 83, votes: 371, poolEth: 20.8
+    },
+    {
+      id: 'toll-coin', name: 'TOLL COIN', symbol: 'TOLL',
+      tagline: 'Every road costs something.',
+      about: 'Minted by the castle to be collected at the crossings and now circulating almost entirely among the people ' +
+        'it was minted to take from. The Sheriff considers this a temporary situation.',
+      kind: 'coin', bg: '#f0dfae', status: 'live',
+      softCap: 22, hardCap: 48, raised: 33.4, startIn: -84, durH: 110,
+      supply: 4.5e8, decimals: 18, price: 0.000136, change24h: 16.3,
+      taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 15, verified: true,
+      holdersCount: 1480, participants: 570, up: 89, votes: 668, poolEth: 37.2
+    },
+    {
+      id: 'pilgrim-pepe', name: 'PILGRIM PEPE', symbol: 'PILGRIM',
+      tagline: 'Walking somewhere. Has been for years.',
+      about: 'Passes through the forest twice a season on a pilgrimage whose destination he has stopped mentioning. ' +
+        'Pays the toll cheerfully every single time, which nobody can explain.',
+      kind: 'pepe', bg: '#d6e6c2', status: 'live',
+      softCap: 7, hardCap: 18, raised: 3.6, startIn: -100, durH: 130,
+      supply: 1.6e9, decimals: 18, price: 0.0000075625, change24h: -6.8,
+      taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 6, verified: false,
+      holdersCount: 205, participants: 88, up: 66, votes: 112, poolEth: 4.2
+    },
+    {
+      id: 'midnight-raccoon', name: 'MIDNIGHT RACCOON', symbol: 'MIDNIGHT',
+      tagline: 'Works the hours nobody watches.',
+      about: 'Handles everything that has to happen between the last patrol and the first cockerel, and has never once ' +
+        'explained the method. The results arrive at breakfast and no one asks.',
+      kind: 'raccoon', bg: '#cdd3dc', status: 'live',
+      softCap: 9, hardCap: 24, raised: 9.8, startIn: -120, durH: 150,
+      supply: 1e9, decimals: 18, price: 0.0000205, change24h: 4.4,
+      taxBuy: 0, taxSell: 1, lpLocked: true, lockMonths: 7, verified: true,
+      holdersCount: 495, participants: 202, up: 75, votes: 246, poolEth: 11.6
+    },
+    {
+      id: 'royal-doge', name: 'ROYAL DOGE', symbol: 'ROYAL',
+      tagline: 'Much crown. Very absent.',
+      about: 'The rightful authority in all of this, currently abroad, and the reason the Sheriff can do as he likes. ' +
+        'Every faction claims to be acting on his behalf and none of them have written to him.',
+      kind: 'doge', bg: '#eddcb0', status: 'live',
+      softCap: 5, hardCap: 14, raised: 2.1, startIn: -140, durH: 170,
+      supply: 2.4e9, decimals: 18, price: 0.00000325, change24h: -12.1,
+      taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 5, verified: false,
+      holdersCount: 148, participants: 62, up: 58, votes: 84, poolEth: 2.6
+    },
+    {
+      id: 'brawler-ape', name: 'BRAWLER APE', symbol: 'BRAWL',
+      tagline: 'Settles it outside. Always.',
+      about: 'Has never lost an argument and has never won one either, on account of the method. The tavern keeps a ' +
+        'separate door for him and considers it money well spent.',
+      kind: 'ape', bg: '#dcd2c0', status: 'live',
+      softCap: 13, hardCap: 30, raised: 15.6, startIn: -160, durH: 200,
+      supply: 6.5e8, decimals: 18, price: 0.0000536923, change24h: 27.5,
+      taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 9, verified: true,
+      holdersCount: 700, participants: 285, up: 86, votes: 340, poolEth: 18.1
+    },
+    {
+      id: 'lute-monk', name: 'LUTE MONK', symbol: 'LUTE',
+      tagline: 'Writes the ballads. Edits the truth.',
+      about: 'Every heroic account of this forest came out of his instrument, and roughly a third of it happened. ' +
+        'The gang has stopped correcting him because the songs recruit better than the facts.',
+      kind: 'monk', bg: '#e8dcc8', status: 'live',
+      softCap: 8, hardCap: 20, raised: 5.4, startIn: -190, durH: 230,
+      supply: 1.1e9, decimals: 18, price: 0.000013, change24h: 2.6,
+      taxBuy: 0, taxSell: 2, lpLocked: true, lockMonths: 6, verified: false,
+      holdersCount: 315, participants: 130, up: 70, votes: 162, poolEth: 6.3
+    },
+
     /* ---- the rest of the graduated shelf ------------------------------
        Older launches that already filled their curve. They never appear on
        the live board, only in the GRADUATED panel above it, which pages
