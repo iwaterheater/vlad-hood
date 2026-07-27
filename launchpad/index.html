@@ -55,6 +55,19 @@
   .tab-pill[aria-pressed="false"]:hover { background:rgba(224,165,30,.45); }
 
   .meme-card { transition:transform .15s, box-shadow .15s; }
+  /* blurred backdrop built from the same artwork, blown up past the edges */
+  .card-blur { position:absolute; inset:-25%; filter:blur(14px) saturate(1.15); opacity:.85; transform:scale(1.35); }
+  .card-blur svg { width:100%; height:100%; display:block; }
+  /* the sharp copy, clipped to a circle */
+  .card-disc { width:62%; aspect-ratio:1; border-radius:9999px; overflow:hidden;
+    border:2.5px solid #2b2620; box-shadow:2px 3px 0 rgba(43,38,32,.55); }
+  .card-disc svg { width:100%; height:100%; display:block; }
+  /* every name occupies two lines so the cards line up */
+  .card-title { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+    overflow:hidden; min-height:2.5em; line-height:1.25; }
+  /* every row in the grid gets the same height, so cards never stagger */
+  .meme-grid { grid-auto-rows:1fr; }
+  .meme-grid > * { height:100%; }
   .meme-card:hover { transform:translate(-2px,-2px); box-shadow:6px 7px 0 rgba(43,38,32,0.85), 9px 11px 0 rgba(43,38,32,0.18); }
   .meme-card:focus-within { outline:3px dashed #e0a51e; outline-offset:3px; }
 
@@ -434,14 +447,17 @@
       '<article class="meme-card bg-paper2 sketch rough-shadow overflow-hidden flex flex-col cursor-pointer" ' +
         'data-meme-card data-id="' + esc(meme.id) + '" data-status="' + esc(s) + '">' +
 
-        // avatar band
-        '<div class="relative border-b-[2.4px] border-ink flex items-center justify-center h-24 sm:h-28" style="background:' + esc(bg) + '">' +
-          '<div class="w-16 h-16 sm:w-20 sm:h-20 pointer-events-none" aria-hidden="true">' + avatarSvg(meme, 112) + '</div>' +
+        // square cover: blurred art fills it, the same art sits sharp in a circle on top
+        '<div class="relative border-b-[2.4px] border-ink aspect-square overflow-hidden" style="background:' + esc(bg) + '">' +
+          '<div class="card-blur" aria-hidden="true">' + avatarSvg(meme, 112) + '</div>' +
+          '<div class="absolute inset-0 flex items-center justify-center">' +
+            '<div class="card-disc" style="background:' + esc(bg) + '" aria-hidden="true">' + avatarSvg(meme, 112) + '</div>' +
+          '</div>' +
         '</div>' +
 
         // body
         '<div class="p-3 sm:p-3.5 flex flex-col flex-1">' +
-          '<h3 class="font-marker text-base sm:text-lg text-forest leading-tight">' + esc(meme.name) + '</h3>' +
+          '<h3 class="font-marker text-base sm:text-lg text-forest leading-tight card-title">' + esc(meme.name) + '</h3>' +
           '<p class="font-hand text-base text-brown leading-none mt-0.5">$' + esc(meme.symbol) + '</p>' +
 
           '<p class="font-marker text-xl text-ink leading-none mt-1.5">' + esc(fUsd(meme.marketCap)) +
@@ -477,7 +493,7 @@
             ' <span class="font-hand text-lg text-ink/55">(' + memes.length + ')</span>' +
           '</span>' +
         '</h2>' +
-        '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5 mt-5">' + cards + '</div>' +
+        '<div class="meme-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5 mt-5">' + cards + '</div>' +
       '</section>';
   }
 
