@@ -235,7 +235,14 @@
     50%      { box-shadow: 3px 4px 0 rgba(43,38,32,.8), 0 0 0 6px rgba(224,165,30,.35); }
   }
   @keyframes vpNudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
-  .vp-cta { animation: vpGlow 2.6s ease-in-out infinite; }
+  /* springy hop: quick lift, small second bounce, then a beat of rest */
+  @keyframes vpHop {
+    0%, 55%, 100% { transform: translateY(0); }
+    18%           { transform: translateY(-7px); }
+    32%           { transform: translateY(0); }
+    42%           { transform: translateY(-3px); }
+  }
+  .vp-cta { animation: vpGlow 2.6s ease-in-out infinite, vpHop 1.6s cubic-bezier(.28,.84,.42,1) infinite; }
   .vp-cta-arrow { animation: vpNudge 1.1s ease-in-out infinite; }
   .vp-cta:hover { animation-play-state: paused; }
   .vp-cta::before, .vp-cta::after { filter: none; }   /* keep the drawn border crisp while animating */
