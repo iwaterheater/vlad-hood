@@ -228,6 +228,12 @@
   /* ---------- Inline hand-drawn icons (replace emoji) ---------- */
   .ic { display:inline-block; width:1em; height:1em; vertical-align:-0.15em; }
 
+  /* ---------- Promo ticker under the nav ---------- */
+  /* the row is duplicated in the markup, so -50% loops seamlessly */
+  @keyframes promoScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .promo-ticker { animation: promoScroll 38s linear infinite; will-change: transform; }
+  .promo-ticker:hover { animation-play-state: paused; }
+
   /* ---------- Reduced motion ---------- */
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
@@ -390,12 +396,7 @@
           <b data-mcap class="font-marker text-forest text-lg">$—</b>
           <span data-mcap-ch class="text-[10px] leading-none self-start mt-1 -ml-1" title="Изменение цены за 24ч"></span>
         </a></li>
-        <li><a href="#about" class="hover:text-forest hover:underline decoration-wavy decoration-mustard">Legend</a></li>
-        <li><a href="#tokenomics" class="hover:text-forest hover:underline decoration-wavy decoration-mustard">Tokenomics</a></li>
-        <li><a href="#buy" class="hover:text-forest hover:underline decoration-wavy decoration-mustard">How to Buy</a></li>
         <li><a href="#swap" class="hover:text-forest hover:underline decoration-wavy decoration-mustard">Swap</a></li>
-        <!-- ВРЕМЕННО СКРЫТО: <li><a href="#gallery" class="hover:text-forest hover:underline decoration-wavy decoration-mustard">Legend Wall</a></li> -->
-        <li><a href="#community" class="hover:text-forest hover:underline decoration-wavy decoration-mustard">Community</a></li>
         <li><a href="https://x.com/vladhoodcoin" target="_blank" rel="noopener" class="sketch-2 bg-ink text-paper px-3 py-2 rough-shadow-sm hover:bg-forest transition flex items-center" aria-label="X community"><svg viewBox="0 0 24 24" class="w-5 h-5 fill-current" aria-hidden="true"><path d="M18.9 2H22l-7.6 8.7L23.3 22h-6.9l-5.4-7-6.2 7H1.6l8.1-9.3L.9 2h7.1l4.9 6.5L18.9 2Zm-2.4 18h1.9L7.6 4H5.6l10.9 16Z"/></svg></a></li>
         <li><a href="https://t.me/vladhood_tg" target="_blank" rel="noopener" class="sketch bg-forest text-paper px-3 py-2 rough-shadow-sm hover:bg-forest2 transition flex items-center" aria-label="Telegram"><svg viewBox="0 0 24 24" class="w-5 h-5 fill-current" aria-hidden="true"><path d="M21.9 4.3 18.7 19c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-4.9 9-8.1c.4-.3-.1-.5-.6-.2L6.4 12.9l-4.8-1.5c-1-.3-1.1-1 .2-1.5L20.5 2.9c.9-.3 1.6.2 1.4 1.4Z"/></svg></a></li>
         <li><a href="/swap" class="sketch bg-mustard text-ink px-3 py-1 rough-shadow-sm hover:bg-forest hover:text-paper transition">Buy Now</a></li>
@@ -406,12 +407,7 @@
 
     <div id="mobileMenu" class="md:hidden bg-paper2 border-t-2 border-dashed border-ink/50">
       <ul class="flex flex-col px-6 py-2 font-hand text-2xl text-ink">
-        <li class="py-2 border-b border-dashed border-ink/30"><a href="#about">Legend</a></li>
-        <li class="py-2 border-b border-dashed border-ink/30"><a href="#tokenomics">Tokenomics</a></li>
-        <li class="py-2 border-b border-dashed border-ink/30"><a href="#buy">How to Buy</a></li>
         <li class="py-2 border-b border-dashed border-ink/30"><a href="#swap">Swap</a></li>
-        <!-- ВРЕМЕННО СКРЫТО: <li class="py-2 border-b border-dashed border-ink/30"><a href="#gallery">Legend Wall</a></li> -->
-        <li class="py-2 border-b border-dashed border-ink/30"><a href="#community">Community</a></li>
         <li class="py-3 flex flex-wrap gap-3">
           <a href="/swap" class="inline-block sketch bg-forest text-paper px-4 py-1">Buy $VLAD Now</a>
           <a href="https://x.com/vladhoodcoin" target="_blank" rel="noopener" class="inline-block sketch-2 bg-ink text-paper px-4 py-1">X Community</a>
@@ -420,6 +416,20 @@
       </ul>
     </div>
   </nav>
+
+  <!-- promo ticker under the nav -->
+  <div class="crayon-ink text-paper border-b-[3px] border-ink overflow-hidden py-1.5">
+    <div class="flex whitespace-nowrap font-marker text-base sm:text-lg gap-10 promo-ticker">
+      <span><svg class="ic"><use href="#ic-bow"/></svg> SWAP $VLAD RIGHT HERE — EARN VLADHOOD POINTS ON EVERY SWAP</span>
+      <span><svg class="ic"><use href="#ic-coin"/></svg> 1 VP PER $1 SWAPPED · 2X ON BUYS</span>
+      <span><svg class="ic"><use href="#ic-candle"/></svg> +10 VP FOR YOUR FIRST SWAP OF THE DAY</span>
+      <span><svg class="ic"><use href="#ic-crown"/></svg> +500 VP FOR A 7-DAY STREAK · CLIMB THE LEADERBOARD</span>
+      <span><svg class="ic"><use href="#ic-bow"/></svg> SWAP $VLAD RIGHT HERE — EARN VLADHOOD POINTS ON EVERY SWAP</span>
+      <span><svg class="ic"><use href="#ic-coin"/></svg> 1 VP PER $1 SWAPPED · 2X ON BUYS</span>
+      <span><svg class="ic"><use href="#ic-candle"/></svg> +10 VP FOR YOUR FIRST SWAP OF THE DAY</span>
+      <span><svg class="ic"><use href="#ic-crown"/></svg> +500 VP FOR A 7-DAY STREAK · CLIMB THE LEADERBOARD</span>
+    </div>
+  </div>
 </header>
 
 <!-- ================= HERO ================= -->
