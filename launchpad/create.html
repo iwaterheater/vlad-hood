@@ -360,10 +360,17 @@
 
           <div class="mt-4">
             <p class="font-hand text-[17px] text-ink/80">Creator fee share</p>
-            <div class="bg-paper2 sketch-2 px-3 py-2 mt-1 flex items-center justify-between gap-2">
-              <span class="font-marker text-xl num">70%</span>
-              <span class="leader" aria-hidden="true"></span>
-              <span class="font-hand text-[17px] text-ink/70">creator &middot; 30% protocol</span>
+            <div class="bg-paper2 sketch-2 px-3 py-2 mt-1 flex flex-col gap-1 font-hand text-[17px]">
+              <span class="flex items-baseline gap-1">
+                <span class="text-ink/70 shrink-0">creator</span>
+                <span class="leader" aria-hidden="true"></span>
+                <span class="font-marker num shrink-0">70%</span>
+              </span>
+              <span class="flex items-baseline gap-1">
+                <span class="text-ink/70 shrink-0">protocol</span>
+                <span class="leader" aria-hidden="true"></span>
+                <span class="font-marker num shrink-0">30%</span>
+              </span>
             </div>
             <p class="font-hand text-sm text-ink/60 mt-1.5">Illustrative split, not adjustable and not enforced by anything.</p>
           </div>
@@ -636,7 +643,13 @@
   /* ---------------------------------------------------------------
      small helpers
   --------------------------------------------------------------- */
-  function show(el, on) { if (el) el.hidden = !on; }
+  /* toggle the attribute, not the IDL property: SVG elements do not reflect
+     `hidden`, so `svg.hidden = false` would silently leave the attribute set */
+  function show(el, on) {
+    if (!el) return;
+    if (on) el.removeAttribute('hidden');
+    else el.setAttribute('hidden', '');
+  }
   function bad(box, on) { if (box) box.classList.toggle('bad', !!on); }
 
   /* a "we dropped that character" note is transient — it clears itself so the
@@ -676,10 +689,14 @@
   /* ---------------------------------------------------------------
      link detection for the description
   --------------------------------------------------------------- */
-  var TLDS = 'com|net|org|io|xyz|co|app|fun|gg|me|to|link|finance|eth|sh|dev|ai|info|biz|club|live|site|online|store|tech|top|cc|tv|so|is|it|ru|de|uk|us|fi|money|cash|wtf|lol|pro|press|space|world|team|social|chat|zone';
+  /* short English words are deliberately left out of the TLD list ("is", "it",
+     "so"...) so ordinary prose with a missing space does not read as a link */
+  var TLDS = 'com|net|org|io|xyz|co|app|fun|gg|link|finance|eth|dev|ai|info|biz|club|live|' +
+             'site|online|store|tech|top|ru|uk|fi|money|cash|wtf|lol|press|space|world|team|social|chat|zone';
   var URLISH = new RegExp(
-    '(https?:\\/\\/|ftp:\\/\\/|www\\.|t\\.me\\/|@[A-Za-z0-9_]{3,}|' +
-    '\\b[a-z0-9][a-z0-9-]*\\.(' + TLDS + ')\\b)', 'i'
+    '(https?:\\/\\/|ftp:\\/\\/|www\\.|' +
+    '\\b[a-z0-9][a-z0-9-]*\\.[a-z]{2,}\\/|' +               /* anything.tld/ */
+    '\\b[a-z0-9][a-z0-9-]*\\.(' + TLDS + ')\\b)', 'i'       /* bare domain    */
   );
   function looksLikeLink(s) { return URLISH.test(String(s || '')); }
 
