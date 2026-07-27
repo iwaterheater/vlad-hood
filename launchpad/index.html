@@ -51,8 +51,8 @@
   .taped::after  { right:-13px; transform:rotate(8deg); }
 
   .tab-pill { transition:background-color .15s, color .15s, transform .15s; }
-  .tab-pill[aria-selected="true"] { background:#2b2620; color:#f4ecd8; }
-  .tab-pill[aria-selected="false"]:hover { background:rgba(224,165,30,.45); }
+  .tab-pill[aria-pressed="true"] { background:#2b2620; color:#f4ecd8; }
+  .tab-pill[aria-pressed="false"]:hover { background:rgba(224,165,30,.45); }
 
   .meme-card { transition:transform .15s, box-shadow .15s; }
   .meme-card:hover { transform:translate(-2px,-2px); box-shadow:6px 7px 0 rgba(43,38,32,0.85), 9px 11px 0 rgba(43,38,32,0.18); }
@@ -235,32 +235,30 @@
   <section class="max-w-[100rem] mx-auto px-4 pt-4 pb-2">
     <div class="bg-paper2 sketch rough-shadow-sm p-3 sm:p-4 flex flex-col lg:flex-row lg:items-center gap-3">
 
-      <!-- tabs -->
-      <div role="tablist" aria-label="Filter memes by status" class="flex flex-wrap gap-2 lg:flex-1">
-        <button role="tab" type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-tab="all" aria-selected="true">All Memes</button>
-        <button role="tab" type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-tab="live" aria-selected="false">Live Now</button>
-        <button role="tab" type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-tab="finished" aria-selected="false">Finished</button>
+      <!-- sort pills -->
+      <div role="group" aria-label="Sort memes" class="flex flex-wrap gap-2 lg:flex-1">
+        <button type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-sort="buys" aria-pressed="true">Recent buys</button>
+        <button type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-sort="newest" aria-pressed="false">Newest</button>
+        <button type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-sort="oldest" aria-pressed="false">Oldest</button>
+        <button type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-sort="mcap" aria-pressed="false">Market cap</button>
+        <button type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-sort="volume" aria-pressed="false">Volume</button>
+      </div>
+
+      <!-- period pills -->
+      <div role="group" aria-label="Filter by period" class="flex flex-wrap gap-2">
+        <button type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-period="all" aria-pressed="true">All</button>
+        <button type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-period="24h" aria-pressed="false">24h</button>
+        <button type="button" class="tab-pill font-marker text-sm sm:text-base px-4 py-2 border-2 border-ink rounded-full rough-shadow-sm" data-period="7d" aria-pressed="false">7d</button>
       </div>
 
       <!-- search -->
-      <div class="relative w-full lg:w-64">
+      <div class="relative w-full lg:w-56">
         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-ink/55 text-xl pointer-events-none">
           <svg class="ic" aria-hidden="true"><use href="#ic-search"/></svg>
         </span>
         <label class="sr-only" for="meme-search">Search memes</label>
         <input id="meme-search" type="search" autocomplete="off" placeholder="Search memes..."
           class="w-full font-hand text-lg bg-paper border-2 border-ink rounded-full pl-10 pr-3 py-2 outline-none focus:ring-2 focus:ring-mustard placeholder:text-ink/45" />
-      </div>
-
-      <!-- sort -->
-      <div class="flex items-center gap-2 w-full lg:w-auto">
-        <label for="meme-sort" class="font-caveat text-xl text-brown shrink-0">Sort by</label>
-        <select id="meme-sort" class="paper-select flex-1 lg:flex-none font-hand text-lg bg-paper border-2 border-ink rounded-full pl-3 py-2 outline-none focus:ring-2 focus:ring-mustard cursor-pointer">
-          <option value="newest">Newest</option>
-          <option value="raised">Most raised</option>
-          <option value="ending">Ending soon</option>
-          <option value="mcap">Market cap</option>
-        </select>
       </div>
     </div>
 
@@ -486,17 +484,40 @@
   /* ---------------------------------------------------------------
      filtering + sorting
   --------------------------------------------------------------- */
-  var state = { tab: 'all', q: '', sort: 'newest' };
+  var state = { q: '', sort: 'buys', period: 'all' };
+
+  /* demo volume + last-buy time, derived from each meme's trade list */
+  function volumeOf(m) {
+    if (m._vol == null) {
+      m._vol = (m.trades || []).reduce(function (sum, t) { return sum + (+t.eth || 0); }, 0);
+    }
+    return m._vol;
+  }
+  function lastBuyTs(m) {
+    if (m._lastBuy == null) {
+      var buys = (m.trades || []).filter(function (t) { return t.side === 'buy'; });
+      m._lastBuy = buys.length ? Math.max.apply(null, buys.map(function (t) { return +t.ts || 0; })) : 0;
+    }
+    return m._lastBuy;
+  }
+  function lastActivity(m) {
+    var t = (m.trades || []).reduce(function (mx, x) { return Math.max(mx, +x.ts || 0); }, 0);
+    return t || m.endsAt || m.startsAt || 0;
+  }
 
   var SORTERS = {
+    buys:   function (a, b) { return lastBuyTs(b) - lastBuyTs(a); },
     newest: function (a, b) { return (b.startsAt || 0) - (a.startsAt || 0); },
-    raised: function (a, b) { return (b.raised || 0) - (a.raised || 0); },
-    ending: function (a, b) { return (a.endsAt || 0) - (b.endsAt || 0); },
-    mcap:   function (a, b) { return (b.marketCap || 0) - (a.marketCap || 0); }
+    oldest: function (a, b) { return (a.startsAt || 0) - (b.startsAt || 0); },
+    mcap:   function (a, b) { return (b.marketCap || 0) - (a.marketCap || 0); },
+    volume: function (a, b) { return volumeOf(b) - volumeOf(a); }
   };
 
+  var PERIOD_MS = { '24h': 24 * 3600e3, '7d': 7 * 24 * 3600e3 };
+
   function matches(meme) {
-    if (state.tab !== 'all' && statusOf(meme) !== state.tab) return false;
+    var win = PERIOD_MS[state.period];
+    if (win && (Date.now() - lastActivity(meme)) > win) return false;
     if (!state.q) return true;
     var hay = [meme.name, meme.tagline, meme.id, meme.about].join(' ').toLowerCase();
     return hay.indexOf(state.q) !== -1;
@@ -521,7 +542,6 @@
     var visible = MEMES.filter(matches).sort(SORTERS[state.sort] || SORTERS.newest);
 
     var html = SECTIONS
-      .filter(function (sec) { return state.tab === 'all' || state.tab === sec.key; })
       .map(function (sec) {
         var group = visible.filter(function (m) { return statusOf(m) === sec.key; });
         return group.length ? sectionHtml(sec, group) : '';
@@ -556,24 +576,22 @@
   /* ---------------------------------------------------------------
      toolbar wiring
   --------------------------------------------------------------- */
-  var tabs = Array.prototype.slice.call(document.querySelectorAll('[data-tab]'));
-  tabs.forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      state.tab = btn.getAttribute('data-tab');
-      tabs.forEach(function (b) { b.setAttribute('aria-selected', String(b === btn)); });
-      render();
+  function wirePills(attr, key) {
+    var pills = Array.prototype.slice.call(document.querySelectorAll('[' + attr + ']'));
+    pills.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        state[key] = btn.getAttribute(attr);
+        pills.forEach(function (b) { b.setAttribute('aria-pressed', String(b === btn)); });
+        render();
+      });
     });
-  });
+  }
+  wirePills('data-sort', 'sort');
+  wirePills('data-period', 'period');
 
   var searchEl = document.getElementById('meme-search');
   searchEl.addEventListener('input', function () {
     state.q = searchEl.value.trim().toLowerCase();
-    render();
-  });
-
-  var sortEl = document.getElementById('meme-sort');
-  sortEl.addEventListener('change', function () {
-    state.sort = sortEl.value;
     render();
   });
 
