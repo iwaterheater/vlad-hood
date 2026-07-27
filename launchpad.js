@@ -548,6 +548,7 @@
       endsAt: Math.round(startsAt + spec.durH * HOUR),
       creator: fakeAddr(rnd),
       contract: fakeAddr(rnd),
+      poolAddress: fakeAddr(rnd),      /* demo Uniswap pair address */
       supply: spec.supply,
       decimals: spec.decimals,
       priceVlad: spec.price,

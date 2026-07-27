@@ -69,7 +69,7 @@
 <!-- ============ header ============ -->
 <div class="sticky top-0 z-30">
 <header class="border-b-[3px] border-ink bg-paper2/95 backdrop-blur">
-  <div class="max-w-[100rem] mx-auto px-4 py-2 flex items-center justify-between gap-3">
+  <div class="max-w-[88rem] mx-auto px-4 py-2 flex items-center justify-between gap-3">
     <div class="flex items-center gap-3 min-w-0">
       <a href="/" class="flex items-center gap-2 group shrink-0">
         <img src="https://vlad-hood.xyz/photo_1_2026-07-21_06-14-24.jpg?v=2" alt="Vladhood" class="w-11 h-11 rounded-full border-[3px] border-ink rough-shadow-sm group-hover:rotate-6 transition" />
@@ -87,7 +87,7 @@
 
 <!-- ============ demo notice (unmissable) ============ -->
 <div class="border-b-[3px] border-ink text-paper" style="background:#c0392b">
-  <div class="max-w-[100rem] mx-auto px-4 py-2 flex items-start gap-2">
+  <div class="max-w-[88rem] mx-auto px-4 py-2 flex items-start gap-2">
     <svg class="w-6 h-6 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
     <p class="font-hand text-[15px] sm:text-lg leading-snug">
       <span class="font-marker">PREVIEW / DEMO.</span>
@@ -98,7 +98,7 @@
 </div>
 </div>
 
-<main class="flex-1 max-w-[100rem] w-full mx-auto px-4 py-5 md:py-8">
+<main class="flex-1 max-w-[88rem] w-full mx-auto px-4 py-5 md:py-8">
 
   <!-- back chip (left) -->
   <a href="/launchpad/" class="inline-flex items-center gap-2 sketch-2 bg-paper2 px-3 py-1.5 rough-shadow-sm font-hand text-lg hover:bg-mustard transition">
@@ -141,20 +141,8 @@
             </span>
           </div>
           <p id="memeTagline" class="font-caveat text-2xl sm:text-3xl text-brown mt-1"></p>
-          <div class="flex flex-wrap gap-2 mt-3">
-            <span class="font-hand text-sm px-2.5 py-0.5 sketch-2 bg-paper2 rough-shadow-sm inline-flex items-center gap-1.5">
-              <svg class="ic text-forest" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h18"/><path d="M12 3v18"/></svg>
-              Fair Launch
-            </span>
-            <span class="font-hand text-sm px-2.5 py-0.5 sketch-2 bg-paper2 rough-shadow-sm inline-flex items-center gap-1.5">
-              <svg class="ic text-brown" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 4 6v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6Z"/></svg>
-              Robinhood Chain
-            </span>
-            <span class="font-hand text-sm px-2.5 py-0.5 sketch-2 bg-paper2 rough-shadow-sm inline-flex items-center gap-1.5">
-              <svg class="ic text-mustard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="3.2"/><path d="M22 20v-2a4 4 0 0 0-3-3.8"/><path d="M16 3.3a4 4 0 0 1 0 7.4"/></svg>
-              Community
-            </span>
-          </div>
+          <p id="memeSymbol" class="font-marker text-xl text-mustard mt-1"></p>
+          <div id="linkRow" class="flex flex-wrap gap-2 mt-3"></div>
         </div>
       </div>
 
@@ -413,14 +401,14 @@
 </div>
 
 <footer class="border-t-[3px] border-ink" style="background:#2f6b2f">
-  <div class="max-w-[100rem] mx-auto px-4 py-5 text-center text-paper">
+  <div class="max-w-[88rem] mx-auto px-4 py-5 text-center text-paper">
     <p class="font-caveat text-xl text-mustard">Green candles forever.</p>
     <p class="font-hand text-sm text-paper/80 mt-1">Launchpad = demo interface. No contracts, no sale, no real funds.</p>
     <p class="font-hand text-sm text-paper/70 mt-1">© 2026 Vladhood · $VLAD · drawn in the back of a notebook</p>
   </div>
 </footer>
 
-<script src="/launchpad.js?v=4"></script>
+<script src="/launchpad.js?v=5"></script>
 <script>
 (function () {
   'use strict';
@@ -538,7 +526,7 @@
 
   /* ---------------- derived values ---------------- */
   var NOW = Date.now();
-  var sym = (String(meme.name || 'MEME').replace(/[^A-Za-z0-9 ]/g, '').split(/\s+/)[0] || 'MEME').toUpperCase().slice(0, 8);
+  var sym = String(meme.symbol || (String(meme.name || 'MEME').replace(/[^A-Za-z0-9 ]/g, '').split(/\s+/)[0] || 'MEME')).toUpperCase().slice(0, 10);
   var chart = Array.isArray(meme.chart) ? meme.chart.filter(function (d) { return d && isFinite(d.p) && isFinite(d.t); }).slice().sort(function (a, b) { return a.t - b.t; }) : [];
   var poolEth = num(meme.poolEth, 0);
   var poolTok = num(meme.poolToken, 0);
@@ -560,6 +548,83 @@
 
   $('#memeName').textContent = meme.name || 'Untitled meme';
   $('#memeTagline').textContent = meme.tagline || '';
+
+  /* ticker + the link row: socials, chart tools, contract and pool.
+     Everything here is demo data, so the address chips copy rather than
+     pretend to open a real explorer page for a token that does not exist. */
+  $('#memeSymbol').textContent = '$' + sym;
+  (function buildLinks() {
+    var row = $('#linkRow');
+    if (!row) return;
+    var soc = meme.socials || {};
+    var PILL = 'font-hand text-sm px-2.5 py-1 sketch-2 bg-paper2 rough-shadow-sm inline-flex items-center gap-1.5 hover:bg-mustard transition';
+
+    function icon(d, cls) {
+      return '<svg class="ic ' + (cls || 'text-ink') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+        'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
+    }
+    var I = {
+      web:   '<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18"/>',
+      tg:    '<path d="M21 5 3 11.5l5 1.8L18 8l-7.5 7.4.3 4.1 2.7-3 4 3z"/>',
+      x:     '<path d="M4 4l16 16M20 4L4 20"/>',
+      chart: '<path d="M3 3v18h18"/><path d="M18.5 7.5 13 13l-3-3-4 4"/><path d="M18.5 11V7.5H15"/>',
+      gecko: '<circle cx="12" cy="12" r="9"/><path d="M8.5 10.5h.01M15.5 10.5h.01"/><path d="M8 15c2.5 2 5.5 2 8 0"/>',
+      copy:  '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>'
+    };
+
+    var html = '';
+    function link(href, label, ic, cls) {
+      var real = href && href !== '#';
+      if (real) {
+        html += '<a href="' + esc(href) + '" target="_blank" rel="noopener" class="' + PILL + '">' + icon(ic, cls) + esc(label) + '</a>';
+      } else {
+        /* demo memes have no real socials — the chip explains itself instead of 404ing */
+        html += '<button type="button" data-preview-trigger data-meme-name="' + esc(meme.name || '') + '" class="' + PILL + '">' +
+          icon(ic, cls) + esc(label) + '</button>';
+      }
+    }
+    /* socials first — website, telegram, X */
+    link(soc.web, 'Website', I.web, 'text-forest');
+    link(soc.tg, 'Telegram', I.tg, 'text-forest');
+    link(soc.x, 'X', I.x, 'text-ink');
+
+    /* chart tools */
+    html += '<button type="button" data-preview-trigger data-meme-name="' + esc(meme.name || '') + '" class="' + PILL + '">' +
+      icon(I.chart, 'text-brown') + 'DexScreener</button>';
+    html += '<button type="button" data-preview-trigger data-meme-name="' + esc(meme.name || '') + '" class="' + PILL + '">' +
+      icon(I.gecko, 'text-brown') + 'GeckoTerminal</button>';
+
+    /* addresses — click to copy */
+    html += '<button type="button" data-copy="' + esc(meme.contract || '') + '" title="' + esc(meme.contract || '') + '" class="' + PILL + '">' +
+      icon(I.copy, 'text-ink') + 'Contract</button>';
+    html += '<button type="button" data-copy="' + esc(meme.poolAddress || '') + '" title="' + esc(meme.poolAddress || '') + '" class="' + PILL + '">' +
+      icon(I.copy, 'text-ink') + 'Pool</button>';
+
+    row.innerHTML = html;
+
+    row.addEventListener('click', function (ev) {
+      var btn = ev.target.closest('[data-copy]');
+      if (!btn) return;
+      var val = btn.getAttribute('data-copy') || '';
+      var restore = btn.innerHTML;
+      function done(ok) {
+        btn.innerHTML = icon(ok ? '<path d="m4 12.5 5 5L20 6"/>' : '<path d="M12 4.5 21 20H3z"/>', ok ? 'text-forest' : 'text-crayred') +
+          (ok ? 'Copied' : 'Copy failed');
+        setTimeout(function () { btn.innerHTML = restore; }, 1300);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(val).then(function () { done(true); }, function () { done(false); });
+      } else {
+        try {
+          var ta = document.createElement('textarea');
+          ta.value = val; ta.style.cssText = 'position:absolute;left:-9999px';
+          document.body.appendChild(ta); ta.select();
+          done(document.execCommand('copy'));
+          document.body.removeChild(ta);
+        } catch (e) { done(false); }
+      }
+    });
+  })();
   $('#aboutTitle').textContent = 'About ' + (meme.name || '');
   $('#aboutLongTitle').textContent = 'About ' + (meme.name || '');
   $('#aboutShort').textContent = meme.about || 'No description in the demo data.';

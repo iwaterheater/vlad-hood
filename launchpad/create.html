@@ -88,7 +88,9 @@
 
   .leader { flex:1 1 auto; border-bottom:2px dotted rgba(43,38,32,0.3); margin:0 8px; transform:translateY(-5px); }
 
-  #preview-modal[hidden] { display:none; }
+  /* Tailwind's display utilities (flex, inline-flex, .ic) outrank the UA rule for
+     [hidden], so state the intent explicitly — the page toggles `hidden` a lot. */
+  [hidden] { display:none !important; }
 
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior:auto; }
@@ -151,7 +153,7 @@
 <!-- ============ header ============ -->
 <div class="sticky top-0 z-30">
 <header class="border-b-[3px] border-ink bg-paper2/95 backdrop-blur">
-  <div class="max-w-[100rem] mx-auto px-4 py-2 flex items-center justify-between gap-3">
+  <div class="max-w-[88rem] mx-auto px-4 py-2 flex items-center justify-between gap-3">
     <div class="flex items-center gap-3 min-w-0">
       <a href="/" class="flex items-center gap-2 group shrink-0">
         <img src="https://vlad-hood.xyz/photo_1_2026-07-21_06-14-24.jpg?v=2" alt="Vladhood" class="w-11 h-11 rounded-full border-[3px] border-ink rough-shadow-sm group-hover:rotate-6 transition" />
@@ -169,7 +171,7 @@
 
 <!-- ============ honesty banner — unmissable ============ -->
 <div class="border-b-[3px] border-ink text-paper" style="background:#c0392b">
-  <div class="max-w-[100rem] mx-auto px-4 py-2.5 flex items-start gap-2.5">
+  <div class="max-w-[88rem] mx-auto px-4 py-2.5 flex items-start gap-2.5">
     <svg class="ic text-2xl shrink-0 mt-0.5" aria-hidden="true"><use href="#ic-alert"/></svg>
     <p class="font-hand text-base sm:text-lg leading-snug">
       <b class="font-marker tracking-wide">DEMO — UI PREVIEW ONLY.</b>
@@ -503,7 +505,7 @@
 
 <!-- ============ footer ============ -->
 <footer class="border-t-[3px] border-ink" style="background:#2f6b2f">
-  <div class="max-w-[100rem] mx-auto px-4 py-6 text-center text-paper">
+  <div class="max-w-[88rem] mx-auto px-4 py-6 text-center text-paper">
     <p class="font-marker text-2xl">VLADHOOD · $VLAD</p>
     <p class="font-caveat text-xl text-mustard mt-1">Green candles forever.</p>
     <p class="font-hand text-sm text-paper/75 mt-3 max-w-2xl mx-auto">
@@ -561,7 +563,7 @@
   </div>
 </div>
 
-<script src="/launchpad.js?v=4"></script>
+<script src="/launchpad.js?v=5"></script>
 <script>
 (function () {
   'use strict';
