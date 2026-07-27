@@ -466,6 +466,66 @@
       supply: 1.1e9, decimals: 18, price: 0.0000401, change24h: -3.4,
       taxBuy: 0, taxSell: 1, lpLocked: true, lockMonths: 8, verified: true,
       holdersCount: 1490, participants: 615, up: 80, votes: 604, poolEth: 31.2
+    },
+    {
+      id: 'tax-man-toad', name: 'TAX MAN TOAD',
+      tagline: 'Collects nothing. Returns everything.',
+      about: 'Spent nine years as the Sheriff’s ledger clerk before working out that the numbers only ever moved one way. ' +
+        'Now runs the same books backwards from a lily pad outside Nottingham, and the peasants have started calling the ' +
+        'refunds "tax season". Still writes everything in triplicate, because old habits croak hard.',
+      kind: 'pepe', bg: '#cfe8c9', status: 'upcoming',
+      softCap: 12, hardCap: 24, raised: 1.1, startIn: 5.5, durH: 36,
+      supply: 1e9, decimals: 18, price: 0.0000188, change24h: 6.2,
+      taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 12, verified: true,
+      holdersCount: 0, participants: 63, up: 88, votes: 97, poolEth: 0
+    },
+    {
+      id: 'merry-mouse', name: 'MERRY MOUSE',
+      tagline: 'Smallest outlaw. Loudest opinions.',
+      about: 'Fits through the castle grate that defeated everyone else, which is the entire reason the last three heists ' +
+        'worked and the entire reason nobody is allowed to mention the word "cheese" at camp meetings. Insists on being ' +
+        'counted as a full share. Gets a full share.',
+      kind: 'cat', bg: '#e8d4f2', status: 'upcoming',
+      softCap: 6, hardCap: 14, raised: 0.8, startIn: 21, durH: 48,
+      supply: 8e8, decimals: 18, price: 0.0000094, change24h: 3.7,
+      taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 9, verified: true,
+      holdersCount: 0, participants: 41, up: 84, votes: 58, poolEth: 0
+    },
+    {
+      id: 'little-john-bear', name: 'LITTLE JOHN BEAR',
+      tagline: 'Holds the bridge. Holds the bags.',
+      about: 'Named Little by a man he had just thrown into a river, which tells you most of what you need to know about how ' +
+        'nicknames work in this forest. Has never sold. Has never been asked twice. Guards the bridge, the barrel and the ' +
+        'liquidity with roughly equal enthusiasm.',
+      kind: 'ape', bg: '#d8c3a5', status: 'live',
+      softCap: 20, hardCap: 45, raised: 28.4, startIn: -14, durH: 40,
+      supply: 1.2e9, decimals: 18, price: 0.0000355, change24h: 18.9,
+      taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 14, verified: true,
+      holdersCount: 2130, participants: 812, up: 91, votes: 733, poolEth: 44.8
+    },
+    {
+      id: 'friar-owl', name: 'FRIAR OWL',
+      tagline: 'Sermons at dusk. Alpha at dawn.',
+      about: 'Preaches patience to a congregation that has never once demonstrated any. Keeps the only accurate map of the ' +
+        'forest inside his head and shares it strictly on a need-to-fly basis. Rumoured to have called the top of the last ' +
+        'three acorn cycles, though he refuses to confirm anything before evensong.',
+      kind: 'owl', bg: '#c9dcf0', status: 'live',
+      softCap: 9, hardCap: 22, raised: 15.7, startIn: -6, durH: 30,
+      supply: 9e8, decimals: 18, price: 0.0000211, change24h: -5.6,
+      taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 10, verified: true,
+      holdersCount: 1180, participants: 470, up: 76, votes: 388, poolEth: 24.1
+    },
+    {
+      id: 'golden-arrow', name: 'GOLDEN ARROW',
+      tagline: 'The prize everyone shot for.',
+      about: 'The Sheriff commissioned it as bait for a tournament nobody was supposed to win, then watched a stranger in a ' +
+        'hood put it through the centre of the target from ninety paces. It has changed hands eleven times since and spent ' +
+        'exactly none of those nights in the castle.',
+      kind: 'coin', bg: '#f4dfa0', status: 'finished',
+      softCap: 25, hardCap: 50, raised: 50, startIn: -(24 * 4), durH: 24,
+      supply: 5e8, decimals: 18, price: 0.0000912, change24h: 24.6,
+      taxBuy: 0, taxSell: 0, lpLocked: true, lockMonths: 18, verified: true,
+      holdersCount: 3240, participants: 1105, up: 95, votes: 1420, poolEth: 58.6
     }
   ];
 
