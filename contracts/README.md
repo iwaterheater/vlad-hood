@@ -100,6 +100,19 @@ One thing does not survive the copy: the position descriptor links a library tha
 on mainnet, so `tokenURI` on a position NFT reverts. Minting, collecting and burning are
 unaffected.
 
+### Robinhood Chain reports two different block heights
+
+`eth_blockNumber` and the `block.number` a contract sees are **not the same value** on this
+chain — measured on the testnet, 94,248,962 against 11,367,095. Anything compared against an
+on-chain block number has to be read the way a contract reads it, or the comparison is
+meaningless. `scripts/smoke.cjs` has a one-line helper (`evmBlockNumber`) that asks the EVM
+directly through `eth_call`.
+
+This matters for the launch tokens: they block pool buys in the launch block outright and cap
+them for `restrictionBlocks` afterwards, and the pool reports any revert from the token as a
+bare `TF`. A front end that counts down that window from `eth_blockNumber` will be wrong by
+tens of millions of blocks.
+
 Deploys need a key. Put it in `.env` as `PRIVATE_KEY` — the file is gitignored and nothing
 reads the key but Hardhat.
 

@@ -1,0 +1,29 @@
+{
+  "chainId": 46630,
+  "network": "rhTestnet",
+  "deployedAt": "2026-07-28T07:18:27.467Z",
+  "deployer": "0xc608325d4B1f9B2b3fA5292f2534b5dE913C7F84",
+  "contracts": {
+    "factory": "0x1a12745727fdc70046ac2a242A449b37403aeAb3",
+    "locker": "0x0C4AF79921aE71911e28ED2247DfE899c7AA9b6b"
+  },
+  "uniswapV3": {
+    "factory": "0x2237B2e256B957c478773C7213BEA489867F7C47",
+    "positionManager": "0x2C03bee99EA556333B06D9f7208D0C488EC183C8",
+    "swapRouter": "0x6e3d348166b9dDE078B6Ae4714A2669Cb209C825",
+    "quoter": "0x0530404DcE91A97f68e21211EC53437492f45AB1",
+    "weth": "0xa94f9cC9617bc6aa03ad7A835D168BcD15125a40"
+  },
+  "config": {
+    "launchFee": "500000000000000",
+    "protocolFeeShare": 30,
+    "protocolFeeRecipient": "0xc608325d4B1f9B2b3fA5292f2534b5dE913C7F84",
+    "dexId": 0,
+    "launchConfigId": 0,
+    "poolFee": 10000,
+    "tickSpacing": 200,
+    "initialTick": -204200,
+    "supply": "1000000000000000000000000000",
+    "graduationThreshold": "4200000000000000000"
+  }
+}

@@ -25,6 +25,14 @@ const WETH_ABI = [
   'function balanceOf(address) view returns (uint256)',
 ];
 
+/* On Robinhood Chain the height eth_blockNumber reports is NOT the value
+   contracts see in block.number — they differ by tens of millions. Anything
+   compared against an on-chain block number has to be read the way a contract
+   would, so ask the EVM: NUMBER, PUSH0, MSTORE, PUSH1 32, PUSH0, RETURN. */
+async function evmBlockNumber() {
+  return BigInt(await ethers.provider.call({ data: '0x435f5260205ff3' }));
+}
+
 async function main() {
   const [signer] = await ethers.getSigners();
   const chainId = Number((await ethers.provider.getNetwork()).chainId);
@@ -69,9 +77,30 @@ async function main() {
   console.log(`  pool    ${pool}`);
   if (pool === ethers.ZeroAddress) throw new Error('no pool was created');
 
-  console.log('\nbuying 0.01 worth through the router...');
+  // A launched token blocks pool buys in its launch block outright and caps them
+  // for restrictionBlocks afterwards — anti-snipe, and it applies to us too. The
+  // pool reports any revert from the token as a bare "TF", so wait it out rather
+  // than trip it.
+  const t = new ethers.Contract(token, ['function restrictionEndBlock() view returns (uint256)'], ethers.provider);
+  const until = await t.restrictionEndBlock();
+  process.stdout.write(`\nwaiting past the anti-snipe window (until block ${until})`);
+  let now = await evmBlockNumber();
+  while (now <= until) {
+    process.stdout.write('.');
+    await new Promise((r) => setTimeout(r, 2000));
+    now = await evmBlockNumber();
+  }
+  console.log(` now at ${now}`);
+
+  // trade a slice of what is left rather than a fixed amount: on a faucet-funded
+  // testnet wallet a hardcoded figure is usually more than the balance
+  const left = await ethers.provider.getBalance(signer.address);
+  const amountIn = left / 5n;
+  if (amountIn === 0n) throw new Error('nothing left to trade with');
+  console.log(`\nbuying ${ethers.formatEther(amountIn)} worth through the router...`);
+
   const weth = new ethers.Contract(d.uniswapV3.weth, WETH_ABI, signer);
-  await (await weth.deposit({ value: ethers.parseEther('0.01') })).wait();
+  await (await weth.deposit({ value: amountIn })).wait();
   await (await weth.approve(d.uniswapV3.swapRouter, ethers.MaxUint256)).wait();
 
   const router = new ethers.Contract(d.uniswapV3.swapRouter, ROUTER_ABI, signer);
@@ -80,7 +109,7 @@ async function main() {
     tokenOut: token,
     fee: Number(d.config.poolFee),
     recipient: signer.address,
-    amountIn: ethers.parseEther('0.01'),
+    amountIn,
     amountOutMinimum: 0,
     sqrtPriceLimitX96: 0,
   })).wait();
