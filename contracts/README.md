@@ -65,19 +65,45 @@ Uniswap V3 deployment, on a local fork, and is skipped unless asked for:
 FORK=1 npx hardhat test test/fork.integration.cjs
 ```
 
-## Running it locally
+`test/uniswap-bootstrap.test.cjs` runs the other direction — it puts Uniswap on a bare
+in-process chain and launches into it, which is the rehearsal for deploying to a chain that
+has none. It runs as part of the normal suite.
 
-Robinhood Chain's testnet has no Uniswap V3 on it, so a testnet deploy would mean deploying
-all of Uniswap first. A local fork is both easier and a better test — the V3 contracts are
-the real ones, with real state.
+## Deploying
+
+The launchpad needs a Uniswap V3 to launch into. Robinhood Chain mainnet has one; its
+testnet does not — the address that deployed Uniswap on mainnet has nonce 0 there.
+
+**Local fork** — real V3 contracts with real state, costs nothing:
 
 ```
 FORK=1 npx hardhat node
 npx hardhat run scripts/deploy.cjs --network localhost
 ```
 
-The addresses land in `deployments/4663.json`. Point a wallet at `http://127.0.0.1:8545`,
-chain id 4663, and the launchpad is live locally.
+**A chain with no Uniswap** — put one there first:
+
+```
+npx hardhat run scripts/deploy-uniswap.cjs --network rhTestnet
+npx hardhat run scripts/deploy.cjs        --network rhTestnet
+npx hardhat run scripts/smoke.cjs         --network rhTestnet
+```
+
+`deploy-uniswap.cjs` does not compile Uniswap from source. It replays the creation bytecode
+of the mainnet deployment, rewriting only the constructor arguments. That is deliberate: the
+V3 factory embeds the hash of the pool creation code and the periphery embeds the same hash
+to derive pool addresses, so a recompile with a different compiler would leave the two halves
+disagreeing and every pool lookup pointing at nothing. `scripts/fetch-uniswap-initcode.cjs`
+is what pulls that bytecode; it is read-only.
+
+One thing does not survive the copy: the position descriptor links a library that only exists
+on mainnet, so `tokenURI` on a position NFT reverts. Minting, collecting and burning are
+unaffected.
+
+Deploys need a key. Put it in `.env` as `PRIVATE_KEY` — the file is gitignored and nothing
+reads the key but Hardhat.
+
+Addresses land in `deployments/<chainId>.json` and `deployments/uniswap-<chainId>.json`.
 
 ## Status
 

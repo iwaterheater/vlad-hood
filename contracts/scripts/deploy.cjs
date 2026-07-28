@@ -14,8 +14,10 @@ const fs = require('fs');
 const path = require('path');
 const { ethers, network } = require('hardhat');
 
-// Uniswap V3 on Robinhood Chain (4663)
-const V3 = {
+// Uniswap V3 on Robinhood Chain mainnet (4663). On any other chain the
+// addresses come from deployments/uniswap-<chainId>.json, written by
+// deploy-uniswap.cjs.
+const V3_MAINNET = {
   factory: '0x1f7d7550B1b028f7571E69A784071F0205FD2EfA',
   positionManager: '0x73991a25C818Bf1f1128dEAaB1492D45638DE0D3',
   swapRouter: '0xCaf681a66D020601342297493863E78C959E5cb2',
@@ -38,9 +40,27 @@ const LAUNCH = {
 const LAUNCH_FEE = ethers.parseEther('0.0005');
 const PROTOCOL_FEE_SHARE = 30; // percent of the trading fee kept by the platform; creator gets the rest
 
+function uniswapFor(chainId) {
+  if (chainId === 4663) return V3_MAINNET;
+  const file = path.join(__dirname, '..', 'deployments', `uniswap-${chainId}.json`);
+  if (!fs.existsSync(file)) {
+    throw new Error(`no Uniswap V3 known on chainId ${chainId}. Run:\n` +
+      '  npx hardhat run scripts/deploy-uniswap.cjs --network <network>');
+  }
+  const { contracts } = JSON.parse(fs.readFileSync(file, 'utf8'));
+  return {
+    factory: contracts.factory,
+    positionManager: contracts.positionManager,
+    swapRouter: contracts.swapRouter,
+    quoter: contracts.quoter,
+    weth: contracts.weth,
+  };
+}
+
 async function main() {
   const [deployer] = await ethers.getSigners();
   const chainId = Number((await ethers.provider.getNetwork()).chainId);
+  const V3 = uniswapFor(chainId);
   const balance = await ethers.provider.getBalance(deployer.address);
 
   console.log(`network   ${network.name} (chainId ${chainId})`);
@@ -50,8 +70,7 @@ async function main() {
   if (balance === 0n) throw new Error('deployer has no balance on this network');
   for (const [name, addr] of Object.entries(V3)) {
     if ((await ethers.provider.getCode(addr)) === '0x') {
-      throw new Error(`no contract at the ${name} address ${addr} on chainId ${chainId} — ` +
-        'this chain has no Uniswap V3 deployment, or it lives at different addresses');
+      throw new Error(`no contract at the ${name} address ${addr} on chainId ${chainId}`);
     }
   }
 
