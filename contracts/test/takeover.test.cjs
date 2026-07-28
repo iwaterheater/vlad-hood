@@ -23,7 +23,7 @@ async function deploy() {
   const pm = await PM.deploy(await memeToken.getAddress(), await weth.getAddress(), ethers.ZeroAddress);
 
   const Locker = await ethers.getContractFactory('VladhoodLaunchLocker');
-  const locker = await Locker.deploy(owner.address, protocol.address, 10);
+  const locker = await Locker.deploy(owner.address, protocol.address, 30);   // 30% platform / 70% creator
 
   await locker.connect(owner).initialize(await factory.getAddress());
   await pm.setOwner(await locker.getAddress());
@@ -91,10 +91,10 @@ describe('VladhoodLaunchLocker — community takeover', function () {
       const { creator, protocol, locker, token, pm, memeToken, weth } = await deploy();
       await pm.accrue(1000n, 500n);
       await locker.connect(creator).collectFees(token);
-      expect(await memeToken.balanceOf(creator.address)).to.equal(900n); // 10% protocol share
-      expect(await memeToken.balanceOf(protocol.address)).to.equal(100n);
-      expect(await weth.balanceOf(creator.address)).to.equal(450n);
-      expect(await weth.balanceOf(protocol.address)).to.equal(50n);
+      expect(await memeToken.balanceOf(creator.address)).to.equal(700n);
+      expect(await memeToken.balanceOf(protocol.address)).to.equal(300n);
+      expect(await weth.balanceOf(creator.address)).to.equal(350n);
+      expect(await weth.balanceOf(protocol.address)).to.equal(150n);
     });
   });
 
@@ -107,7 +107,7 @@ describe('VladhoodLaunchLocker — community takeover', function () {
 
       await pm.accrue(1000n, 0n);
       await locker.connect(community).collectFees(token);
-      expect(await memeToken.balanceOf(community.address)).to.equal(900n);
+      expect(await memeToken.balanceOf(community.address)).to.equal(700n);
       expect(await memeToken.balanceOf(creator.address)).to.equal(0n);
     });
 
@@ -172,8 +172,8 @@ describe('VladhoodLaunchLocker — community takeover', function () {
       await locker.connect(owner).reassignFeeRecipient(token, community.address);
       await pm.accrue(1000n, 0n);
       await locker.connect(community).collectFees(token);
-      expect(await memeToken.balanceOf(protocol.address)).to.equal(100n);
-      expect(await memeToken.balanceOf(community.address)).to.equal(900n);
+      expect(await memeToken.balanceOf(protocol.address)).to.equal(300n);
+      expect(await memeToken.balanceOf(community.address)).to.equal(700n);
     });
   });
 

@@ -39,7 +39,16 @@ Two rules did survive, because they are defects under any design:
 
 `renounceReassignment()` gives the power up permanently, with no way back.
 
-## Build
+## Fees
+
+A trade pays the pool's 1% fee. The locker splits it **70% to the creator, 30% to the
+platform** — `protocolFeeShare` on the locker, capped at 50% by the contract. The share is
+snapshotted per token when its position is locked, so changing it later never re-prices a
+launch that already happened.
+
+Launching costs a flat 0.0005 ETH.
+
+## Build and test
 
 Solc 0.8.30, optimizer on at 300 runs, `viaIR`, `evmVersion: cancun`.
 
@@ -48,6 +57,27 @@ npm install
 npx hardhat compile
 npx hardhat test
 ```
+
+The unit tests run against mocks. The integration test runs a real launch against the real
+Uniswap V3 deployment, on a local fork, and is skipped unless asked for:
+
+```
+FORK=1 npx hardhat test test/fork.integration.cjs
+```
+
+## Running it locally
+
+Robinhood Chain's testnet has no Uniswap V3 on it, so a testnet deploy would mean deploying
+all of Uniswap first. A local fork is both easier and a better test — the V3 contracts are
+the real ones, with real state.
+
+```
+FORK=1 npx hardhat node
+npx hardhat run scripts/deploy.cjs --network localhost
+```
+
+The addresses land in `deployments/4663.json`. Point a wallet at `http://127.0.0.1:8545`,
+chain id 4663, and the launchpad is live locally.
 
 ## Status
 
