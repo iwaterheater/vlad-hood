@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Launchpad Memes — Vladhood</title>
-<meta name="description" content="Vladhood Launchpad — a UI preview of a fair-launch meme launchpad on the Robinhood Chain. Demo data only, no contracts deployed." />
+<meta name="description" content="Vladhood Launchpad — every token launched on the Robinhood Chain testnet, read straight from the chain." />
 <link rel="icon" href="https://vlad-hood.xyz/photo_1_2026-07-21_06-14-24.jpg?v=2" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -160,11 +160,11 @@
       <!-- the wide red banner is gone; this chip keeps the page honest at a
            glance, and the full notice still sits at the foot of the board -->
       <span class="font-marker text-[10px] tracking-wide bg-crayred text-paper border-2 border-ink rounded-full px-2 py-0.5 -rotate-2"
-        title="This launchpad is a UI preview. No contracts, no sale, demo data only.">DEMO</span>
+        title="Live on the Robinhood Chain testnet. Real contracts, coins with no value.">TESTNET</span>
     </a>
     <div class="shrink-0" data-nav-tools></div>
     <!-- the short label keeps the row inside a 320px viewport now that the
-         DEMO chip sits next to the logo -->
+         TESTNET chip sits next to the logo -->
     <a href="/" class="font-hand text-lg text-ink hover:text-forest hover:underline decoration-wavy decoration-mustard shrink-0">&larr; Back<span class="hidden sm:inline"> to site</span></a>
   </div>
 </header>
@@ -249,7 +249,7 @@
 
         <p class="font-caveat text-lg text-brown text-center mt-1.5">Launch fee: 0.0005 ETH (illustrative)</p>
         <p class="font-hand text-[11px] text-ink/55 text-center mt-2 leading-snug">
-          Opens the launch form — a UI preview. No contract is deployed, no wallet is touched and no fee is charged.
+          Opens the launch form. It deploys a real token on the testnet, so your wallet will ask you to sign and the launch fee is charged in testnet ETH.
         </p>
       </aside>
     </div>
@@ -336,9 +336,10 @@
       </span>
       <p class="font-hand text-base sm:text-lg text-ink/85 leading-snug">
         <b class="font-marker text-crayred">Read this twice.</b>
-        <span data-disclaimer-long>The Vladhood Launchpad is a design mock-up. There is no launchpad contract, no escrow,
-        no token sale and no way to deposit here — the buttons open an explainer instead. Every meme listed is invented,
-        and every raise, cap, market cap and holder count is generated demo data.</span>
+        Every token on this board was really launched, on the Robinhood Chain <b>testnet</b>. The names, prices and
+        market caps are read from the chain, not made up. But testnet coins are handed out free and are worth nothing,
+        the chain can be wiped at any time, and none of it carries over to a live network. The contracts behind it have
+        not been audited.
         If you want a real on-chain action, the only live thing on this site is the
         <a href="/swap" class="text-forest underline decoration-wavy decoration-mustard hover:text-crayred">$VLAD swap</a>.
         $VLAD is a community meme coin for entertainment only — not financial advice.
@@ -353,7 +354,7 @@
     <p class="font-marker text-2xl">VLADHOOD · $VLAD</p>
     <p class="font-caveat text-xl text-mustard mt-1">Green candles forever.</p>
     <p class="font-hand text-sm text-paper/75 mt-3 max-w-2xl mx-auto">
-      Launchpad is a UI preview with demo data — no contracts deployed, no funds involved.
+      The launchpad runs on the Robinhood Chain testnet — the tokens are real contracts, the coins are worth nothing.
       $VLAD is a community meme coin for entertainment only. Not financial advice. DYOR.
     </p>
     <p class="font-hand text-sm text-paper/60 mt-2">© 2026 Vladhood · $VLAD · Robinhood Chain</p>
@@ -374,11 +375,11 @@
     </button>
 
     <h2 id="preview-modal-title" class="font-marker text-crayred text-2xl sm:text-3xl mt-2 pr-10">This one is just a drawing</h2>
-    <p class="font-caveat text-xl text-brown mt-1" id="preview-modal-sub">UI preview — nothing is deployed.</p>
+    <p class="font-caveat text-xl text-brown mt-1" id="preview-modal-sub">Testnet — real contracts, worthless coins.</p>
 
     <div class="mt-4 space-y-3 font-hand text-lg text-ink/85 leading-snug">
       <p data-modal-copy>The Vladhood Launchpad is a front-end preview. There are no launchpad smart contracts, no escrow wallet and no token sale running, so this button cannot take a payment, reserve an allocation or launch a token.</p>
-      <p>Every listing, raise bar and countdown you see is <b>demo data</b> made up to show how the page would work. Nothing was signed, sent or charged just now.</p>
+      <p>Every listing here is a token that exists on the testnet, with a live price from its pool. Nothing was signed, sent or charged just now.</p>
     </div>
 
     <div class="mt-5 flex flex-col sm:flex-row gap-3">
@@ -396,7 +397,8 @@
 </div>
 
 <script src="/launchpad.js?v=11"></script>
-<script src="/launchpad-nav.js?v=1"></script>
+<script src="/launchpad-nav.js?v=3"></script>
+<script src="/launchpad-chain.js?v=8"></script>
 <script>
 (function () {
   'use strict';
@@ -405,7 +407,9 @@
      data access — /launchpad.js is the single source of truth
   --------------------------------------------------------------- */
   var LP = window.VladLaunchpad || null;
-  var MEMES = (LP && Array.isArray(LP.memes)) ? LP.memes.slice() : [];
+  /* Filled from the chain, not from the demo module. Everything below still
+     works on plain objects, so only the source changes. */
+  var MEMES = [];
 
   // tolerant formatters: fall back to something readable if fmt is unavailable
   var F = (LP && LP.fmt) ? LP.fmt : {};
@@ -417,6 +421,17 @@
   function fUsd(n)  { try { return F.usd ? F.usd(n) : '$' + n; } catch (e) { return '$' + n; } }
   function fAddr(a) { try { return F.addr ? F.addr(a) : String(a || ''); } catch (e) { return String(a || ''); } }
   // a signed delta, unlike fFunded above — fmt.pct already adds the +/-
+  /* market caps here are denominated in the paired asset, and there is no price
+     feed on this chain to turn that into dollars — so it says ETH */
+  function fEthShort(n) {
+    var v = Number(n);
+    if (!isFinite(v) || v <= 0) return '—';
+    if (v >= 1000) return (v / 1000).toFixed(1) + 'K ETH';
+    if (v >= 1) return v.toFixed(2) + ' ETH';
+    if (v >= 0.001) return v.toFixed(4) + ' ETH';
+    return v.toExponential(1) + ' ETH';
+  }
+
   function fPct(n)  { try { return F.pct ? F.pct(n) : (+n).toFixed(2) + '%'; } catch (e) { return n + '%'; } }
   function fComp(n) { try { return F.compact ? F.compact(n) : String(n); } catch (e) { return String(n); } }
   function avatarSvg(meme, size) {
@@ -504,7 +519,7 @@
           '<h3 class="font-marker text-sm sm:text-[15px] text-forest leading-tight card-title">' + esc(meme.name) + '</h3>' +
           '<p class="num text-sm text-brown leading-none mt-0.5">$' + esc(meme.symbol) + '</p>' +
 
-          '<p class="num text-lg text-ink leading-none mt-1.5">' + esc(fUsd(meme.marketCap)) +
+          '<p class="num text-lg text-ink leading-none mt-1.5">' + esc(fEthShort(meme.marketCapEth)) +
             '<span class="font-hand text-xs text-brown ml-1">MC</span></p>' +
 
           '<div class="mt-3 flex items-center gap-2">' +
@@ -544,12 +559,44 @@
   --------------------------------------------------------------- */
   /* biggest first — a graduated meme has no race left to run, so market cap
      is the only ranking that still means anything */
-  var GRADUATED = MEMES
-    .filter(function (m) { return statusOf(m) === 'finished'; })
-    .sort(function (a, b) { return (b.marketCap || 0) - (a.marketCap || 0); });
+  var GRADUATED = [];
+  var BOARD = [];
 
-  /* everything the toolbar and the grid operate on */
-  var BOARD = MEMES.filter(function (m) { return statusOf(m) !== 'finished'; });
+  /* A launched token becomes a board entry. Nothing here is invented: the price
+     and market cap come from its pool, and the graduation bar measures the WETH
+     that pool actually holds against the configured threshold. */
+  function adopt(t) {
+    return {
+      id: t.address,
+      name: t.name,
+      symbol: t.symbol,
+      contract: t.address,
+      pool: t.pool,
+      logo: t.logo,
+      about: t.description,
+      tagline: t.description,
+      avatar: t.avatar,
+      status: t.progressPct >= 100 ? 'finished' : 'live',
+      marketCapEth: t.marketCapEth,
+      priceEth: t.priceEth,
+      raised: t.pooledEth,
+      hardCap: t.graduationEth,
+      startsAt: t.launchedAt,
+      endsAt: t.launchedAt,
+      deployer: t.deployer,
+      socials: t.socials,
+      trades: []
+    };
+  }
+
+  async function loadChain() {
+    if (!window.VladChain) throw new Error('the chain module did not load');
+    var tokens = await window.VladChain.boardTokens();
+    MEMES = tokens.map(adopt);
+    GRADUATED = MEMES.filter(function (m) { return statusOf(m) === 'finished'; })
+      .sort(function (a, b) { return (b.marketCapEth || 0) - (a.marketCapEth || 0); });
+    BOARD = MEMES.filter(function (m) { return statusOf(m) !== 'finished'; });
+  }
 
   var GRAD_PER_PAGE = 10;          /* five across, two rows */
   var gradPage = 0;
@@ -645,11 +692,11 @@
   }
 
   var SORTERS = {
-    buys:   function (a, b) { return lastBuyTs(b) - lastBuyTs(a); },
+    buys:   function (a, b) { return (b.startsAt || 0) - (a.startsAt || 0); },
     newest: function (a, b) { return (b.startsAt || 0) - (a.startsAt || 0); },
     oldest: function (a, b) { return (a.startsAt || 0) - (b.startsAt || 0); },
-    mcap:   function (a, b) { return (b.marketCap || 0) - (a.marketCap || 0); },
-    volume: function (a, b) { return volumeOf(b) - volumeOf(a); }
+    mcap:   function (a, b) { return (b.marketCapEth || 0) - (a.marketCapEth || 0); },
+    volume: function (a, b) { return (b.raised || 0) - (a.raised || 0); }
   };
 
   var PERIOD_MS = { '24h': 24 * 3600e3, '7d': 7 * 24 * 3600e3 };
@@ -731,7 +778,7 @@
 
     countEl.textContent = visible.length
       ? 'Showing ' + (start + 1) + '–' + (start + pageItems.length) +
-        ' of ' + visible.length + ' demo memes'
+        ' of ' + visible.length + ' tokens'
       : '';
 
     tickCountdowns();
@@ -828,7 +875,23 @@
     if (ev.key === 'Escape' && !modal.hidden) closeModal();
   });
 
-  render();
+  /* ---------------------------------------------------------------
+     boot — the board is whatever the chain says, so it waits for it
+  --------------------------------------------------------------- */
+  sectionsEl.innerHTML =
+    '<div class="bg-paper2 sketch rough-shadow-sm p-8 text-center mt-4">' +
+      '<p class="font-marker text-2xl text-forest">Reading the chain\u2026</p>' +
+      '<p class="font-hand text-lg text-ink/70 mt-2">Fetching every token launched on this launchpad.</p>' +
+    '</div>';
+
+  loadChain().then(render).catch(function (e) {
+    sectionsEl.innerHTML =
+      '<div class="bg-paper2 sketch rough-shadow-sm p-8 text-center mt-4">' +
+        '<p class="font-marker text-2xl text-crayred">Could not reach the chain</p>' +
+        '<p class="font-hand text-lg text-ink/70 mt-2">' + esc(e.message || String(e)) + '</p>' +
+      '</div>';
+    countEl.textContent = '';
+  });
 })();
 </script>
 </body>

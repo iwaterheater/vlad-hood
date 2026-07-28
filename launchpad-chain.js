@@ -395,7 +395,69 @@
     return info;
   }
 
+  /* ---------------------------------------------------------------
+     board data
+  --------------------------------------------------------------- */
+  /* A launched token has no picture and no invented history, so the board needs
+     a look derived from something stable: the address. Same address, same face
+     and same colour, on every visit and every machine. */
+  var FACE_KINDS = ['doge', 'shiba', 'pepe', 'coin', 'raccoon', 'cat', 'monk', 'ape', 'fox', 'owl'];
+  var FACE_BGS = ['#f2d98a', '#cde8d8', '#e6dcc2', '#f2c4d8', '#cfe0cd', '#dcd2ea', '#efdfc4', '#d9dce6', '#f0cdb4', '#d8e8c0'];
+
+  function faceFor(address) {
+    var h = 0, a = String(address).toLowerCase();
+    for (var i = 2; i < a.length; i++) h = (h * 31 + a.charCodeAt(i)) >>> 0;
+    return { kind: FACE_KINDS[h % FACE_KINDS.length], bg: FACE_BGS[(h >>> 8) % FACE_BGS.length] };
+  }
+
+  /**
+   * Every token launched here, ready to render: metadata from the token, price
+   * from its pool, and how far it is from graduating measured by the WETH the
+   * pool actually holds.
+   */
+  async function boardTokens() {
+    var ethers = await ready();
+    var p = await reader();
+    var launched = await listTokens();
+    var weth = new ethers.Contract(CONFIG.uniswap.weth, ['function balanceOf(address) view returns (uint256)'], p);
+    var graduation = Number(CONFIG.graduationThreshold) / 1e18;
+
+    var out = await Promise.all(launched.map(async function (l) {
+      try {
+        var info = await tokenInfo(l.token);
+        var pooled = 0;
+        try { pooled = Number(await weth.balanceOf(l.pool)) / 1e18; } catch (e) {}
+        var block = await p.getBlock(l.blockNumber);
+        return {
+          id: l.token,
+          address: l.token,
+          name: info.name,
+          symbol: info.symbol,
+          logo: info.logo,
+          description: info.description,
+          socials: info.socials,
+          deployer: l.deployer,
+          feeRecipient: info.feeRecipient,
+          pool: l.pool,
+          avatar: faceFor(l.token),
+          priceEth: info.priceInPair,
+          marketCapEth: info.marketCapInPair,
+          pooledEth: pooled,
+          graduationEth: graduation,
+          progressPct: graduation > 0 ? Math.max(0, Math.min(100, (pooled / graduation) * 100)) : 0,
+          launchedAt: block ? block.timestamp * 1000 : null,
+          txHash: l.txHash
+        };
+      } catch (e) {
+        return null;
+      }
+    }));
+    return out.filter(Boolean);
+  }
+
   window.VladChain = {
+    boardTokens: boardTokens,
+    faceFor: faceFor,
     CONFIG: CONFIG,
     ready: ready,
     reader: reader,
