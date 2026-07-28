@@ -10,3 +10,6 @@ fonts/
 # temp / build
 *.log
 node_modules/
+contracts/node_modules/
+contracts/artifacts/
+contracts/cache/
