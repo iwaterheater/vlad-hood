@@ -140,11 +140,6 @@
   <symbol id="ic-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 3.8 5.6 3.8 9S14.5 18.5 12 21c-2.5-2.5-3.8-5.6-3.8-9S9.5 5.5 12 3z"/>
   </symbol>
-  <symbol id="ic-discord" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M8.6 5.4c-2 .4-3.6 1.2-3.6 1.2C3.4 9.2 3 12 3 15.4c1.6 1.3 3.2 2 3.2 2l1-1.6"/>
-    <path d="M15.4 5.4c2 .4 3.6 1.2 3.6 1.2 1.6 2.6 2 5.4 2 8.8-1.6 1.3-3.2 2-3.2 2l-1-1.6"/>
-    <path d="M7.5 15.4c3 1.4 6 1.4 9 0"/><ellipse cx="9.4" cy="12" rx="1.2" ry="1.5"/><ellipse cx="14.6" cy="12" rx="1.2" ry="1.5"/>
-  </symbol>
   <symbol id="ic-tg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
     <path d="M21 4.5 2.8 11.3c-.7.3-.7 1.2 0 1.4l4.5 1.4L19 6.6"/>
     <path d="m7.3 14.1.5 4.6c.3.2.7.2 1-.1l2.3-2.2 4.6 3.4c.6.4 1.3.1 1.5-.6L21 4.5"/>
@@ -165,16 +160,11 @@
     <div class="flex items-center gap-3 min-w-0">
       <a href="/" class="flex items-center gap-2 group shrink-0">
         <img src="https://vlad-hood.xyz/photo_1_2026-07-21_06-14-24.jpg?v=2" alt="Vladhood" class="w-11 h-11 rounded-full border-[3px] border-ink rough-shadow-sm group-hover:rotate-6 transition" />
-        <span class="font-marker text-2xl text-forest tracking-wide">VLADHOOD</span>
+        <span class="font-marker text-xl sm:text-2xl text-forest tracking-wide">VLADHOOD</span>
         <span class="font-marker text-mustard text-xl hidden sm:inline">$VLAD</span>
-      </a>
-      <a href="/launchpad/" class="hidden md:inline-flex items-center gap-1.5 font-hand text-lg text-ink hover:text-forest hover:underline decoration-wavy decoration-mustard">
-        <svg class="ic" aria-hidden="true"><use href="#ic-back"/></svg>
-        Back to Launchpad
       </a>
     </div>
     <div class="shrink-0" data-nav-tools></div>
-    <a href="/" class="font-hand text-lg text-ink hover:text-forest hover:underline decoration-wavy decoration-mustard shrink-0">&larr; Back to site</a>
   </div>
 </header>
 
@@ -341,29 +331,6 @@
           <p class="font-hand text-sm text-ink/60 mt-1.5">Optional.</p>
         </div>
 
-        <div class="min-w-0">
-          <label for="f-dc" class="font-marker text-lg text-ink inline-flex items-center gap-2">
-            <svg class="ic text-ink/70" aria-hidden="true"><use href="#ic-discord"/></svg>
-            Discord
-          </label>
-          <div class="box sketch-2 rough-shadow-sm px-3 py-2 mt-1.5 flex items-center gap-1 min-w-0">
-            <span class="font-hand text-lg text-ink/50 shrink-0">discord.gg/</span>
-            <input id="f-dc" class="bare text-lg min-w-0" type="text" placeholder="invite" autocomplete="off" spellcheck="false" maxlength="32" />
-          </div>
-          <p class="font-hand text-sm text-ink/60 mt-1.5">Optional.</p>
-        </div>
-
-        <div class="min-w-0">
-          <label for="f-fc" class="font-marker text-lg text-ink inline-flex items-center gap-2">
-            <svg class="ic text-ink/70" aria-hidden="true"><use href="#ic-spark"/></svg>
-            Farcaster
-          </label>
-          <div class="box sketch-2 rough-shadow-sm px-3 py-2 mt-1.5 flex items-center gap-1 min-w-0">
-            <span class="font-hand text-lg text-ink/50 shrink-0">warpcast.com/</span>
-            <input id="f-fc" class="bare text-lg min-w-0" type="text" placeholder="handle" autocomplete="off" spellcheck="false" maxlength="32" />
-          </div>
-          <p class="font-hand text-sm text-ink/60 mt-1.5">Optional.</p>
-        </div>
       </div>
 
       <!-- ---------- 7. developer buy ---------- -->
@@ -376,12 +343,13 @@
         <div id="buy-box" class="box sketch-2 rough-shadow-sm px-3 py-3 mt-1.5 flex items-center gap-2">
           <input id="f-buy" class="bare font-marker text-3xl num min-w-0" type="text" inputmode="decimal"
                  autocomplete="off" spellcheck="false" value="0.00" aria-describedby="buy-hint" />
-          <button type="button" id="buy-max" class="font-marker text-sm px-2.5 py-1 sketch-2 bg-mustard text-ink hover:bg-forest hover:text-paper transition shrink-0">Max</button>
           <span class="font-marker text-sm px-2.5 py-1.5 sketch-2 bg-paper2 whitespace-nowrap shrink-0">ETH</span>
         </div>
 
-        <p id="buy-hint" class="font-hand text-sm text-ink/60 mt-1.5 num">Max <span id="buy-max-txt">0.0678</span> &middot; 5% of supply</p>
-        <p id="buy-err" class="font-hand text-sm text-crayred mt-0.5" hidden>Clamped to the maximum developer buy.</p>
+        <p id="buy-hint" class="font-hand text-sm text-ink/60 mt-1.5">
+          Bought in the same transaction as the launch, before anyone else can trade, and sent to the fee recipient
+          above. Costs this much on top of the launch fee.
+        </p>
       </div>
 
       <!-- ---------- 8. advanced ---------- -->
@@ -396,15 +364,6 @@
 
         <div class="px-3.5 pb-4 pt-1 border-t-2 border-ink/15">
           <div class="mt-3">
-            <label for="f-supply" class="font-hand text-[17px] text-ink/80">Initial supply</label>
-            <div class="box sketch-2 px-3 py-2 mt-1 flex items-center gap-2" style="box-shadow:none">
-              <input id="f-supply" class="bare font-marker text-xl num min-w-0" type="text" value="1,000,000,000" readonly aria-readonly="true" />
-              <span class="font-hand text-sm px-2 py-1 sketch-2 bg-paper2 whitespace-nowrap shrink-0">tokens</span>
-            </div>
-            <p class="font-hand text-sm text-ink/60 mt-1.5">Set by the launchpad, the same for every token, and minted once — the supply can never grow.</p>
-          </div>
-
-          <div class="mt-4">
             <label for="f-fee" class="font-hand text-[17px] text-ink/80">Fee recipient</label>
             <div id="fee-box" class="box sketch-2 px-3 py-2 mt-1 flex items-center gap-2" style="box-shadow:none">
               <input id="f-fee" class="bare font-hand text-base num min-w-0" type="text" placeholder="0x… (defaults to your wallet)"
@@ -489,16 +448,16 @@
         <p id="pv-ticker" class="font-hand text-lg text-brown leading-none mt-1 break-words">ticker</p>
 
         <!-- stat list -->
-        <dl class="mt-4 flex flex-col gap-1.5 font-hand text-[17px]">
+        <dl class="mt-4 flex flex-col gap-1.5 font-hand text-sm">
           <div class="flex items-baseline gap-1">
             <dt class="text-ink/70 shrink-0">Launch fee</dt>
             <span class="leader" aria-hidden="true"></span>
             <dd class="num shrink-0">0.0005 ETH</dd>
           </div>
           <div class="flex items-baseline gap-1">
-            <dt class="text-ink/70 shrink-0">Trading fees</dt>
+            <dt class="text-ink/70 shrink-0" title="Share of every trade: 70% to the creator, 30% to the platform">Creator / platform</dt>
             <span class="leader" aria-hidden="true"></span>
-            <dd class="shrink-0 text-right">70% creator / 30% protocol</dd>
+            <dd class="num shrink-0">70 / 30</dd>
           </div>
           <div class="flex items-baseline gap-1">
             <dt class="text-ink/70 shrink-0">Graduation</dt>
@@ -515,8 +474,8 @@
           </div>
         </dl>
 
-        <p class="font-caveat text-lg text-brown mt-2 leading-tight">
-          illustrative figures — no fee is charged and nothing graduates
+        <p class="font-caveat text-base text-brown mt-2 leading-tight">
+          testnet coins — real contract, no real money
         </p>
 
         <!-- developer buy echo -->
@@ -627,7 +586,7 @@
 
 <script src="/launchpad.js?v=11"></script>
 <script src="/launchpad-nav.js?v=2"></script>
-<script src="/launchpad-chain.js?v=3"></script>
+<script src="/launchpad-chain.js?v=4"></script>
 <script>
 (function () {
   'use strict';
@@ -662,7 +621,6 @@
   var NAME_MAX = 32;
   var TICKER_MAX = 10;
   var DESC_MAX = 256;
-  var DEV_BUY_MAX = 0.0678;
 
   /* ---------------------------------------------------------------
      elements
@@ -683,11 +641,10 @@
   var xEl = $('f-x'), tgEl = $('f-tg');
 
 
-  var webEl = $('f-web'), dcEl = $('f-dc'), fcEl = $('f-fc');
+  var webEl = $('f-web');
   var feeEl = $('f-fee'), feeBox = $('fee-box'), feeErr = $('fee-err'), feeMe = $('fee-me');
 
-  var buyEl = $('f-buy'), buyBox = $('buy-box'), buyMaxBtn = $('buy-max'), buyErr = $('buy-err');
-  var buyMaxTxt = $('buy-max-txt');
+  var buyEl = $('f-buy'), buyBox = $('buy-box');
 
   var submitBtn = $('submit-btn'), submitLabel = $('submit-label'), submitArrow = $('submit-arrow');
 
@@ -699,7 +656,6 @@
   var pvX = $('pv-x'), pvXTxt = $('pv-x-txt');
   var pvTg = $('pv-tg'), pvTgTxt = $('pv-tg-txt');
 
-  if (buyMaxTxt) buyMaxTxt.textContent = String(DEV_BUY_MAX);
 
   /* ---------------------------------------------------------------
      small helpers
@@ -765,7 +721,7 @@
      state
   --------------------------------------------------------------- */
   var state = {
-    web: '', dc: '', fc: '', fee: '', feeBad: false,
+    web: '', fee: '', feeBad: false,
     name: '', ticker: '', desc: '',
     descBad: false,
     file: null, fileUrl: '',
@@ -823,14 +779,6 @@
     var wv = webEl.value.replace(/^https?:\/\//i, '').replace(/\s+/g, '');
     if (wv !== webEl.value) webEl.value = wv;
     state.web = wv;
-
-    var dv = dcEl.value.replace(/^.*discord\.gg\//i, '').replace(/[^A-Za-z0-9_-]+/g, '');
-    if (dv !== dcEl.value) dcEl.value = dv;
-    state.dc = dv;
-
-    var fv = fcEl.value.replace(/^@+/, '').replace(/[^A-Za-z0-9_.-]+/g, '');
-    if (fv !== fcEl.value) fcEl.value = fv;
-    state.fc = fv;
   }
 
   /* An address typed by hand is the one field here that can silently send the
@@ -850,13 +798,13 @@
     var raw = buyEl.value.replace(/[^0-9.]/g, '');
     var parts = raw.split('.');
     if (parts.length > 2) raw = parts.shift() + '.' + parts.join('');
-    var over = false;
     var n = parseFloat(raw);
     if (!isFinite(n)) n = 0;
-    if (n > DEV_BUY_MAX) { n = DEV_BUY_MAX; raw = String(DEV_BUY_MAX); over = true; }
     if (raw !== buyEl.value) buyEl.value = raw;
+    /* No cap here: the launch buy runs inside the launch transaction, where the
+       token exempts it from the max-wallet and max-tx limits that apply to
+       everyone buying afterwards. The wallet balance is the only limit. */
     state.buy = n;
-    flash('buy', buyErr, buyBox, over);
   }
 
   /* ---------------------------------------------------------------
@@ -953,11 +901,6 @@
   /* ---------------------------------------------------------------
      developer buy chips
   --------------------------------------------------------------- */
-  buyMaxBtn.addEventListener('click', function () {
-    buyEl.value = String(DEV_BUY_MAX);
-    readBuy();
-    render();
-  });
 
   /* ---------------------------------------------------------------
      what is still missing? drives the button label
@@ -1045,14 +988,11 @@
     readFee(); render();
   });
   on(webEl, readSocials);
-  on(dcEl, readSocials);
-  on(fcEl, readSocials);
   on(buyEl, readBuy);
 
   buyEl.addEventListener('blur', function () {
     var n = state.buy;
     buyEl.value = n ? String(n) : '0.00';
-    flash('buy', buyErr, buyBox, false);
     render();
   });
 
@@ -1133,9 +1073,9 @@
         logo: '',
         twitter: state.x ? ('https://x.com/' + state.x) : '',
         telegram: state.tg ? ('https://t.me/' + state.tg) : '',
+        /* the contract stores discord and farcaster too, but nothing asks for
+           them yet, so they go out empty rather than half-filled */
         website: state.web ? ('https://' + state.web) : '',
-        discord: state.dc ? ('https://discord.gg/' + state.dc) : '',
-        farcaster: state.fc ? ('https://warpcast.com/' + state.fc) : '',
         devBuyEth: state.buy || 0,
         feeWallet: state.fee || undefined
       });
