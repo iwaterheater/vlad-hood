@@ -1107,7 +1107,10 @@
     ]
   };
 
+  var paintedKind = 'fail';
+
   function paintModalPoints(kind) {
+    paintedKind = kind;
     var ul = $('modal-points');
     if (!ul) return;
     ul.innerHTML = MODAL_POINTS[kind].map(function (p) {
@@ -1119,7 +1122,13 @@
   function showResult(title, body, link) {
     lastFocused = document.activeElement;
     var h = modal.querySelector('#preview-modal-title');
-    if (h) h.textContent = title;
+    if (h) {
+      h.textContent = title;
+      /* a success headline in the failure colour reads as a failure */
+      var ok = paintedKind === 'ok';
+      h.classList.toggle('text-crayred', !ok);
+      h.classList.toggle('text-forest', ok);
+    }
     modalSub.innerHTML = body + (link
       ? ' <a class="underline decoration-wavy decoration-mustard" href="' + link + '">Open the token page</a>.'
       : '');
