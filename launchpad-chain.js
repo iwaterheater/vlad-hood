@@ -247,17 +247,45 @@
     ];
     var overrides = { value: fee + devBuy };
 
-    /* Simulate before asking for a signature. A failure here still carries the
-       contract's own error, so the user reads "LaunchDisabled" rather than a
-       wallet's paraphrase of a failed gas estimate. */
+    /* Balance first, and in plain terms. A wallet that cannot cover the value
+       plus gas fails somewhere inside estimateGas, and the error that comes back
+       says "missing revert data" — which names neither the wallet nor the
+       shortfall, and sends you looking at the contract instead of the faucet. */
+    var readProvider = await reader();
+    var balance = await readProvider.getBalance(me);
+    var gasCost = 8000000n * ((await readProvider.getFeeData()).gasPrice || 1000000n);
+    var needed = fee + devBuy + gasCost;
+    if (balance < needed) {
+      throw new Error(
+        'Not enough ETH on ' + me.slice(0, 6) + '…' + me.slice(-4) + '. It holds ' +
+        ethers.formatEther(balance) + ' and this launch needs about ' +
+        ethers.formatEther(needed) + ' — the ' + ethers.formatEther(fee) + ' fee' +
+        (devBuy > 0n ? (', the ' + ethers.formatEther(devBuy) + ' developer buy') : '') +
+        ' and gas.'
+      );
+    }
+
+    /* Simulate against our own node rather than the wallet's. The wallet points
+       at whichever RPC its network entry was added with, and a node that answers
+       a reverted call without data turns every failure into the same unhelpful
+       "missing revert data". Simulating here keeps the contract's own error. */
     try {
-      await factory.launchToken.staticCall.apply(null, args.concat([overrides]));
+      var sim = new ethers.Contract(CONFIG.contracts.factory, FACTORY_ABI, readProvider);
+      await sim.launchToken.staticCall.apply(null, args.concat([{ value: overrides.value, from: me }]));
     } catch (e) {
       var named = null;
       try { named = factory.interface.parseError(e.data || (e.info && e.info.error && e.info.error.data)); } catch (x) {}
       throw new Error(named ? ('The launchpad refused this launch: ' + named.name)
-                            : (e.shortMessage || e.reason || e.message));
+                            : ('The launch would fail: ' + (e.shortMessage || e.reason || e.message)));
     }
+
+    /* The wallet may still estimate gas against its own node and refuse. Give it
+       a limit taken from our node, so a wallet-side estimate cannot be the thing
+       that stops a launch we have already proven works. */
+    try {
+      var gas = await sim.launchToken.estimateGas.apply(null, args.concat([{ value: overrides.value, from: me }]));
+      overrides.gasLimit = (gas * 125n) / 100n;
+    } catch (e) { /* fall back to the wallet's own estimate */ }
 
     var tx = await factory.launchToken.apply(null, args.concat([overrides]));
     var receipt = await tx.wait();
