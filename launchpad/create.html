@@ -517,8 +517,8 @@
         </div>
 
         <p class="font-hand text-xs text-ink/55 mt-4 leading-snug">
-          A preview of the listing. The name, ticker, description and links go into the token contract when you
-          launch and are public from then on. The artwork does not — it stays in this browser.
+          A preview of the listing. The name, ticker, description, links and artwork all go public when you launch —
+          the first four into the token contract, the image onto IPFS with its address stored alongside them.
         </p>
       </div>
     </aside>
@@ -592,7 +592,7 @@
 
 <script src="/launchpad.js?v=11"></script>
 <script src="/launchpad-nav.js?v=3"></script>
-<script src="/launchpad-chain.js?v=8"></script>
+<script src="/launchpad-chain.js?v=9"></script>
 <script>
 (function () {
   'use strict';
@@ -1097,7 +1097,7 @@
     ok: [
       ['forest', 'The token and its Uniswap pool exist on the testnet.'],
       ['forest', 'Its liquidity is locked and cannot be pulled.'],
-      ['crayred', 'Your artwork stayed in this browser — image hosting is not wired up yet.'],
+      ['forest', 'The artwork is pinned to IPFS and its address is stored on the token.'],
       ['crayred', 'Testnet coins are worth nothing. The chain can be reset without warning.']
     ],
     fail: [
@@ -1151,14 +1151,29 @@
 
     setBusy(true, 'Confirm in wallet…');
     try {
+      /* Pin the artwork first. The contract stores a URL, so there has to be
+         one before the launch transaction is built — and a launch that succeeded
+         with a half-uploaded image could never be corrected, the metadata is
+         written once. */
+      var logoUrl = '';
+      if (state.file) {
+        setBusy(true, 'Uploading image…');
+        var form = new FormData();
+        form.append('image', state.file);
+        var res = await fetch('/upload/', { method: 'POST', body: form });
+        var body = await res.json().catch(function () { return {}; });
+        if (!res.ok || !body.ok) {
+          throw new Error((body && body.error) || ('The image upload failed (HTTP ' + res.status + ').'));
+        }
+        logoUrl = body.url;
+      }
+
+      setBusy(true, 'Confirm in wallet…');
       var result = await window.VladChain.launch({
         name: state.name,
         symbol: state.ticker,
         description: state.desc,
-        /* The contract stores a logo URL, the form takes a file, and there is
-           nowhere to put it yet — image hosting is the missing piece, not this
-           call. Launching without one works; the token just has no picture. */
-        logo: '',
+        logo: logoUrl,
         twitter: state.x ? ('https://x.com/' + state.x) : '',
         telegram: state.tg ? ('https://t.me/' + state.tg) : '',
         /* the contract stores discord and farcaster too, but nothing asks for

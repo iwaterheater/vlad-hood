@@ -1,0 +1,8 @@
+# config.php is never a page. PHP would execute it and return nothing anyway,
+# but a server with PHP disabled would hand over the token as plain text.
+<Files "config.php">
+  Require all denied
+</Files>
+<Files "config.sample.php">
+  Require all denied
+</Files>

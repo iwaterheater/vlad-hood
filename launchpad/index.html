@@ -398,7 +398,7 @@
 
 <script src="/launchpad.js?v=11"></script>
 <script src="/launchpad-nav.js?v=3"></script>
-<script src="/launchpad-chain.js?v=8"></script>
+<script src="/launchpad-chain.js?v=9"></script>
 <script>
 (function () {
   'use strict';
@@ -507,11 +507,21 @@
         'data-meme-card data-id="' + esc(meme.id) + '" data-status="' + esc(s) + '">' +
 
         // square cover: blurred art fills it, the same art sits sharp in a circle on top
+        // a pinned logo if the launch had one, otherwise the face drawn from the address
         '<div class="relative border-b-[2.4px] border-ink aspect-square overflow-hidden" style="background:' + esc(bg) + '">' +
-          '<div class="card-blur" aria-hidden="true">' + avatarSvg(meme, 112) + '</div>' +
-          '<div class="absolute inset-0 flex items-center justify-center">' +
-            '<div class="card-disc" style="background:' + esc(bg) + '" aria-hidden="true">' + avatarSvg(meme, 112) + '</div>' +
-          '</div>' +
+          (meme.logo
+            ? ('<img src="' + esc(meme.logo) + '" alt="" class="card-blur" aria-hidden="true" />' +
+               '<div class="absolute inset-0 flex items-center justify-center">' +
+                 '<div class="card-disc" style="background:' + esc(bg) + '">' +
+                   '<img src="' + esc(meme.logo) + '" alt="' + esc(meme.name) + '" ' +
+                   'style="width:100%;height:100%;object-fit:cover;display:block" ' +
+                   'onerror="this.closest(\'.card-disc\').innerHTML=\'\'" />' +
+                 '</div>' +
+               '</div>')
+            : ('<div class="card-blur" aria-hidden="true">' + avatarSvg(meme, 112) + '</div>' +
+               '<div class="absolute inset-0 flex items-center justify-center">' +
+                 '<div class="card-disc" style="background:' + esc(bg) + '" aria-hidden="true">' + avatarSvg(meme, 112) + '</div>' +
+               '</div>')) +
         '</div>' +
 
         // body — every figure below is .num, because Permanent Marker digits collide
