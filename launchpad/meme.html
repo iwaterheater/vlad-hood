@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Meme Detail — Vladhood Launchpad (demo)</title>
+<title>Token — Vladhood Launchpad (testnet)</title>
 <meta name="description" content="Vladhood Launchpad meme detail page — a design preview with demo data only. No smart contracts, no token sale, no real funds." />
 <meta name="robots" content="noindex" />
 <link rel="icon" href="https://vlad-hood.xyz/photo_1_2026-07-21_06-14-24.jpg?v=2" />
@@ -91,9 +91,10 @@
   <div class="max-w-[75rem] mx-auto px-4 py-2 flex items-start gap-2">
     <svg class="w-6 h-6 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
     <p class="font-hand text-[15px] sm:text-lg leading-snug">
-      <span class="font-marker">PREVIEW / DEMO.</span>
-      The Vladhood Launchpad is an interface mock-up. There are <strong>no smart contracts</strong>, no token sale and
-      <strong>no real funds</strong> anywhere on this page — every price, holder, trade and chart point below is made-up demo data.
+      <span class="font-marker">TESTNET.</span>
+      This token was really launched, on the Robinhood Chain <strong>testnet</strong>, and everything below is read
+      from the chain. Testnet coins are handed out free and are <strong>worth nothing</strong>, the chain can be reset
+      at any time, and the contracts behind it have not been audited.
     </p>
   </div>
 </div>
@@ -411,9 +412,9 @@
 
 <script src="/launchpad.js?v=11"></script>
 <script src="/launchpad-nav.js?v=3"></script>
-<script src="/launchpad-chain.js?v=9"></script>
+<script src="/launchpad-chain.js?v=10"></script>
 <script>
-(function () {
+(async function () {
   'use strict';
 
   /* ---------------- data + safe formatters ---------------- */
@@ -462,7 +463,64 @@
   var params = new URLSearchParams(window.location.search);
   var wantedId = params.get('id');
   var meme = null;
-  try { if (LP && typeof LP.get === 'function' && wantedId) meme = LP.get(wantedId); } catch (e) { meme = null; }
+  var fromChain = false;
+
+  /* An id that looks like an address is a real launch, so ask the chain. The
+     demo module stays as a fallback for the old slug ids. */
+  function looksLikeAddress(v) { return /^0x[0-9a-fA-F]{40}$/.test(String(v || '')); }
+
+  /* The page was written against the demo shape, so a chain token is mapped
+     onto it. Fields nobody can know without an indexer — trade history, holder
+     lists, price series — stay empty, and their panels are hidden rather than
+     filled with something invented. */
+  function fromToken(info, usd) {
+    var supply = Number(info.totalSupply) / 1e18;
+    var mcEth = info.marketCapInPair || 0;
+    return {
+      id: info.address,
+      name: info.name,
+      symbol: info.symbol,
+      tagline: info.description || '',
+      about: info.description || '',
+      logo: info.logo || '',
+      contract: info.address,
+      poolAddress: info.pool || '',
+      creator: info.deployer,
+      avatar: window.VladChain.faceFor(info.address),
+      status: 'live',
+      supply: supply,
+      decimals: 18,
+      priceVlad: info.priceInPair || 0,
+      marketCap: usd ? mcEth * usd : mcEth,
+      marketCapEth: mcEth,
+      usdRate: usd,
+      change24h: null,
+      taxBuy: 0, taxSell: 0,
+      lpLocked: true, lockMonths: null, verified: false,
+      holdersCount: null, participants: null,
+      socials: {
+        x: info.socials.twitter || '', tg: info.socials.telegram || '',
+        web: info.socials.website || ''
+      },
+      sentiment: null,
+      topHolders: [], trades: [], chart: [],
+      poolEth: null, poolToken: null,
+      softCap: 0, hardCap: 0, raised: 0,
+      startsAt: null, endsAt: null
+    };
+  }
+
+  if (looksLikeAddress(wantedId) && window.VladChain) {
+    try {
+      var info = await window.VladChain.tokenInfo(wantedId);
+      var usd = null;
+      try { usd = await window.VladChain.ethUsd(); } catch (e) {}
+      if (info && info.name) { meme = fromToken(info, usd); fromChain = true; }
+    } catch (e) { meme = null; }
+  }
+  if (!meme) {
+    try { if (LP && typeof LP.get === 'function' && wantedId) meme = LP.get(wantedId); } catch (e) { meme = null; }
+  }
 
   /* ---------------- modal (shared by every action button) ---------------- */
   var modal = $('#modal');
@@ -511,7 +569,9 @@
     } else if (!wantedId) {
       msg.textContent = 'No meme id in the address. A detail page needs something like ?id=hood-doge';
     } else {
-      msg.textContent = 'There is no demo meme with the id "' + wantedId + '".';
+      msg.textContent = looksLikeAddress(wantedId)
+        ? ('No token at ' + wantedId + ' was launched by this launchpad.')
+        : ('There is no token with the id "' + wantedId + '".');
     }
     var list = $('#nfList');
     var memes = (LP && LP.memes) || [];
@@ -522,10 +582,21 @@
       });
       list.innerHTML = html;
     }
-    document.title = 'Meme not found — Vladhood Launchpad (demo)';
+    document.title = 'Token not found — Vladhood Launchpad (testnet)';
   }
 
   if (!meme) { showNotFound(); return; }
+
+  /* Nothing indexes this chain yet, so a real token has no trade history, no
+     holder table and no price series. Hiding those panels is the honest move:
+     the alternative is three panels of invented numbers on a page about a token
+     that exists. */
+  if (fromChain) {
+    ['#panel-chart', '#panel-holders', '#panel-tx'].forEach(function (sel) {
+      var el = $(sel);
+      if (el) el.remove();
+    });
+  }
 
   /* ---------------- derived values ---------------- */
   var NOW = Date.now();
@@ -538,7 +609,7 @@
   var launched = num(meme.startsAt, 0);
   var isFuture = launched > NOW;
 
-  document.title = meme.name + ' — Vladhood Launchpad (demo)';
+  document.title = meme.name + ' — Vladhood Launchpad (testnet)';
   $('#detail').classList.remove('hidden');
 
   /* ---------------- title row ---------------- */
@@ -969,7 +1040,7 @@
 
   /* ---------------- holders ---------------- */
   var holders = Array.isArray(meme.topHolders) ? meme.topHolders : [];
-  $('#holdersCount').textContent = fCompact(meme.holdersCount) + ' holders (demo)';
+  $('#holdersCount').textContent = meme.holdersCount == null ? '' : fCompact(meme.holdersCount) + ' holders';
   var maxPct = holders.reduce(function (m, h) { return Math.max(m, num(h.pct)); }, 0) || 1;
   $('#holdersList').innerHTML = holders.length ? holders.map(function (h, i) {
     var w = Math.max(3, (num(h.pct) / maxPct) * 100);
@@ -986,7 +1057,7 @@
 
   /* ---------------- transactions ---------------- */
   var trades = Array.isArray(meme.trades) ? meme.trades : [];
-  $('#txParticipants').textContent = fCompact(meme.participants) + ' participants (demo)';
+  $('#txParticipants').textContent = meme.participants == null ? '' : fCompact(meme.participants) + ' participants';
   $('#txBody').innerHTML = trades.length ? trades.map(function (t) {
     var buy = String(t.side).toLowerCase() === 'buy';
     return '<tr class="border-t border-ink/15">' +
@@ -1010,7 +1081,7 @@
     fact('Holders', esc(fCompact(meme.holdersCount))) +
     fact('Participants', esc(fCompact(meme.participants))) +
     fact('Soft / Hard cap', esc(fEth(meme.softCap)) + ' / ' + esc(fEth(meme.hardCap))) +
-    fact('Raised (demo)', esc(fEth(meme.raised))) +
+    fact('Pooled', esc(fEth(meme.raised))) +
     fact(isFuture ? 'Starts' : 'Launched', esc(isFuture ? fLeft(launched) : fAgo(launched))) +
     fact('Sale ends', esc(num(meme.endsAt) > NOW ? fLeft(meme.endsAt) : fAgo(meme.endsAt))) +
     fact('Tax', esc(num(meme.taxBuy)) + '% buy / ' + esc(num(meme.taxSell)) + '% sell') +

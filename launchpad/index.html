@@ -56,10 +56,10 @@
 
   .meme-card { transition:transform .15s, box-shadow .15s; }
   /* blurred backdrop built from the same artwork, blown up past the edges */
-  .card-blur { position:absolute; inset:-25%; filter:blur(14px) saturate(1.15); opacity:.85; transform:scale(1.35); }
+  .card-blur { position:absolute; inset:-15%; filter:blur(6px) saturate(1.12); opacity:.9; transform:scale(1.2); }
   .card-blur svg { width:100%; height:100%; display:block; }
   /* the sharp copy, clipped to a circle */
-  .card-disc { width:62%; aspect-ratio:1; border-radius:9999px; overflow:hidden;
+  .card-disc { width:74%; aspect-ratio:1; border-radius:9999px; overflow:hidden;
     border:2.5px solid #2b2620; box-shadow:2px 3px 0 rgba(43,38,32,.55); }
   .card-disc svg { width:100%; height:100%; display:block; }
   /* every name occupies two lines so the cards line up */
@@ -398,7 +398,7 @@
 
 <script src="/launchpad.js?v=11"></script>
 <script src="/launchpad-nav.js?v=3"></script>
-<script src="/launchpad-chain.js?v=9"></script>
+<script src="/launchpad-chain.js?v=10"></script>
 <script>
 (function () {
   'use strict';
@@ -421,12 +421,22 @@
   function fUsd(n)  { try { return F.usd ? F.usd(n) : '$' + n; } catch (e) { return '$' + n; } }
   function fAddr(a) { try { return F.addr ? F.addr(a) : String(a || ''); } catch (e) { return String(a || ''); } }
   // a signed delta, unlike fFunded above — fmt.pct already adds the +/-
-  /* market caps here are denominated in the paired asset, and there is no price
-     feed on this chain to turn that into dollars — so it says ETH */
+  /* Market caps come off the pool in ETH; a board reads in dollars. Without a
+     rate the ETH figure still says something true, so that is the fallback
+     rather than a blank or a guess. */
+  var ethUsdRate = null;
+
   function fEthShort(n) {
     var v = Number(n);
     if (!isFinite(v) || v <= 0) return '—';
-    if (v >= 1000) return (v / 1000).toFixed(1) + 'K ETH';
+    if (ethUsdRate) {
+      var usd = v * ethUsdRate;
+      if (usd >= 1e9) return '$' + (usd / 1e9).toFixed(2) + 'B';
+      if (usd >= 1e6) return '$' + (usd / 1e6).toFixed(2) + 'M';
+      if (usd >= 1e3) return '$' + (usd / 1e3).toFixed(1) + 'K';
+      if (usd >= 1) return '$' + usd.toFixed(0);
+      return '$' + usd.toFixed(2);
+    }
     if (v >= 1) return v.toFixed(2) + ' ETH';
     if (v >= 0.001) return v.toFixed(4) + ' ETH';
     return v.toExponential(1) + ' ETH';
@@ -601,6 +611,8 @@
 
   async function loadChain() {
     if (!window.VladChain) throw new Error('the chain module did not load');
+    /* the rate is optional: a failed lookup falls back to ETH, it never blocks the board */
+    try { ethUsdRate = await window.VladChain.ethUsd(); } catch (e) { ethUsdRate = null; }
     var tokens = await window.VladChain.boardTokens();
     MEMES = tokens.map(adopt);
     GRADUATED = MEMES.filter(function (m) { return statusOf(m) === 'finished'; })

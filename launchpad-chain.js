@@ -455,7 +455,31 @@
     return out.filter(Boolean);
   }
 
+  /* Market caps are computed in the paired asset, but a launchpad reads in
+     dollars. The rate is fetched once and kept for the session — a board of
+     twenty tokens must not become twenty price lookups, and a stale-by-minutes
+     rate is not what makes a testnet market cap notional. */
+  var usdRate = null;
+
+  async function ethUsd() {
+    if (usdRate !== null) return usdRate;
+    try {
+      var cached = sessionStorage.getItem('vlad_eth_usd');
+      if (cached) { usdRate = parseFloat(cached) || null; if (usdRate) return usdRate; }
+    } catch (e) {}
+    try {
+      var r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+      var j = await r.json();
+      usdRate = (j && j.ethereum && j.ethereum.usd) || null;
+      if (usdRate) { try { sessionStorage.setItem('vlad_eth_usd', String(usdRate)); } catch (e) {} }
+    } catch (e) {
+      usdRate = null;   /* callers fall back to showing ETH */
+    }
+    return usdRate;
+  }
+
   window.VladChain = {
+    ethUsd: ethUsd,
     boardTokens: boardTokens,
     faceFor: faceFor,
     CONFIG: CONFIG,
