@@ -26,36 +26,30 @@ import {IERC721ReceiverLike, INonfungiblePositionManagerLike, IPonsLaunchFactory
  * fee payout. When a creator walks away, their share accrues to a wallet nobody
  * holds the keys to and the community that kept the token alive gets nothing.
  *
- * This fork lets the owner reassign that payout, but never quietly and never
- * quickly. The rules are enforced by the contract, not by policy:
+ * `reassignFeeRecipient` lets the owner move it. This is the same shape every
+ * launchpad uses — pump.fun included: the contract grants the power, and the
+ * judgement of who deserves the fees happens off-chain, on a form, before the
+ * transaction is ever sent. Encoding that judgement on-chain was tried and
+ * dropped: any dormancy long enough to be meaningful is far longer than the days
+ * a real takeover takes, so it blocks the honest case without stopping a
+ * determined operator, who simply waits.
  *
- *   1. DORMANCY  — a takeover may only be proposed once the creator side has
- *      shown no on-chain sign of life for `dormancyPeriod`. Collecting fees,
- *      setting a redirect or calling `heartbeat` all count as a sign of life.
- *   2. TIMELOCK  — a proposal names the new wallet up front, emits an event and
- *      cannot execute for `takeoverDelay`. The deadline is stamped at proposal
- *      time, so shortening the delay afterwards cannot accelerate anything
- *      already pending.
- *   3. VETO      — during the window the creator (or the current fee recipient)
- *      cancels with one transaction. A `heartbeat` alone is enough: execution
- *      re-checks dormancy, so any sign of life makes the proposal unexecutable.
- *   4. FLOOR     — `MIN_DORMANCY_PERIOD` and `MIN_TAKEOVER_DELAY` are constants.
- *      The owner can make the process slower, never faster.
- *   5. EXIT      — `renounceTakeoverPower` is irreversible and kills the whole
- *      mechanism for every token, forever.
+ * What the mechanism does guarantee:
+ *   - EVENT     — every reassignment emits `FeeRecipientReassigned` naming the
+ *                 old and new wallet, so the record is public and indexable.
+ *   - ONE WAY   — once reassigned, the deployer loses the redirect right, so the
+ *                 wallet that walked away cannot quietly take the payout back.
+ *   - EXIT      — `renounceReassignment` is irreversible and removes the power
+ *                 for every token, forever.
  *
  * What the owner still cannot do, here or in the original: withdraw liquidity,
- * touch the position NFT, or take the creator share for a token whose creator
- * is still active.
+ * touch the position NFT, mint, or take anything beyond the creator fee stream
+ * of a token that has already launched.
  */
 contract VladhoodLaunchLocker is Ownable2Step, ReentrancyGuard, IERC721ReceiverLike {
     using SafeERC20 for IERC20;
 
     uint256 public constant MAX_PROTOCOL_FEE_SHARE = 50;
-
-    /// @notice Hard floors on the takeover process. The owner cannot go below these.
-    uint64 public constant MIN_DORMANCY_PERIOD = 30 days;
-    uint64 public constant MIN_TAKEOVER_DELAY = 3 days;
 
     error NotFactory();
     error NotAuthorized();
@@ -67,11 +61,7 @@ contract VladhoodLaunchLocker is Ownable2Step, ReentrancyGuard, IERC721ReceiverL
     error InvalidProtocolFee();
     error AlreadyInitialized();
     error ZeroAddress();
-    error TakeoverDisabled();
-    error CreatorStillActive();
-    error NoPendingTakeover();
-    error TakeoverNotReady();
-    error PeriodTooShort();
+    error ReassignmentRenounced();
 
     event FactoryUpdated(address indexed factory);
     event PositionLocked(
@@ -97,19 +87,10 @@ contract VladhoodLaunchLocker is Ownable2Step, ReentrancyGuard, IERC721ReceiverL
     event ProtocolFeeRecipientUpdated(address recipient);
     event ProtocolFeeUpdated(uint256 share);
 
-    event CreatorSignal(address indexed token, address indexed signaller, uint64 at);
-    event TakeoverProposed(
-        address indexed token,
-        address indexed newFeeWallet,
-        address indexed currentRecipient,
-        uint64 executeAfter,
-        uint64 dormantSince
+    event FeeRecipientReassigned(
+        address indexed token, address indexed newFeeWallet, address indexed previousRecipient
     );
-    event TakeoverCancelled(address indexed token, address indexed cancelledBy);
-    event TakeoverExecuted(address indexed token, address indexed newFeeWallet, address indexed previousRecipient);
-    event DormancyPeriodUpdated(uint64 period);
-    event TakeoverDelayUpdated(uint64 delay);
-    event TakeoverPowerRenounced();
+    event ReassignmentRenouncedForever();
 
     address public factory;
     address public protocolFeeRecipient;
@@ -123,44 +104,24 @@ contract VladhoodLaunchLocker is Ownable2Step, ReentrancyGuard, IERC721ReceiverL
     mapping(address token => uint256 indexPlusOne) private _feeRecipientTokenIndexes;
     mapping(address token => bool locked) private _lockedTokens;
 
-    struct PendingTakeover {
-        address newFeeWallet;
-        uint64 executeAfter;
-    }
-
-    /// @notice Last moment the creator side proved it is still there, per token.
-    mapping(address token => uint64 at) public lastCreatorSignal;
-    mapping(address token => PendingTakeover) public pendingTakeovers;
-    /// @notice True once a takeover has moved a token's payout away from its deployer.
+    /// @notice True once the owner has moved a token's payout away from its deployer.
     mapping(address token => bool) public takenOver;
 
-    uint64 public dormancyPeriod;
-    uint64 public takeoverDelay;
-    bool public takeoverPowerRenounced;
+    /// @notice Once true the owner can never reassign a fee recipient again.
+    bool public reassignmentRenounced;
 
     /**
      * @param initialOwner Administrative owner for fee policy and collectors.
      * @param initialProtocolFeeRecipient Recipient of the protocol fee share.
      * @param initialProtocolFeeShare Percentage from 0 through 100.
-     * @param initialDormancyPeriod Silence required before a takeover may be proposed.
-     * @param initialTakeoverDelay Timelock between proposing and executing a takeover.
      */
-    constructor(
-        address initialOwner,
-        address initialProtocolFeeRecipient,
-        uint256 initialProtocolFeeShare,
-        uint64 initialDormancyPeriod,
-        uint64 initialTakeoverDelay
-    ) Ownable(initialOwner) {
+    constructor(address initialOwner, address initialProtocolFeeRecipient, uint256 initialProtocolFeeShare)
+        Ownable(initialOwner)
+    {
         if (initialProtocolFeeRecipient == address(0)) revert ZeroAddress();
         if (initialProtocolFeeShare > MAX_PROTOCOL_FEE_SHARE) revert InvalidProtocolFee();
-        if (initialDormancyPeriod < MIN_DORMANCY_PERIOD || initialTakeoverDelay < MIN_TAKEOVER_DELAY) {
-            revert PeriodTooShort();
-        }
         protocolFeeRecipient = initialProtocolFeeRecipient;
         protocolFeeShare = initialProtocolFeeShare;
-        dormancyPeriod = initialDormancyPeriod;
-        takeoverDelay = initialTakeoverDelay;
     }
 
     modifier onlyFactory() {
@@ -201,8 +162,6 @@ contract VladhoodLaunchLocker is Ownable2Step, ReentrancyGuard, IERC721ReceiverL
         _lockedTokens[token] = true;
         tokenProtocolFeeShares[token] = protocolFeeShare;
         deployerTokens[launched.deployer].push(token);
-        // the dormancy clock starts at launch, not at zero
-        _signal(token, launched.deployer);
 
         emit PositionLocked(
             token,
@@ -229,11 +188,6 @@ contract VladhoodLaunchLocker is Ownable2Step, ReentrancyGuard, IERC721ReceiverL
         ) {
             revert NotAuthorized();
         }
-
-        // Claiming your own fees proves you are still there. A claim made by the
-        // owner or an automation collector does not: it says nothing about the
-        // creator, and must not be able to reset someone else's dormancy clock.
-        if (_isCreatorSide(token, launched.deployer, msg.sender)) _signal(token, msg.sender);
 
         INonfungiblePositionManagerLike manager = INonfungiblePositionManagerLike(launched.positionManager);
         address token0;
@@ -284,12 +238,6 @@ contract VladhoodLaunchLocker is Ownable2Step, ReentrancyGuard, IERC721ReceiverL
         if (msg.sender != factory && msg.sender != _redirectControllerOf(token, launched.deployer)) {
             revert NotDeployer();
         }
-        // moving your own payout is a sign of life; the factory wiring up a
-        // launch is not, and lockPosition stamps that separately
-        if (msg.sender != factory) {
-            _signal(token, msg.sender);
-            _clearPending(token, msg.sender);
-        }
         _setFeeRedirect(token, newFeeWallet);
     }
 
@@ -298,136 +246,41 @@ contract VladhoodLaunchLocker is Ownable2Step, ReentrancyGuard, IERC721ReceiverL
     // ---------------------------------------------------------------------
 
     /**
-     * @notice Proves the creator side is still there and resets the dormancy clock.
-     * @dev Callable by the launch deployer or the wallet currently receiving the
-     * creator share. Free of any other side effect, and it cancels a pending
-     * takeover outright, so one cheap transaction is a complete defence.
+     * @notice Hands the creator fee payout of one token to another wallet.
+     * @dev The community-takeover path. Who deserves it is decided off-chain,
+     * before this is called; the contract records the move and makes it public.
+     * It reaches the creator fee stream only — never the liquidity, the position
+     * NFT or the token itself.
      */
-    function heartbeat(address token) external {
-        IPonsLaunchFactory.LaunchedToken memory launched = getLaunchedToken(token);
-        if (!launched.exists || !_lockedTokens[token]) revert TokenNotFound();
-        if (!_isCreatorSide(token, launched.deployer, msg.sender)) revert NotAuthorized();
-        _signal(token, msg.sender);
-        _clearPending(token, msg.sender);
-    }
-
-    /**
-     * @notice Opens a timelocked proposal to hand the creator share to a new wallet.
-     * @dev Only for tokens whose creator side has been silent for `dormancyPeriod`.
-     * The wallet is named now and cannot be swapped later without restarting the
-     * clock, and the deadline is stamped now so a shorter delay cannot be applied
-     * retroactively.
-     */
-    function proposeTakeover(address token, address newFeeWallet) external onlyOwner {
-        if (takeoverPowerRenounced) revert TakeoverDisabled();
+    function reassignFeeRecipient(address token, address newFeeWallet) external onlyOwner {
+        if (reassignmentRenounced) revert ReassignmentRenounced();
         if (newFeeWallet == address(0)) revert ZeroAddress();
 
         IPonsLaunchFactory.LaunchedToken memory launched = getLaunchedToken(token);
         if (!launched.exists || !_lockedTokens[token]) revert TokenNotFound();
-        if (!_isDormant(token)) revert CreatorStillActive();
 
-        uint64 executeAfter = uint64(block.timestamp) + takeoverDelay;
-        pendingTakeovers[token] = PendingTakeover({newFeeWallet: newFeeWallet, executeAfter: executeAfter});
-
-        emit TakeoverProposed(
-            token, newFeeWallet, _recipientOf(token, launched.deployer), executeAfter, lastCreatorSignal[token]
-        );
-    }
-
-    /**
-     * @notice Withdraws a pending takeover.
-     * @dev The creator, the current fee recipient and the owner can all cancel.
-     */
-    function cancelTakeover(address token) external {
-        if (pendingTakeovers[token].executeAfter == 0) revert NoPendingTakeover();
-
-        IPonsLaunchFactory.LaunchedToken memory launched = getLaunchedToken(token);
-        if (msg.sender != owner() && !_isCreatorSide(token, launched.deployer, msg.sender)) {
-            revert NotAuthorized();
-        }
-        // cancelling by the creator side also proves they are there
-        if (msg.sender != owner()) _signal(token, msg.sender);
-        _clearPending(token, msg.sender);
-    }
-
-    /**
-     * @notice Applies a takeover once its timelock has run out.
-     * @dev Dormancy is re-checked here, so any sign of life during the window —
-     * a heartbeat, a fee claim, a redirect — makes the proposal unexecutable
-     * without the creator having to send a cancel transaction.
-     */
-    function executeTakeover(address token) external onlyOwner {
-        if (takeoverPowerRenounced) revert TakeoverDisabled();
-
-        PendingTakeover memory pending = pendingTakeovers[token];
-        if (pending.executeAfter == 0) revert NoPendingTakeover();
-        if (block.timestamp < pending.executeAfter) revert TakeoverNotReady();
-        if (!_isDormant(token)) revert CreatorStillActive();
-
-        IPonsLaunchFactory.LaunchedToken memory launched = getLaunchedToken(token);
         address previous = _recipientOf(token, launched.deployer);
-
-        delete pendingTakeovers[token];
         // from here the deployer loses the unilateral redirect: without this the
         // wallet that abandoned the token could simply take the payout straight
-        // back, and the whole process would be theatre
+        // back, and the handover would be undone as fast as it was made
         takenOver[token] = true;
-        _setFeeRedirect(token, pending.newFeeWallet);
-        // the new recipient starts with a full dormancy window of their own
-        _signal(token, pending.newFeeWallet);
+        _setFeeRedirect(token, newFeeWallet);
 
-        emit TakeoverExecuted(token, pending.newFeeWallet, previous);
+        emit FeeRecipientReassigned(token, newFeeWallet, previous);
     }
 
     /**
-     * @notice Gives up the takeover power for every token, permanently.
-     * @dev There is no way back. Pending proposals become unexecutable.
+     * @notice Gives up the reassignment power for every token, permanently.
+     * @dev There is no way back. After this the creator fee payout of a launched
+     * token can only ever be moved by whoever currently holds it.
      */
-    function renounceTakeoverPower() external onlyOwner {
-        takeoverPowerRenounced = true;
-        emit TakeoverPowerRenounced();
+    function renounceReassignment() external onlyOwner {
+        reassignmentRenounced = true;
+        emit ReassignmentRenouncedForever();
     }
 
     /**
-     * @notice Lengthens or shortens the silence required before a proposal.
-     * @dev Floored at `MIN_DORMANCY_PERIOD`. Applies to future proposals only.
-     */
-    function setDormancyPeriod(uint64 period) external onlyOwner {
-        if (period < MIN_DORMANCY_PERIOD) revert PeriodTooShort();
-        dormancyPeriod = period;
-        emit DormancyPeriodUpdated(period);
-    }
-
-    /**
-     * @notice Changes the timelock applied to future proposals.
-     * @dev Floored at `MIN_TAKEOVER_DELAY`. Deadlines already stamped on pending
-     * proposals are untouched, so this cannot speed up a takeover in flight.
-     */
-    function setTakeoverDelay(uint64 delay) external onlyOwner {
-        if (delay < MIN_TAKEOVER_DELAY) revert PeriodTooShort();
-        takeoverDelay = delay;
-        emit TakeoverDelayUpdated(delay);
-    }
-
-    /**
-     * @notice True once the creator side has been silent for `dormancyPeriod`.
-     */
-    function isDormant(address token) external view returns (bool) {
-        return _isDormant(token);
-    }
-
-    /**
-     * @notice Seconds until a takeover may be proposed, or zero if it may be now.
-     */
-    function dormantIn(address token) external view returns (uint64) {
-        uint64 last = lastCreatorSignal[token];
-        if (last == 0) return type(uint64).max;
-        uint64 ready = last + dormancyPeriod;
-        return block.timestamp >= ready ? 0 : ready - uint64(block.timestamp);
-    }
-
-    /**
-     * @notice The wallet that currently receives the creator share.
+     * @notice The wallet that currently receives the creator share of one token.
      */
     function feeRecipientOf(address token) external view returns (address) {
         return _recipientOf(token, getLaunchedToken(token).deployer);
@@ -474,12 +327,6 @@ contract VladhoodLaunchLocker is Ownable2Step, ReentrancyGuard, IERC721ReceiverL
         return feeRecipientTokens[recipient_].length;
     }
 
-    function _isDormant(address token) private view returns (bool) {
-        uint64 last = lastCreatorSignal[token];
-        if (last == 0) return false; // never locked here — nothing to take over
-        return block.timestamp >= uint256(last) + dormancyPeriod;
-    }
-
     /**
      * @notice Who may move the payout of one token.
      * @dev Before a takeover this is the deployer and nobody else, exactly as in
@@ -492,33 +339,9 @@ contract VladhoodLaunchLocker is Ownable2Step, ReentrancyGuard, IERC721ReceiverL
         return takenOver[token] ? _recipientOf(token, deployer_) : deployer_;
     }
 
-    /**
-     * @notice Who is allowed to speak for the creator share of one token.
-     * @dev Used for proof of life and for cancelling a takeover, never for moving
-     * the payout. Before a takeover both the deployer and the wallet they pay can
-     * defend the token; afterwards only the new recipient can, so the abandoning
-     * wallet cannot keep the token out of reach forever.
-     */
-    function _isCreatorSide(address token, address deployer_, address who) private view returns (bool) {
-        if (who == _recipientOf(token, deployer_)) return true;
-        return !takenOver[token] && who == deployer_;
-    }
-
     function _recipientOf(address token, address deployer_) private view returns (address) {
         address recipient = feeRedirects[token];
         return recipient == address(0) ? deployer_ : recipient;
-    }
-
-    function _signal(address token, address who) private {
-        uint64 at = uint64(block.timestamp);
-        lastCreatorSignal[token] = at;
-        emit CreatorSignal(token, who, at);
-    }
-
-    function _clearPending(address token, address who) private {
-        if (pendingTakeovers[token].executeAfter == 0) return;
-        delete pendingTakeovers[token];
-        emit TakeoverCancelled(token, who);
     }
 
     /**

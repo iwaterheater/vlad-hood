@@ -50,20 +50,26 @@ npx hardhat compile
 npx hardhat test
 ```
 
-## Review so far
+## Why the gate is off-chain
 
-An adversarial pass put 23 claimed exploits against the takeover claim — *the owner cannot
-take the creator share of a token whose creator is still active, and cannot accelerate a
-takeover already proposed*. Each was re-tested against the compiled contract and all 23 were
-refuted with executable proof. Two real issues did come out of the process and are fixed:
+An earlier draft put the whole judgement on-chain: a dormancy period the creator had to be
+silent through, a timelock on every proposal, a veto. It was dropped. A dormancy long enough
+to mean anything is far longer than the days a real takeover takes, so it blocked the honest
+case while a determined operator would simply wait it out. It is also not what anyone does:
+pump.fun grants the platform the same power outright and gates it on a review form, refusing
+to act wherever ownership of the fees is genuinely disputed.
+
+So the contract grants the power and records the move. The filter is the process around it.
+
+Two things did survive from that draft, because they are defects either way:
 
 * the deployer could take the payout straight back after a handover, which made the whole
-  mechanism theatre — `takenOver[token]` now locks them out;
-* a wallet the deployer merely *pays* could redirect the fees onward, which the original
-  contract did not allow — `_redirectControllerOf` restores the original rule.
+  thing theatre — `takenOver[token]` now locks them out;
+* a wallet the deployer merely *pays* could redirect the fees onward, which the original did
+  not allow — `_redirectControllerOf` restores the original rule.
 
 ## Status
 
-**Not audited. Not deployed.** The pass above was self-review, not a third-party audit, and
-it is not a substitute for one on a contract that custodies liquidity. 29 tests cover the
-takeover rules and the behaviour inherited from the original.
+**Not audited. Not deployed.** 16 tests cover the reassignment path and the behaviour
+inherited from the original. That is self-review, not a third-party audit, and it is not a
+substitute for one on a contract that custodies liquidity.
