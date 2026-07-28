@@ -52,6 +52,10 @@
     dexId: 0,
     launchConfigId: 0,
     poolFee: 10000,
+    /* every pool opens at this tick, so the starting price is known before the
+       pool exists — which is what lets the form quote a launch buy */
+    initialTick: -204200,
+    tickSpacing: 200,
     supply: '1000000000000000000000000000',
     graduationThreshold: '4200000000000000000',
     protocolFeeShare: 30
@@ -172,7 +176,21 @@
     if (!eth) throw new Error('No wallet found. Install one, then reload this page.');
     await eth.request({ method: 'eth_requestAccounts' });
     await ensureChain();
+
     var provider = new ethers.BrowserProvider(eth, 'any');
+
+    /* A wallet can report the switch as done before it has actually switched,
+       or the user can dismiss the prompt and leave it where it was. Signing on
+       the wrong chain calls an address with no contract at it, and the node
+       answers with a revert carrying no data — which surfaces as "missing revert
+       data" and names nothing. Check it here, where the message can be useful. */
+    var net = await provider.getNetwork();
+    if (Number(net.chainId) !== CONFIG.chainId) {
+      throw new Error(
+        'Your wallet is on chain ' + net.chainId + ', not ' + CONFIG.chainName +
+        ' (' + CONFIG.chainId + '). Switch it and try again.'
+      );
+    }
     return provider.getSigner();
   }
 
@@ -188,6 +206,15 @@
   async function launch(params) {
     var ethers = await ready();
     var s = await signer();
+
+    /* the deployment can be missing on a chain that otherwise looks right —
+       a reset testnet, or a config pointed at the wrong network */
+    var code = await s.provider.getCode(CONFIG.contracts.factory);
+    if (!code || code === '0x') {
+      throw new Error('No launchpad contract at ' + CONFIG.contracts.factory +
+        ' on this chain. The deployment may have been reset.');
+    }
+
     var factory = new ethers.Contract(CONFIG.contracts.factory, FACTORY_ABI, s);
 
     var fee = BigInt(CONFIG.launchFee);
@@ -199,7 +226,7 @@
       [me, params.symbol || '', params.name || '', String(Date.now())].join('|')
     );
 
-    var tx = await factory.launchToken(
+    var args = [
       {
         name: String(params.name || ''),
         symbol: String(params.symbol || ''),
@@ -216,10 +243,23 @@
       },
       CONFIG.launchConfigId,
       CONFIG.dexId,
-      salt,
-      { value: fee + devBuy }
-    );
+      salt
+    ];
+    var overrides = { value: fee + devBuy };
 
+    /* Simulate before asking for a signature. A failure here still carries the
+       contract's own error, so the user reads "LaunchDisabled" rather than a
+       wallet's paraphrase of a failed gas estimate. */
+    try {
+      await factory.launchToken.staticCall.apply(null, args.concat([overrides]));
+    } catch (e) {
+      var named = null;
+      try { named = factory.interface.parseError(e.data || (e.info && e.info.error && e.info.error.data)); } catch (x) {}
+      throw new Error(named ? ('The launchpad refused this launch: ' + named.name)
+                            : (e.shortMessage || e.reason || e.message));
+    }
+
+    var tx = await factory.launchToken.apply(null, args.concat([overrides]));
     var receipt = await tx.wait();
     var launched = null;
     for (var i = 0; i < receipt.logs.length; i++) {

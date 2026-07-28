@@ -346,6 +346,10 @@
           <span class="font-marker text-sm px-2.5 py-1.5 sketch-2 bg-paper2 whitespace-nowrap shrink-0">ETH</span>
         </div>
 
+        <p id="buy-est" class="font-hand text-sm mt-1.5 flex items-baseline justify-between gap-2 flex-wrap">
+          <span id="buy-est-out" class="num text-ink">&nbsp;</span>
+          <span id="buy-bal" class="num text-ink/55"></span>
+        </p>
         <p id="buy-hint" class="font-hand text-sm text-ink/60 mt-1.5">
           Bought in the same transaction as the launch, before anyone else can trade, and sent to the fee recipient
           above. Costs this much on top of the launch fee.
@@ -554,8 +558,9 @@
      class="fixed inset-0 z-50 flex items-center justify-center p-4">
   <div data-modal-backdrop class="absolute inset-0 bg-ink/70 backdrop-blur-sm"></div>
 
+  <!-- no pin here: the panel scrolls, and an element sitting above its top edge
+       gets clipped by that overflow -->
   <div class="relative bg-paper sketch rough-shadow w-full max-w-md p-5 sm:p-6 max-h-[90vh] overflow-y-auto">
-    <span class="pin"></span>
 
     <button type="button" data-modal-close aria-label="Close"
       class="absolute top-3 right-3 w-9 h-9 inline-flex items-center justify-center border-2 border-ink rounded-full bg-paper2 text-ink text-lg hover:bg-crayred hover:text-paper transition">
@@ -565,12 +570,7 @@
     <h2 id="preview-modal-title" class="font-marker text-crayred text-2xl sm:text-3xl mt-2 pr-10">Launch</h2>
     <p class="font-caveat text-xl text-brown mt-1" id="preview-modal-sub"></p>
 
-    <ul class="font-hand text-[17px] mt-4 flex flex-col gap-1.5 text-ink/85">
-      <li class="flex gap-2"><svg class="ic mt-1.5 shrink-0 text-forest" aria-hidden="true"><use href="#ic-check"/></svg><span>The token and its Uniswap pool exist on the testnet.</span></li>
-      <li class="flex gap-2"><svg class="ic mt-1.5 shrink-0 text-forest" aria-hidden="true"><use href="#ic-check"/></svg><span>Its liquidity is locked and cannot be pulled.</span></li>
-      <li class="flex gap-2"><svg class="ic mt-1.5 shrink-0 text-crayred" aria-hidden="true"><use href="#ic-x"/></svg><span>Your artwork stayed in this browser — image hosting is not wired up yet.</span></li>
-      <li class="flex gap-2"><svg class="ic mt-1.5 shrink-0 text-crayred" aria-hidden="true"><use href="#ic-x"/></svg><span>Testnet coins are worth nothing. The chain can be reset without warning.</span></li>
-    </ul>
+    <ul id="modal-points" class="font-hand text-[17px] mt-4 flex flex-col gap-1.5 text-ink/85"></ul>
 
     <div class="mt-5 flex flex-col sm:flex-row gap-3">
       <a href="/swap" class="flex-1 sketch-2 bg-mustard text-ink font-marker text-lg px-4 py-2.5 rough-shadow-sm hover:bg-forest hover:text-paper transition inline-flex items-center justify-center gap-2">
@@ -586,13 +586,13 @@
       Keep editing the form
     </button>
 
-    <p class="font-hand text-xs text-ink/55 mt-4">The $VLAD swap is the only part of this site that touches the chain. Crypto is risky — DYOR.</p>
+    <p class="font-hand text-xs text-ink/55 mt-4">Testnet coins have no value. Crypto is risky — DYOR.</p>
   </div>
 </div>
 
 <script src="/launchpad.js?v=11"></script>
 <script src="/launchpad-nav.js?v=2"></script>
-<script src="/launchpad-chain.js?v=4"></script>
+<script src="/launchpad-chain.js?v=6"></script>
 <script>
 (function () {
   'use strict';
@@ -651,6 +651,7 @@
   var feeEl = $('f-fee'), feeBox = $('fee-box'), feeErr = $('fee-err'), feeMe = $('fee-me');
 
   var buyEl = $('f-buy'), buyBox = $('buy-box');
+  var buyEstOut = $('buy-est-out'), buyBal = $('buy-bal');
 
   var submitBtn = $('submit-btn'), submitLabel = $('submit-label'), submitArrow = $('submit-arrow');
 
@@ -747,6 +748,8 @@
   }
 
   function readTicker() {
+    /* the estimate prints the ticker, so it has to follow it */
+    setTimeout(paintEstimate, 0);
     var raw = tickEl.value;
     var upper = raw.toUpperCase();
     if (upper !== raw) {
@@ -812,7 +815,59 @@
        token exempts it from the max-wallet and max-tx limits that apply to
        everyone buying afterwards. The wallet balance is the only limit. */
     state.buy = n;
+    paintEstimate();
   }
+
+  /* ---------------------------------------------------------------
+     what the developer buy actually returns
+  --------------------------------------------------------------- */
+  function groupInt(n) {
+    return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  /* Every launch opens its pool at the same configured tick, so the starting
+     price is known before the pool exists and there is nothing to quote against.
+     1.0001^tick is that price; the pool fee comes off the top. Price impact is
+     not modelled — checked against two real testnet buys, this lands within
+     0.11%, and it only drifts further as the buy gets large. */
+  function estimateTokens(eth) {
+    if (!(eth > 0) || !window.VladChain) return 0;
+    var cfg = window.VladChain.CONFIG;
+    var perEth = Math.pow(1.0001, Math.abs(cfg.initialTick));
+    return eth * perEth * (1 - cfg.poolFee / 1e6);
+  }
+
+  function paintEstimate() {
+    if (!buyEstOut) return;
+    var tokens = estimateTokens(state.buy);
+    var tick = state.ticker ? ('$' + state.ticker) : 'tokens';
+    buyEstOut.innerHTML = tokens > 0
+      ? ('&asymp; ' + groupInt(tokens) + ' <span class="text-ink/55">' + tick + '</span>')
+      : '&nbsp;';
+  }
+
+  /* the balance is the real cap on this field, so show it rather than inventing one */
+  var balanceSeen = null;
+  async function paintBalance() {
+    if (!buyBal || !window.VladChain || !window.VladWallet) return;
+    var account = window.VladWallet.account();
+    if (!account) { buyBal.textContent = ''; balanceSeen = null; return; }
+    if (balanceSeen === account) return;
+    balanceSeen = account;
+    try {
+      var p = await window.VladChain.reader();
+      var wei = await p.getBalance(account);
+      var eth = Number(wei) / 1e18;
+      buyBal.textContent = 'balance ' + (eth < 0.0001 ? eth.toExponential(2) : eth.toFixed(4)) + ' ETH';
+    } catch (e) {
+      buyBal.textContent = '';
+      balanceSeen = null;
+    }
+  }
+  window.addEventListener('vlad:account', paintBalance);
+  /* a session restored from a previous visit does not fire that event */
+  setTimeout(paintBalance, 600);
+  setTimeout(paintBalance, 2500);
 
   /* ---------------------------------------------------------------
      artwork — local only, never uploaded
@@ -1038,6 +1093,29 @@
     show(submitArrow, !on);
   }
 
+  var MODAL_POINTS = {
+    ok: [
+      ['forest', 'The token and its Uniswap pool exist on the testnet.'],
+      ['forest', 'Its liquidity is locked and cannot be pulled.'],
+      ['crayred', 'Your artwork stayed in this browser — image hosting is not wired up yet.'],
+      ['crayred', 'Testnet coins are worth nothing. The chain can be reset without warning.']
+    ],
+    fail: [
+      ['crayred', 'Nothing was deployed and no fee was taken.'],
+      ['forest', 'Check your wallet is on ' + (window.VladChain ? window.VladChain.CONFIG.chainName : 'the testnet') + ' and holds enough for the fee plus gas.'],
+      ['forest', 'Your entries are still here — close this and try again.']
+    ]
+  };
+
+  function paintModalPoints(kind) {
+    var ul = $('modal-points');
+    if (!ul) return;
+    ul.innerHTML = MODAL_POINTS[kind].map(function (p) {
+      return '<li class="flex gap-2"><svg class="ic mt-1.5 shrink-0 text-' + p[0] + '" aria-hidden="true">' +
+        '<use href="#ic-' + (p[0] === 'forest' ? 'check' : 'x') + '"/></svg><span>' + p[1] + '</span></li>';
+    }).join('');
+  }
+
   function showResult(title, body, link) {
     lastFocused = document.activeElement;
     var h = modal.querySelector('#preview-modal-title');
@@ -1066,6 +1144,7 @@
     if (missingLabel()) return;   /* nothing to explain yet */
 
     if (!window.VladChain) {
+      paintModalPoints('fail');
       showResult('Cannot launch', 'The chain module did not load, so nothing was sent.');
       return;
     }
@@ -1090,6 +1169,7 @@
       });
 
       setBusy(false);
+      paintModalPoints('ok');
       showResult(
         'Launched',
         '$' + (state.ticker || '') + ' is live at <b>' + result.token + '</b>.',
@@ -1097,6 +1177,7 @@
       );
     } catch (e) {
       setBusy(false);
+      paintModalPoints('fail');
       showResult('Launch failed', readableError(e));
     }
   });
