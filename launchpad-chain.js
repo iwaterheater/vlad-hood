@@ -1,0 +1,340 @@
+/* ============================================================
+   VLADHOOD LAUNCHPAD — the chain half.
+
+   Everything the launchpad pages need to read from and write to the
+   deployed contracts. Loads ethers from a CDN on first use, so a page
+   that only ever reads demo data pays nothing for it.
+
+   Exposes window.VladChain:
+     .CONFIG            the deployment: chain, rpc, addresses, launch fee
+     .ready()           resolves once ethers is loaded
+     .reader()          read-only provider, no wallet needed
+     .signer()          signer from the connected wallet, switching chain first
+     .ensureChain()     asks the wallet to switch to (or add) the chain
+     .launch(params)    sends launchToken, resolves to {hash, token, pool}
+     .listTokens()      every token launched here, newest first
+     .tokenInfo(addr)   one token: metadata, supply, pool, price, market cap
+     .evmBlockNumber()  block.number AS A CONTRACT SEES IT — see the note below
+
+   >>> Robinhood Chain reports two different block heights. <<<
+   eth_blockNumber and the block.number a contract reads are not the same
+   value — measured on the testnet, 94,248,962 against 11,367,095. Launch
+   tokens block pool buys during their launch block and cap them for a few
+   blocks after, so any countdown over that window MUST use evmBlockNumber().
+   Comparing against the RPC height is wrong by tens of millions.
+
+   Vanilla JS, IIFE, one lazy dependency.
+   ============================================================ */
+(function () {
+  'use strict';
+
+  var ETHERS_CDN = 'https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js';
+
+  var CONFIG = {
+    chainId: 46630,
+    chainIdHex: '0xb626',
+    chainName: 'Robinhood Chain Testnet',
+    rpc: 'https://rpc.testnet.chain.robinhood.com',
+    currency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+    explorer: '',
+    contracts: {
+      factory: '0x1a12745727fdc70046ac2a242A449b37403aeAb3',
+      locker: '0x0C4AF79921aE71911e28ED2247DfE899c7AA9b6b'
+    },
+    uniswap: {
+      factory: '0x2237B2e256B957c478773C7213BEA489867F7C47',
+      positionManager: '0x2C03bee99EA556333B06D9f7208D0C488EC183C8',
+      swapRouter: '0x6e3d348166b9dDE078B6Ae4714A2669Cb209C825',
+      quoter: '0x0530404DcE91A97f68e21211EC53437492f45AB1',
+      weth: '0xa94f9cC9617bc6aa03ad7A835D168BcD15125a40'
+    },
+    launchFee: '500000000000000',      /* 0.0005 ETH */
+    dexId: 0,
+    launchConfigId: 0,
+    poolFee: 10000,
+    supply: '1000000000000000000000000000',
+    graduationThreshold: '4200000000000000000',
+    protocolFeeShare: 30
+  };
+
+  var FACTORY_ABI = [
+    'function launchToken((string name,string symbol,string logo,string description,(string twitter,string telegram,string discord,string website,string farcaster) socials,address feeWallet) params, uint256 launchConfigId, uint256 dexId, bytes32 salt) payable returns (address)',
+    'function getLaunchedToken(address token) view returns ((address token,address deployer,address pairedToken,address positionManager,uint256 positionId,uint256 dexId,uint256 launchConfigId,uint256 restrictionsEndBlock,uint256 supply,bool isToken0,uint24 poolFee,bool exists,uint256 initialBuyAmount))',
+    'function launchFee() view returns (uint256)',
+    'function launchEnabled() view returns (bool)',
+    'event TokenDeployed(address indexed token, address indexed deployer, address indexed dexFactory, address pairToken, uint256 dexId, uint256 launchConfigId)',
+    'event TokenLaunched(address indexed token, address indexed deployer, address indexed dexFactory, address pairToken, address pool, uint256 dexId, uint256 launchConfigId, uint256 positionId, uint256 restrictionsEndBlock, uint256 initialBuyAmount)'
+  ];
+
+  var TOKEN_ABI = [
+    'function name() view returns (string)',
+    'function symbol() view returns (string)',
+    'function decimals() view returns (uint8)',
+    'function totalSupply() view returns (uint256)',
+    'function getTokenInfo() view returns (address tokenDeployer, string tokenLogo, string tokenDescription, (string twitter,string telegram,string discord,string website,string farcaster) tokenSocials)',
+    'function restrictionEndBlock() view returns (uint256)',
+    'function launchBlock() view returns (uint256)',
+    'function liquidityPool() view returns (address)'
+  ];
+
+  var POOL_ABI = [
+    'function slot0() view returns (uint160 sqrtPriceX96,int24 tick,uint16,uint16,uint16,uint8,bool)',
+    'function token0() view returns (address)',
+    'function token1() view returns (address)'
+  ];
+
+  var LOCKER_ABI = [
+    'function feeRecipientOf(address token) view returns (address)',
+    'function takenOver(address token) view returns (bool)',
+    'function collectFees(address token) returns (uint256,uint256)'
+  ];
+
+  /* ---------------------------------------------------------------
+     lazy dependency
+  --------------------------------------------------------------- */
+  var readyPromise = null;
+
+  function ready() {
+    if (readyPromise) return readyPromise;
+    readyPromise = new Promise(function (resolve, reject) {
+      if (window.ethers) { resolve(window.ethers); return; }
+      var s = document.createElement('script');
+      s.src = ETHERS_CDN;
+      s.async = true;
+      s.onload = function () {
+        if (window.ethers) resolve(window.ethers);
+        else reject(new Error('ethers loaded but did not register'));
+      };
+      s.onerror = function () { reject(new Error('could not load ethers from the CDN')); };
+      document.head.appendChild(s);
+    });
+    return readyPromise;
+  }
+
+  var _reader = null;
+
+  async function reader() {
+    var ethers = await ready();
+    if (!_reader) _reader = new ethers.JsonRpcProvider(CONFIG.rpc, CONFIG.chainId, { staticNetwork: true });
+    return _reader;
+  }
+
+  /* The height a contract sees, which is not the height eth_blockNumber
+     reports on this chain. Bytecode: NUMBER PUSH0 MSTORE PUSH1 32 PUSH0 RETURN. */
+  async function evmBlockNumber() {
+    var p = await reader();
+    var raw = await p.call({ data: '0x435f5260205ff3' });
+    return BigInt(raw);
+  }
+
+  /* ---------------------------------------------------------------
+     wallet
+  --------------------------------------------------------------- */
+  function walletProvider() {
+    /* launchpad-nav.js owns wallet selection; fall back to the injected one */
+    if (window.VladWallet && window.VladWallet.provider()) return window.VladWallet.provider();
+    return window.ethereum || null;
+  }
+
+  async function ensureChain() {
+    var eth = walletProvider();
+    if (!eth) throw new Error('No wallet found. Install one, then reload this page.');
+    var current = await eth.request({ method: 'eth_chainId' });
+    if (String(current).toLowerCase() === CONFIG.chainIdHex) return;
+
+    try {
+      await eth.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: CONFIG.chainIdHex }]
+      });
+    } catch (e) {
+      /* 4902: the wallet does not know this chain yet */
+      if (e && (e.code === 4902 || (e.data && e.data.originalError && e.data.originalError.code === 4902))) {
+        await eth.request({
+          method: 'wallet_addEthereumChain',
+          params: [{
+            chainId: CONFIG.chainIdHex,
+            chainName: CONFIG.chainName,
+            rpcUrls: [CONFIG.rpc],
+            nativeCurrency: CONFIG.currency,
+            blockExplorerUrls: CONFIG.explorer ? [CONFIG.explorer] : undefined
+          }]
+        });
+        return;
+      }
+      throw e;
+    }
+  }
+
+  async function signer() {
+    var ethers = await ready();
+    var eth = walletProvider();
+    if (!eth) throw new Error('No wallet found. Install one, then reload this page.');
+    await eth.request({ method: 'eth_requestAccounts' });
+    await ensureChain();
+    var provider = new ethers.BrowserProvider(eth, 'any');
+    return provider.getSigner();
+  }
+
+  /* ---------------------------------------------------------------
+     writing
+  --------------------------------------------------------------- */
+  /**
+   * Launches a token. `params` takes { name, symbol, logo, description,
+   * twitter, telegram, website, feeWallet, devBuyEth }.
+   * The dev buy is any value sent above the launch fee.
+   */
+  async function launch(params) {
+    var ethers = await ready();
+    var s = await signer();
+    var factory = new ethers.Contract(CONFIG.contracts.factory, FACTORY_ABI, s);
+
+    var fee = BigInt(CONFIG.launchFee);
+    var devBuy = params.devBuyEth ? ethers.parseEther(String(params.devBuyEth)) : 0n;
+    var me = await s.getAddress();
+
+    /* the salt only has to be unique per token; the address is derived from it */
+    var salt = ethers.id(
+      [me, params.symbol || '', params.name || '', String(Date.now())].join('|')
+    );
+
+    var tx = await factory.launchToken(
+      {
+        name: String(params.name || ''),
+        symbol: String(params.symbol || ''),
+        logo: String(params.logo || ''),
+        description: String(params.description || ''),
+        socials: {
+          twitter: String(params.twitter || ''),
+          telegram: String(params.telegram || ''),
+          discord: '',
+          website: String(params.website || ''),
+          farcaster: ''
+        },
+        feeWallet: params.feeWallet || me
+      },
+      CONFIG.launchConfigId,
+      CONFIG.dexId,
+      salt,
+      { value: fee + devBuy }
+    );
+
+    var receipt = await tx.wait();
+    var launched = null;
+    for (var i = 0; i < receipt.logs.length; i++) {
+      try {
+        var parsed = factory.interface.parseLog(receipt.logs[i]);
+        if (parsed && parsed.name === 'TokenLaunched') { launched = parsed.args; break; }
+        if (parsed && parsed.name === 'TokenDeployed' && !launched) launched = parsed.args;
+      } catch (e) { /* not one of ours */ }
+    }
+
+    return {
+      hash: receipt.hash,
+      token: launched ? launched.token : null,
+      pool: launched && launched.pool ? launched.pool : null
+    };
+  }
+
+  /* ---------------------------------------------------------------
+     reading
+  --------------------------------------------------------------- */
+  async function listTokens(limit) {
+    var ethers = await ready();
+    var p = await reader();
+    var factory = new ethers.Contract(CONFIG.contracts.factory, FACTORY_ABI, p);
+    var events = await factory.queryFilter(factory.filters.TokenLaunched(), 0, 'latest');
+    events.reverse();
+    if (limit) events = events.slice(0, limit);
+    return events.map(function (e) {
+      return {
+        token: e.args.token,
+        deployer: e.args.deployer,
+        pool: e.args.pool,
+        pairToken: e.args.pairToken,
+        positionId: e.args.positionId,
+        blockNumber: e.blockNumber,
+        txHash: e.transactionHash
+      };
+    });
+  }
+
+  /* price of one token in the paired asset, from the pool's current tick */
+  function priceFromSqrt(sqrtPriceX96, tokenIsToken0) {
+    var q96 = 2n ** 96n;
+    var num = sqrtPriceX96 * sqrtPriceX96;
+    /* token1 per token0, scaled by 1e18 to keep precision in integers */
+    var priceX = (num * 10n ** 18n) / (q96 * q96);
+    var asFloat = Number(priceX) / 1e18;
+    if (!tokenIsToken0) return asFloat === 0 ? 0 : 1 / asFloat;
+    return asFloat;
+  }
+
+  async function tokenInfo(address) {
+    var ethers = await ready();
+    var p = await reader();
+
+    var token = new ethers.Contract(address, TOKEN_ABI, p);
+    var factory = new ethers.Contract(CONFIG.contracts.factory, FACTORY_ABI, p);
+    var locker = new ethers.Contract(CONFIG.contracts.locker, LOCKER_ABI, p);
+
+    var results = await Promise.all([
+      token.name(), token.symbol(), token.totalSupply(), token.getTokenInfo(),
+      token.restrictionEndBlock(), factory.getLaunchedToken(address),
+      locker.feeRecipientOf(address).catch(function () { return null; }),
+      locker.takenOver(address).catch(function () { return false; })
+    ]);
+
+    var record = results[5];
+    var info = {
+      address: address,
+      name: results[0],
+      symbol: results[1],
+      totalSupply: results[2],
+      deployer: results[3][0],
+      logo: results[3][1],
+      description: results[3][2],
+      socials: {
+        twitter: results[3][3][0], telegram: results[3][3][1],
+        discord: results[3][3][2], website: results[3][3][3], farcaster: results[3][3][4]
+      },
+      restrictionEndBlock: results[4],
+      feeRecipient: results[6],
+      takenOver: results[7],
+      isToken0: record ? record.isToken0 : null,
+      positionId: record ? record.positionId : null,
+      pool: null,
+      priceInPair: null,
+      marketCapInPair: null
+    };
+
+    try {
+      var v3 = new ethers.Contract(CONFIG.uniswap.factory, [
+        'function getPool(address,address,uint24) view returns (address)'
+      ], p);
+      info.pool = await v3.getPool(address, CONFIG.uniswap.weth, CONFIG.poolFee);
+      if (info.pool && info.pool !== ethers.ZeroAddress) {
+        var pool = new ethers.Contract(info.pool, POOL_ABI, p);
+        var slot0 = await pool.slot0();
+        var token0 = await pool.token0();
+        var isToken0 = token0.toLowerCase() === address.toLowerCase();
+        info.priceInPair = priceFromSqrt(slot0.sqrtPriceX96, isToken0);
+        info.marketCapInPair = info.priceInPair * (Number(info.totalSupply) / 1e18);
+      }
+    } catch (e) { /* pool not readable yet */ }
+
+    return info;
+  }
+
+  window.VladChain = {
+    CONFIG: CONFIG,
+    ready: ready,
+    reader: reader,
+    signer: signer,
+    ensureChain: ensureChain,
+    evmBlockNumber: evmBlockNumber,
+    launch: launch,
+    listTokens: listTokens,
+    tokenInfo: tokenInfo
+  };
+})();

@@ -537,8 +537,8 @@
       <svg class="ic" aria-hidden="true"><use href="#ic-x"/></svg>
     </button>
 
-    <h2 id="preview-modal-title" class="font-marker text-crayred text-2xl sm:text-3xl mt-2 pr-10">Nothing was launched</h2>
-    <p class="font-caveat text-xl text-brown mt-1" id="preview-modal-sub">UI preview — nothing is deployed.</p>
+    <h2 id="preview-modal-title" class="font-marker text-crayred text-2xl sm:text-3xl mt-2 pr-10">Launch</h2>
+    <p class="font-caveat text-xl text-brown mt-1" id="preview-modal-sub"></p>
 
     <div class="mt-4 space-y-3 font-hand text-lg text-ink/85 leading-snug">
       <p data-modal-copy>The Vladhood Launchpad is a front-end preview. There are no launchpad smart contracts, no escrow wallet and no token sale running, so this button cannot deploy a token, take a payment or reserve an allocation.</p>
@@ -572,7 +572,8 @@
 </div>
 
 <script src="/launchpad.js?v=11"></script>
-<script src="/launchpad-nav.js?v=1"></script>
+<script src="/launchpad-nav.js?v=2"></script>
+<script src="/launchpad-chain.js?v=1"></script>
 <script>
 (function () {
   'use strict';
@@ -983,10 +984,73 @@
     lastFocused = null;
   }
 
-  form.addEventListener('submit', function (ev) {
+  /* ---------------------------------------------------------------
+     launching for real
+  --------------------------------------------------------------- */
+  function setBusy(on, label) {
+    submitBtn.disabled = on || !!missingLabel();
+    if (submitLabel) submitLabel.textContent = label || (on ? 'Launching…' : 'Launch token');
+    show(submitArrow, !on);
+  }
+
+  function showResult(title, body, link) {
+    lastFocused = document.activeElement;
+    var h = modal.querySelector('#preview-modal-title');
+    if (h) h.textContent = title;
+    modalSub.innerHTML = body + (link
+      ? ' <a class="underline decoration-wavy decoration-mustard" href="' + link + '">Open the token page</a>.'
+      : '');
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    var closeBtn = modal.querySelector('[data-modal-close]');
+    if (closeBtn) closeBtn.focus();
+  }
+
+  /* Wallets phrase a rejection a dozen ways; anything else is worth showing
+     verbatim, because a guessed message hides the actual cause. */
+  function readableError(e) {
+    var code = e && (e.code || (e.info && e.info.error && e.info.error.code));
+    if (code === 4001 || code === 'ACTION_REJECTED') return 'You rejected the transaction in your wallet.';
+    var msg = (e && (e.shortMessage || e.reason || e.message)) || String(e);
+    if (/insufficient funds/i.test(msg)) return 'Not enough ETH for the launch fee plus gas.';
+    return msg;
+  }
+
+  form.addEventListener('submit', async function (ev) {
     ev.preventDefault();
     if (missingLabel()) return;   /* nothing to explain yet */
-    openModal();
+
+    if (!window.VladChain) {
+      showResult('Cannot launch', 'The chain module did not load, so nothing was sent.');
+      return;
+    }
+
+    setBusy(true, 'Confirm in wallet…');
+    try {
+      var result = await window.VladChain.launch({
+        name: state.name,
+        symbol: state.ticker,
+        description: state.desc,
+        /* The contract stores a logo URL, the form takes a file, and there is
+           nowhere to put it yet — image hosting is the missing piece, not this
+           call. Launching without one works; the token just has no picture. */
+        logo: '',
+        twitter: state.x || '',
+        telegram: state.tg || '',
+        website: '',
+        devBuyEth: state.buy || 0
+      });
+
+      setBusy(false);
+      showResult(
+        'Launched',
+        '$' + (state.ticker || '') + ' is live at <b>' + result.token + '</b>.',
+        result.token ? ('/launchpad/meme.html?id=' + encodeURIComponent(result.token)) : ''
+      );
+    } catch (e) {
+      setBusy(false);
+      showResult('Launch failed', readableError(e));
+    }
   });
 
   document.addEventListener('click', function (ev) {

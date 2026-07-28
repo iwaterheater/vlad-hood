@@ -426,6 +426,15 @@
     setTimeout(tryRestore, 120);
   }
 
+  /* The wallet this module picked, for anything else on the page that needs to
+     sign — launchpad-chain.js reads it rather than reaching for window.ethereum,
+     so a user with several wallets installed keeps the one they chose. */
+  window.VladWallet = {
+    provider: function () { return chosen || window.ethereum || null; },
+    account: function () { return account; },
+    connect: connect
+  };
+
   /* ---------------------------------------------------------------
      mount
   --------------------------------------------------------------- */
