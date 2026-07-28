@@ -181,7 +181,8 @@
   --------------------------------------------------------------- */
   /**
    * Launches a token. `params` takes { name, symbol, logo, description,
-   * twitter, telegram, website, feeWallet, devBuyEth }.
+   * twitter, telegram, discord, website, farcaster, feeWallet, devBuyEth } —
+   * the five socials are the five the token contract stores.
    * The dev buy is any value sent above the launch fee.
    */
   async function launch(params) {
@@ -207,9 +208,9 @@
         socials: {
           twitter: String(params.twitter || ''),
           telegram: String(params.telegram || ''),
-          discord: '',
+          discord: String(params.discord || ''),
           website: String(params.website || ''),
-          farcaster: ''
+          farcaster: String(params.farcaster || '')
         },
         feeWallet: params.feeWallet || me
       },
