@@ -389,7 +389,7 @@
         <summary class="flex items-center justify-between gap-2 px-3.5 py-2.5">
           <span class="font-marker text-lg text-ink">Advanced</span>
           <span class="font-hand text-sm text-ink/55 inline-flex items-center gap-2">
-            preview only
+            fee wallet
             <svg class="ic knobs-chev text-xl" aria-hidden="true"><use href="#ic-chev"/></svg>
           </span>
         </summary>
@@ -401,7 +401,21 @@
               <input id="f-supply" class="bare font-marker text-xl num min-w-0" type="text" value="1,000,000,000" readonly aria-readonly="true" />
               <span class="font-hand text-sm px-2 py-1 sketch-2 bg-paper2 whitespace-nowrap shrink-0">tokens</span>
             </div>
-            <p class="font-hand text-sm text-ink/60 mt-1.5">Fixed in this preview — the field is read-only because there is no contract to configure.</p>
+            <p class="font-hand text-sm text-ink/60 mt-1.5">Set by the launchpad, the same for every token, and minted once — the supply can never grow.</p>
+          </div>
+
+          <div class="mt-4">
+            <label for="f-fee" class="font-hand text-[17px] text-ink/80">Fee recipient</label>
+            <div id="fee-box" class="box sketch-2 px-3 py-2 mt-1 flex items-center gap-2" style="box-shadow:none">
+              <input id="f-fee" class="bare font-hand text-base num min-w-0" type="text" placeholder="0x… (defaults to your wallet)"
+                     autocomplete="off" spellcheck="false" maxlength="42" />
+              <button type="button" id="fee-me" class="font-marker text-xs px-2 py-1 sketch-2 bg-paper2 hover:bg-mustard transition whitespace-nowrap shrink-0">Me</button>
+            </div>
+            <p id="fee-err" class="font-hand text-sm text-crayred mt-0.5" hidden>That is not a valid address.</p>
+            <p class="font-hand text-sm text-ink/60 mt-1.5">
+              Who collects this token's share of every trade, and who receives the developer buy. Set it once here —
+              afterwards only this wallet can move it.
+            </p>
           </div>
 
           <div class="mt-4">
@@ -418,11 +432,14 @@
                 <span class="font-marker num shrink-0">30%</span>
               </span>
             </div>
-            <p class="font-hand text-sm text-ink/60 mt-1.5">Illustrative split, not adjustable and not enforced by anything.</p>
+            <p class="font-hand text-sm text-ink/60 mt-1.5">
+              Split by the locker contract on every claim. Fixed per token when it launches, so a later change to the
+              platform's share never re-prices a token that already exists.
+            </p>
           </div>
 
           <p class="font-caveat text-lg text-brown mt-4 leading-tight">
-            these knobs are drawings — they configure nothing
+            liquidity is locked at launch — nobody, including the platform, can pull it
           </p>
         </div>
       </details>
@@ -434,7 +451,7 @@
             <svg class="ic text-xl text-brown" aria-hidden="true"><use href="#ic-gas"/></svg>
             Uniswap &middot; ETH 0.0005 due
           </span>
-          <span class="font-caveat text-lg text-brown">illustrative figure</span>
+          <span class="font-caveat text-lg text-brown">plus gas</span>
         </div>
 
         <button type="submit" id="submit-btn" disabled
@@ -610,7 +627,7 @@
 
 <script src="/launchpad.js?v=11"></script>
 <script src="/launchpad-nav.js?v=2"></script>
-<script src="/launchpad-chain.js?v=2"></script>
+<script src="/launchpad-chain.js?v=3"></script>
 <script>
 (function () {
   'use strict';
@@ -667,6 +684,7 @@
 
 
   var webEl = $('f-web'), dcEl = $('f-dc'), fcEl = $('f-fc');
+  var feeEl = $('f-fee'), feeBox = $('fee-box'), feeErr = $('fee-err'), feeMe = $('fee-me');
 
   var buyEl = $('f-buy'), buyBox = $('buy-box'), buyMaxBtn = $('buy-max'), buyErr = $('buy-err');
   var buyMaxTxt = $('buy-max-txt');
@@ -747,7 +765,7 @@
      state
   --------------------------------------------------------------- */
   var state = {
-    web: '', dc: '', fc: '',
+    web: '', dc: '', fc: '', fee: '', feeBad: false,
     name: '', ticker: '', desc: '',
     descBad: false,
     file: null, fileUrl: '',
@@ -813,6 +831,19 @@
     var fv = fcEl.value.replace(/^@+/, '').replace(/[^A-Za-z0-9_.-]+/g, '');
     if (fv !== fcEl.value) fcEl.value = fv;
     state.fc = fv;
+  }
+
+  /* An address typed by hand is the one field here that can silently send the
+     fee stream somewhere unrecoverable, so it is checked before the launch, not
+     after. Empty means "my wallet", which the contract resolves on its side. */
+  function readFee() {
+    var v = feeEl.value.trim().replace(/\s+/g, '');
+    if (v && !/^0x/i.test(v) && /^[0-9a-fA-F]{40}$/.test(v)) v = '0x' + v;
+    if (v !== feeEl.value) feeEl.value = v;
+    state.fee = v;
+    state.feeBad = v.length > 0 && !/^0x[0-9a-fA-F]{40}$/.test(v);
+    show(feeErr, state.feeBad);
+    bad(feeBox, state.feeBad);
   }
 
   function readBuy() {
@@ -934,6 +965,7 @@
   function missingLabel() {
     if (!state.name) return 'Add a name';
     if (!state.ticker) return 'Add a ticker';
+    if (state.feeBad) return 'Fix the fee recipient';
     if (state.descBad) return 'Remove the link';
     if (!consentEl.checked) return 'Confirm image upload';
     if (!state.file) return 'Add token image';
@@ -1005,6 +1037,13 @@
   on(descEl, readDesc);
   on(xEl, readSocials);
   on(tgEl, readSocials);
+  on(feeEl, readFee);
+  if (feeMe) feeMe.addEventListener('click', function () {
+    var a = window.VladWallet && window.VladWallet.account();
+    if (!a) { window.VladWallet && window.VladWallet.connect(); return; }
+    feeEl.value = a;
+    readFee(); render();
+  });
   on(webEl, readSocials);
   on(dcEl, readSocials);
   on(fcEl, readSocials);
@@ -1097,7 +1136,8 @@
         website: state.web ? ('https://' + state.web) : '',
         discord: state.dc ? ('https://discord.gg/' + state.dc) : '',
         farcaster: state.fc ? ('https://warpcast.com/' + state.fc) : '',
-        devBuyEth: state.buy || 0
+        devBuyEth: state.buy || 0,
+        feeWallet: state.fee || undefined
       });
 
       setBusy(false);
@@ -1131,7 +1171,7 @@
      first paint — honour values restored by the browser
   --------------------------------------------------------------- */
   setLocked(!consentEl.checked);
-  readName(); readTicker(); readDesc(); readSocials(); readBuy();
+  readName(); readTicker(); readDesc(); readSocials(); readFee(); readBuy();
   render();
 })();
 </script>
