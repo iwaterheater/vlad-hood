@@ -349,6 +349,19 @@
     if (!prov) return;
     chosen = prov;
     try {
+      /* Once a site has been permitted, eth_requestAccounts answers silently
+         with the account already granted — no picker, no way to choose another.
+         Asking for the permission again is what makes the wallet show its
+         account list, so reconnecting can actually change the account. Wallets
+         that do not implement it fall through to the plain request. */
+      try {
+        await prov.request({
+          method: 'wallet_requestPermissions',
+          params: [{ eth_accounts: {} }]
+        });
+      } catch (e) {
+        if (e && (e.code === 4001 || e.code === 'ACTION_REJECTED')) return;   /* picker dismissed */
+      }
       var accs = await prov.request({ method: 'eth_requestAccounts' });
       setAccount(accs && accs[0]);
       bind(prov);
@@ -389,13 +402,21 @@
         try { navigator.clipboard.writeText(account); } catch (e) {}
         closeMenu();
       });
-      menu.querySelector('[data-off]').addEventListener('click', function () {
-        /* a dapp cannot revoke access itself — this forgets the session and
-           the wallet stays connected in the extension until revoked there */
+      menu.querySelector('[data-off]').addEventListener('click', async function () {
+        var prov = chosen || window.ethereum;
+        closeMenu();
+        /* Forgetting the session locally is not enough: the wallet still has the
+           site permitted, so the next connect would hand back the same account
+           without asking. Revoking makes the next connect a real choice. Older
+           wallets have no such method, and there the local reset is all there is. */
+        if (prov && prov.request) {
+          try {
+            await prov.request({ method: 'wallet_revokePermissions', params: [{ eth_accounts: {} }] });
+          } catch (e) { /* not supported — the re-request on connect still shows the picker */ }
+        }
         chosen = null;
         try { localStorage.removeItem('vlad_wallet'); } catch (e) {}
         setAccount(null);
-        closeMenu();
       });
     });
 
