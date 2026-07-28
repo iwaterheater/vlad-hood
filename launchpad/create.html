@@ -454,10 +454,11 @@
             <span class="leader" aria-hidden="true"></span>
             <dd class="num shrink-0">0.0005 ETH</dd>
           </div>
-          <div class="flex items-baseline gap-1">
-            <dt class="text-ink/70 shrink-0" title="Share of every trade: 70% to the creator, 30% to the platform">Creator / platform</dt>
-            <span class="leader" aria-hidden="true"></span>
-            <dd class="num shrink-0">70 / 30</dd>
+          <!-- the only row whose value cannot share a line with its label in a
+               208px panel, so it sits underneath instead of being abbreviated -->
+          <div class="flex flex-col">
+            <dt class="text-ink/70">Trading fees</dt>
+            <dd class="num text-ink">70% creator / 30% platform</dd>
           </div>
           <div class="flex items-baseline gap-1">
             <dt class="text-ink/70 shrink-0">Graduation</dt>
