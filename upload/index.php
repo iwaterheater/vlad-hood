@@ -34,16 +34,6 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     fail('Post an image to this endpoint.', 405);
 }
 
-$configPath = __DIR__ . '/config.php';
-if (!is_file($configPath)) {
-    fail('Uploads are not configured on this server yet.', 503);
-}
-$config = require $configPath;
-$token = trim((string)($config['filebase_token'] ?? ''));
-if ($token === '') {
-    fail('Uploads are not configured on this server yet.', 503);
-}
-
 if (!isset($_FILES['image']) || !is_array($_FILES['image'])) {
     fail('No image was attached.');
 }
@@ -72,8 +62,31 @@ $info = @getimagesize($file['tmp_name']);
 if ($info === false || !isset(ALLOWED[$info[2]])) {
     fail('That file is not a PNG, JPEG, GIF or WebP image.');
 }
+
+/* getimagesize reads the header and stops, so a few magic bytes with anything
+   at all behind them satisfy it — "GIF89a" followed by PHP passes. Decoding the
+   whole thing is what actually settles whether it is an image. */
+$decoded = @imagecreatefromstring((string)file_get_contents($file['tmp_name']));
+if ($decoded === false) {
+    fail('That file starts like an image but does not decode as one.');
+}
+imagedestroy($decoded);
+
+if ($info[0] < 1 || $info[1] < 1 || $info[0] > 4096 || $info[1] > 4096) {
+    fail('Images must be between 1 and 4096 pixels on each side.');
+}
+
 $extension = ALLOWED[$info[2]];
 $mime = image_type_to_mime_type($info[2]);
+
+/* Checked here rather than first: a caller who sent the wrong file deserves to
+   hear that, not a message about server configuration they cannot act on. */
+$configPath = __DIR__ . '/config.php';
+$config = is_file($configPath) ? require $configPath : [];
+$token = trim((string)($config['filebase_token'] ?? ''));
+if ($token === '') {
+    fail('Uploads are not configured on this server yet.', 503);
+}
 
 $curl = curl_init('https://rpc.filebase.io/api/v0/add?cid-version=1');
 curl_setopt_array($curl, [
