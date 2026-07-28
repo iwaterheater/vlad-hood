@@ -412,7 +412,7 @@
 
 <script src="/launchpad.js?v=11"></script>
 <script src="/launchpad-nav.js?v=3"></script>
-<script src="/launchpad-chain.js?v=10"></script>
+<script src="/launchpad-chain.js?v=11"></script>
 <script>
 (async function () {
   'use strict';
@@ -587,15 +587,33 @@
 
   if (!meme) { showNotFound(); return; }
 
-  /* Nothing indexes this chain yet, so a real token has no trade history, no
-     holder table and no price series. Hiding those panels is the honest move:
-     the alternative is three panels of invented numbers on a page about a token
-     that exists. */
+  /* The pool's own Swap events carry the price they left behind, so the chart
+     and the trade list are real. A holder table is the one thing that genuinely
+     needs an indexer — every Transfer since launch — so that panel goes. */
   if (fromChain) {
-    ['#panel-chart', '#panel-holders', '#panel-tx'].forEach(function (sel) {
-      var el = $(sel);
-      if (el) el.remove();
-    });
+    var holdersPanel = $('#panel-holders');
+    if (holdersPanel) holdersPanel.remove();
+    try {
+      var history = await window.VladChain.priceHistory(meme.poolAddress, meme.contract);
+      meme.chart = history.map(function (d) { return { t: d.t, p: d.p }; });
+      meme.trades = history.slice().reverse().map(function (d) {
+        /* a swap that took the paired asset in was a buy of this token */
+        var paired = d.isToken0 ? d.amount1 : d.amount0;
+        return {
+          side: paired > 0n ? 'buy' : 'sell',
+          eth: Math.abs(Number(paired)) / 1e18,
+          amount: Math.abs(Number(d.isToken0 ? d.amount0 : d.amount1)) / 1e18,
+          ts: d.t,
+          tx: d.tx,
+          who: d.sender
+        };
+      });
+      if (meme.chart.length) {
+        meme.priceVlad = meme.chart[meme.chart.length - 1].p;
+        var first = meme.chart[0].p;
+        if (first > 0) meme.change24h = ((meme.priceVlad - first) / first) * 100;
+      }
+    } catch (e) { /* leave the panels to report an empty series themselves */ }
   }
 
   /* ---------------- derived values ---------------- */
@@ -868,7 +886,7 @@
     });
 
     if (data.length < 2) {
-      chartBox.innerHTML = '<p class="font-hand text-lg text-ink/60 text-center py-10">no chart points in the demo data</p>';
+      chartBox.innerHTML = '<p class="font-hand text-lg text-ink/60 text-center py-10">Not enough trades yet to draw a chart.</p>';
       $('#chartStats').innerHTML = '';
       return;
     }

@@ -478,7 +478,52 @@
     return usdRate;
   }
 
+  /* ---------------------------------------------------------------
+     price history
+  --------------------------------------------------------------- */
+  /* Every Uniswap V3 swap records the price it left the pool at, so the trade
+     log is the price history — no indexer required, just the pool's own events.
+     Block timestamps are fetched once per block rather than once per swap,
+     because a busy pool puts many swaps in one block. */
+  var SWAP_ABI = [
+    'event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)'
+  ];
+
+  async function priceHistory(pool, tokenAddress) {
+    var ethers = await ready();
+    var p = await reader();
+    if (!pool || pool === ethers.ZeroAddress) return [];
+
+    var poolC = new ethers.Contract(pool, SWAP_ABI.concat(['function token0() view returns (address)']), p);
+    var token0 = await poolC.token0();
+    var isToken0 = token0.toLowerCase() === String(tokenAddress).toLowerCase();
+
+    var events = await poolC.queryFilter(poolC.filters.Swap(), 0, 'latest');
+    if (!events.length) return [];
+
+    var blocks = {};
+    var unique = [];
+    events.forEach(function (e) { if (!(e.blockNumber in blocks)) { blocks[e.blockNumber] = null; unique.push(e.blockNumber); } });
+    var fetched = await Promise.all(unique.map(function (n) { return p.getBlock(n).catch(function () { return null; }); }));
+    unique.forEach(function (n, i) { blocks[n] = fetched[i] ? fetched[i].timestamp * 1000 : null; });
+
+    return events.map(function (e) {
+      return {
+        t: blocks[e.blockNumber],
+        p: priceFromSqrt(e.args.sqrtPriceX96, isToken0),
+        amount0: e.args.amount0,
+        amount1: e.args.amount1,
+        isToken0: isToken0,
+        sender: e.args.sender,
+        tx: e.transactionHash,
+        block: e.blockNumber
+      };
+    }).filter(function (d) { return d.t && isFinite(d.p) && d.p > 0; })
+      .sort(function (a, b) { return a.t - b.t; });
+  }
+
   window.VladChain = {
+    priceHistory: priceHistory,
     ethUsd: ethUsd,
     boardTokens: boardTokens,
     faceFor: faceFor,
