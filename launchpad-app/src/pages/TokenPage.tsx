@@ -6,6 +6,7 @@ import { usd, shortAddress, ago } from '../lib/format';
 import TokenArt from '../components/TokenArt';
 import PriceChart from '../components/PriceChart';
 import TradePanel from '../components/TradePanel';
+import { useHolders } from '../lib/useHolders';
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -22,6 +23,7 @@ export default function TokenPage() {
   const address = id && isAddress(id) ? (id as Address) : undefined;
   const { data: token, isLoading, error } = useToken(address);
   const { data: swaps } = useSwaps(token?.pool, address);
+  const { data: holderData } = useHolders(address, token?.pool, token?.totalSupply);
   const rate = useEthUsd();
 
   if (!address) {
@@ -124,9 +126,35 @@ export default function TokenPage() {
                   ))}
                 </div>
               )}
-              <p style={{ marginTop: '.7rem', fontSize: '.78rem', color: 'rgba(43,38,32,.55)' }}>
-                Holder counts need every Transfer since launch indexed, which nothing does on this chain yet.
+            </section>
+
+            <section className="sketch shadow-rough" style={{ background: 'var(--paper2)', padding: '1rem' }}>
+              <h2 className="marker" style={{ color: 'var(--forest)', margin: '0 0 .2rem', fontSize: '1.1rem' }}>
+                Holders {holderData ? `(${holderData.holders.length})` : ''}
+              </h2>
+              <p className="caveat" style={{ color: 'var(--brown)', margin: '0 0 .6rem' }}>
+                replayed from this token's transfer log
               </p>
+              {!holderData && <p style={{ color: 'rgba(43,38,32,.6)' }}>Reading transfers…</p>}
+              {holderData && holderData.holders.length === 0 && <p style={{ color: 'rgba(43,38,32,.6)' }}>No holders yet.</p>}
+              {holderData && holderData.holders.length > 0 && (
+                <div style={{ display: 'grid', gap: '.35rem' }}>
+                  {holderData.holders.slice(0, 15).map((h) => (
+                    <div key={h.address} className="num" style={{ display: 'flex', alignItems: 'center', gap: '.6rem', fontSize: '.85rem' }}>
+                      <span style={{ color: 'rgba(43,38,32,.7)', minWidth: '7rem' }}>{shortAddress(h.address)}</span>
+                      {h.label && <span className="caveat" style={{ color: 'var(--brown)' }}>{h.label}</span>}
+                      <span style={{ flex: 1, borderBottom: '1px dotted rgba(43,38,32,.25)' }} />
+                      <span>{h.share.toFixed(2)}%</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {holderData && (
+                <p style={{ marginTop: '.6rem', fontSize: '.78rem', color: 'rgba(43,38,32,.55)' }}>
+                  From {holderData.transfers} transfer{holderData.transfers === 1 ? '' : 's'}. Exact, not sampled —
+                  affordable because the log starts at this token's launch.
+                </p>
+              )}
             </section>
           </div>
 

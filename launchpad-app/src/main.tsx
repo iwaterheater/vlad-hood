@@ -29,7 +29,9 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider theme={vladhoodTheme} modalSize="compact">
+        {/* pinned: RainbowKit otherwise follows the browser language, so the
+            wallet dialog turned Russian while the rest of the page stayed English */}
+        <RainbowKitProvider theme={vladhoodTheme} modalSize="compact" locale="en-US">
           <App />
         </RainbowKitProvider>
       </QueryClientProvider>

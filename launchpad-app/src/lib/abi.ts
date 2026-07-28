@@ -51,6 +51,14 @@ export const tokenAbi = [
   { type: 'function', name: 'allowance', stateMutability: 'view', inputs: [{ type: 'address' }, { type: 'address' }], outputs: [{ type: 'uint256' }] },
   { type: 'function', name: 'restrictionEndBlock', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint256' }] },
   {
+    type: 'event', name: 'Transfer',
+    inputs: [
+      { name: 'from', type: 'address', indexed: true },
+      { name: 'to', type: 'address', indexed: true },
+      { name: 'value', type: 'uint256' },
+    ],
+  },
+  {
     type: 'function', name: 'getTokenInfo', stateMutability: 'view', inputs: [],
     outputs: [
       { name: 'tokenDeployer', type: 'address' },
