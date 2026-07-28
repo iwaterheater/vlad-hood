@@ -1,0 +1,113 @@
+export const factoryAbi = [
+  {
+    type: 'function', name: 'launchToken', stateMutability: 'payable',
+    inputs: [
+      { name: 'params', type: 'tuple', components: [
+        { name: 'name', type: 'string' },
+        { name: 'symbol', type: 'string' },
+        { name: 'logo', type: 'string' },
+        { name: 'description', type: 'string' },
+        { name: 'socials', type: 'tuple', components: [
+          { name: 'twitter', type: 'string' },
+          { name: 'telegram', type: 'string' },
+          { name: 'discord', type: 'string' },
+          { name: 'website', type: 'string' },
+          { name: 'farcaster', type: 'string' },
+        ] },
+        { name: 'feeWallet', type: 'address' },
+      ] },
+      { name: 'launchConfigId', type: 'uint256' },
+      { name: 'dexId', type: 'uint256' },
+      { name: 'salt', type: 'bytes32' },
+    ],
+    outputs: [{ type: 'address' }],
+  },
+  { type: 'function', name: 'launchFee', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint256' }] },
+  { type: 'function', name: 'launchEnabled', stateMutability: 'view', inputs: [], outputs: [{ type: 'bool' }] },
+  {
+    type: 'event', name: 'TokenLaunched',
+    inputs: [
+      { name: 'token', type: 'address', indexed: true },
+      { name: 'deployer', type: 'address', indexed: true },
+      { name: 'dexFactory', type: 'address', indexed: true },
+      { name: 'pairToken', type: 'address' },
+      { name: 'pool', type: 'address' },
+      { name: 'dexId', type: 'uint256' },
+      { name: 'launchConfigId', type: 'uint256' },
+      { name: 'positionId', type: 'uint256' },
+      { name: 'restrictionsEndBlock', type: 'uint256' },
+      { name: 'initialBuyAmount', type: 'uint256' },
+    ],
+  },
+] as const;
+
+export const tokenAbi = [
+  { type: 'function', name: 'name', stateMutability: 'view', inputs: [], outputs: [{ type: 'string' }] },
+  { type: 'function', name: 'symbol', stateMutability: 'view', inputs: [], outputs: [{ type: 'string' }] },
+  { type: 'function', name: 'decimals', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint8' }] },
+  { type: 'function', name: 'totalSupply', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint256' }] },
+  { type: 'function', name: 'balanceOf', stateMutability: 'view', inputs: [{ type: 'address' }], outputs: [{ type: 'uint256' }] },
+  { type: 'function', name: 'approve', stateMutability: 'nonpayable', inputs: [{ type: 'address' }, { type: 'uint256' }], outputs: [{ type: 'bool' }] },
+  { type: 'function', name: 'allowance', stateMutability: 'view', inputs: [{ type: 'address' }, { type: 'address' }], outputs: [{ type: 'uint256' }] },
+  { type: 'function', name: 'restrictionEndBlock', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint256' }] },
+  {
+    type: 'function', name: 'getTokenInfo', stateMutability: 'view', inputs: [],
+    outputs: [
+      { name: 'tokenDeployer', type: 'address' },
+      { name: 'tokenLogo', type: 'string' },
+      { name: 'tokenDescription', type: 'string' },
+      { name: 'tokenSocials', type: 'tuple', components: [
+        { name: 'twitter', type: 'string' },
+        { name: 'telegram', type: 'string' },
+        { name: 'discord', type: 'string' },
+        { name: 'website', type: 'string' },
+        { name: 'farcaster', type: 'string' },
+      ] },
+    ],
+  },
+] as const;
+
+export const poolAbi = [
+  {
+    type: 'function', name: 'slot0', stateMutability: 'view', inputs: [],
+    outputs: [
+      { name: 'sqrtPriceX96', type: 'uint160' }, { name: 'tick', type: 'int24' },
+      { type: 'uint16' }, { type: 'uint16' }, { type: 'uint16' }, { type: 'uint8' }, { type: 'bool' },
+    ],
+  },
+  { type: 'function', name: 'token0', stateMutability: 'view', inputs: [], outputs: [{ type: 'address' }] },
+  {
+    type: 'event', name: 'Swap',
+    inputs: [
+      { name: 'sender', type: 'address', indexed: true },
+      { name: 'recipient', type: 'address', indexed: true },
+      { name: 'amount0', type: 'int256' },
+      { name: 'amount1', type: 'int256' },
+      { name: 'sqrtPriceX96', type: 'uint160' },
+      { name: 'liquidity', type: 'uint128' },
+      { name: 'tick', type: 'int24' },
+    ],
+  },
+] as const;
+
+export const v3FactoryAbi = [
+  { type: 'function', name: 'getPool', stateMutability: 'view', inputs: [{ type: 'address' }, { type: 'address' }, { type: 'uint24' }], outputs: [{ type: 'address' }] },
+] as const;
+
+export const routerAbi = [
+  {
+    type: 'function', name: 'exactInputSingle', stateMutability: 'payable',
+    inputs: [{ name: 'params', type: 'tuple', components: [
+      { name: 'tokenIn', type: 'address' }, { name: 'tokenOut', type: 'address' },
+      { name: 'fee', type: 'uint24' }, { name: 'recipient', type: 'address' },
+      { name: 'amountIn', type: 'uint256' }, { name: 'amountOutMinimum', type: 'uint256' },
+      { name: 'sqrtPriceLimitX96', type: 'uint160' },
+    ] }],
+    outputs: [{ type: 'uint256' }],
+  },
+] as const;
+
+export const lockerAbi = [
+  { type: 'function', name: 'feeRecipientOf', stateMutability: 'view', inputs: [{ type: 'address' }], outputs: [{ type: 'address' }] },
+  { type: 'function', name: 'takenOver', stateMutability: 'view', inputs: [{ type: 'address' }], outputs: [{ type: 'bool' }] },
+] as const;

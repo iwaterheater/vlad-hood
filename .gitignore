@@ -16,3 +16,5 @@ contracts/cache/
 
 # server-side secrets
 upload/config.php
+launchpad-app/node_modules/
+launchpad-app/dist/
