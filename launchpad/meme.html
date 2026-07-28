@@ -243,7 +243,7 @@
 
             <div id="chartStats" class="grid grid-cols-3 gap-2 mt-3"></div>
             <p class="font-caveat text-lg text-brown mt-2 leading-tight">
-              a hand-drawn line over invented numbers — nothing here is a real market
+              built from this pool's own swaps
             </p>
           </div>
 
@@ -296,7 +296,6 @@
         <!-- trade panel -->
         <div class="relative bg-paper2 sketch rough-shadow p-4">
           <span class="pin"></span>
-          <span class="tape font-caveat text-ink">UI preview</span>
           <h2 id="tradeTitle" class="font-marker text-forest text-xl mt-1">Trade</h2>
 
           <div class="grid grid-cols-2 gap-2 mt-3">
@@ -333,9 +332,9 @@
 
           <!-- deliberately NOT styled like the real swap CTA on /swap: dashed outline,
                paper fill and a "(demo)" label so it can never be mistaken for a live control -->
-          <button data-preview="Connect Wallet" class="w-full mt-4 sketch bg-paper2 text-ink font-marker text-xl py-2.5 rough-shadow-sm border-2 border-dashed border-crayred hover:bg-mustard transition flex items-center justify-center gap-2">
+          <button id="tradeBtn" type="button" class="w-full mt-4 sketch bg-mustard text-ink font-marker text-xl py-2.5 rough-shadow-sm hover:bg-forest hover:text-paper transition flex items-center justify-center gap-2">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H19a1 1 0 0 1 1 1v2"/><path d="M3 7.5V17a2 2 0 0 0 2 2h14a1 1 0 0 0 1-1v-3"/><path d="M20 10.5h-4a2.5 2.5 0 0 0 0 5h4z"/></svg>
-            Connect Wallet (demo)
+            <span id="tradeBtnLabel">Connect wallet</span>
           </button>
 
           <div class="flex items-center justify-between gap-2 mt-3">
@@ -412,7 +411,7 @@
 
 <script src="/launchpad.js?v=11"></script>
 <script src="/launchpad-nav.js?v=3"></script>
-<script src="/launchpad-chain.js?v=11"></script>
+<script src="/launchpad-chain.js?v=12"></script>
 <script>
 (async function () {
   'use strict';
@@ -506,7 +505,9 @@
       topHolders: [], trades: [], chart: [],
       poolEth: null, poolToken: null,
       softCap: 0, hardCap: 0, raised: 0,
-      startsAt: null, endsAt: null
+      startsAt: info.launchedAt || null,
+      launchedAt: info.launchedAt || null,
+      endsAt: null
     };
   }
 
@@ -756,12 +757,14 @@
   $('#tokenInfo').innerHTML =
     row('Total Supply', esc(fCompact(meme.supply)) + ' ' + esc(sym)) +
     row('Liquidity Locked', meme.lpLocked
-      ? '<span class="text-forest">Yes · ' + esc(num(meme.lockMonths)) + ' mo</span>'
+      ? ('<span class="text-forest">' + (meme.lockMonths == null
+          ? 'Yes · permanently'
+          : 'Yes · ' + esc(num(meme.lockMonths)) + ' mo') + '</span>')
       : '<span class="text-crayred">No</span>') +
     row('Contract', contractHtml) +
     row('Decimals', esc(num(meme.decimals, 18))) +
     row('Tax', esc(num(meme.taxBuy)) + '% Buy / ' + esc(num(meme.taxSell)) + '% Sell') +
-    row(isFuture ? 'Launches' : 'Launched', esc(isFuture ? fLeft(launched) : fAgo(launched))) +
+    row('Launched', esc(launched ? (isFuture ? fLeft(launched) : fAgo(launched)) : 'unknown')) +
     row('Creator', '<span title="' + esc(meme.creator) + '">' + esc(fAddr(meme.creator)) + '</span>');
 
   var copyBtn = $('#copyBtn');
@@ -1124,7 +1127,62 @@
   var side = 'buy';
   var slip = 1;
   var payAmt = $('#payAmt'), recvAmt = $('#recvAmt'), payPill = $('#payPill'), recvPill = $('#recvPill');
-  var buyBtn = $('#buyBtn'), sellBtn = $('#sellBtn'), actionBtn = document.querySelector('[data-preview="Connect Wallet"]');
+  var buyBtn = $('#buyBtn'), sellBtn = $('#sellBtn'), actionBtn = $('#tradeBtn');
+
+  if (fromChain && actionBtn) {
+    var tradeLabel = $('#tradeBtnLabel');
+    var tradeSide = 'buy';
+    var tradeBusy = false;
+
+    function paintTrade() {
+      if (tradeBusy) return;
+      var who = window.VladWallet && window.VladWallet.account();
+      tradeLabel.textContent = who
+        ? ((tradeSide === 'buy' ? 'Buy ' : 'Sell ') + meme.symbol)
+        : 'Connect wallet';
+      actionBtn.disabled = false;
+    }
+    paintTrade();
+    window.addEventListener('vlad:account', paintTrade);
+    setTimeout(paintTrade, 900);
+
+    if (buyBtn) buyBtn.addEventListener('click', function () { tradeSide = 'buy'; paintTrade(); });
+    if (sellBtn) sellBtn.addEventListener('click', function () { tradeSide = 'sell'; paintTrade(); });
+
+    actionBtn.addEventListener('click', async function () {
+      if (tradeBusy) return;
+      if (!(window.VladWallet && window.VladWallet.account())) {
+        window.VladWallet && window.VladWallet.connect();
+        return;
+      }
+      var amount = parseFloat(String(($('#payAmt') || {}).value || '').replace(/[^0-9.]/g, ''));
+      if (!isFinite(amount) || amount <= 0) {
+        modalBody.textContent = 'Enter an amount first.';
+        $('#modalTitle').textContent = 'Nothing to swap';
+        modal.classList.remove('hidden'); modal.classList.add('flex');
+        return;
+      }
+
+      tradeBusy = true;
+      actionBtn.disabled = true;
+      try {
+        var hash = await window.VladChain.swap(meme.contract, tradeSide, amount, 1, function (label) {
+          tradeLabel.textContent = label;
+        });
+        $('#modalTitle').textContent = 'Swapped';
+        modalBody.textContent = 'Done — transaction ' + hash + '. Reload to see the new price.';
+      } catch (e) {
+        var code = e && (e.code || (e.info && e.info.error && e.info.error.code));
+        $('#modalTitle').textContent = 'Swap failed';
+        modalBody.textContent = (code === 4001 || code === 'ACTION_REJECTED')
+          ? 'You rejected the transaction in your wallet.'
+          : (e.shortMessage || e.reason || e.message || String(e));
+      }
+      modal.classList.remove('hidden'); modal.classList.add('flex');
+      tradeBusy = false;
+      paintTrade();
+    });
+  }
 
   function setSlipPills() {
     Array.prototype.forEach.call(document.querySelectorAll('#slipPills button'), function (b) {

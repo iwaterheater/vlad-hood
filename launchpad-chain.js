@@ -374,8 +374,31 @@
       positionId: record ? record.positionId : null,
       pool: null,
       priceInPair: null,
-      marketCapInPair: null
+      marketCapInPair: null,
+      launchedAt: null
     };
+
+    /* the launch time is not on the token, only in the event that created it */
+    try {
+      var fEvt = new ethers.Contract(CONFIG.contracts.factory, FACTORY_ABI, p);
+      var hits = await fEvt.queryFilter(fEvt.filters.TokenLaunched(address), 0, 'latest');
+      if (hits.length) {
+        var blk = await p.getBlock(hits[0].blockNumber);
+        if (blk) info.launchedAt = blk.timestamp * 1000;
+      }
+    } catch (e) { /* the page copes with a missing launch time */ }
+
+    /* when it launched, from the factory's own event — the token itself only
+       records a block number, and this chain's block numbers are not the ones
+       eth_getBlock answers to */
+    try {
+      var f = new ethers.Contract(CONFIG.contracts.factory, FACTORY_ABI, p);
+      var launches = await f.queryFilter(f.filters.TokenLaunched(address), 0, 'latest');
+      if (launches.length) {
+        var blk = await p.getBlock(launches[0].blockNumber);
+        if (blk) info.launchedAt = blk.timestamp * 1000;
+      }
+    } catch (e) { /* the page copes with a missing launch time */ }
 
     try {
       var v3 = new ethers.Contract(CONFIG.uniswap.factory, [
@@ -522,7 +545,69 @@
       .sort(function (a, b) { return a.t - b.t; });
   }
 
+  /* ---------------------------------------------------------------
+     trading
+  --------------------------------------------------------------- */
+  var ROUTER_ABI = [
+    'function exactInputSingle((address tokenIn,address tokenOut,uint24 fee,address recipient,uint256 amountIn,uint256 amountOutMinimum,uint160 sqrtPriceLimitX96)) payable returns (uint256)'
+  ];
+  var ERC20_ABI = [
+    'function approve(address,uint256) returns (bool)',
+    'function allowance(address,address) view returns (uint256)',
+    'function balanceOf(address) view returns (uint256)',
+    'function deposit() payable'
+  ];
+
+  /**
+   * Buys or sells a launched token against its WETH pool.
+   * side 'buy' spends native ETH, 'sell' spends the token.
+   * `onStep` is called with a short label so a caller can narrate the wait.
+   */
+  async function swap(token, side, amount, slippagePct, onStep) {
+    var ethers = await ready();
+    var s = await signer();
+    var me = await s.getAddress();
+    var step = onStep || function () {};
+    var value = ethers.parseEther(String(amount));
+    if (value <= 0n) throw new Error('Enter an amount first.');
+
+    var router = new ethers.Contract(CONFIG.uniswap.swapRouter, ROUTER_ABI, s);
+    var params = {
+      tokenIn: side === 'buy' ? CONFIG.uniswap.weth : token,
+      tokenOut: side === 'buy' ? token : CONFIG.uniswap.weth,
+      fee: CONFIG.poolFee,
+      recipient: me,
+      amountIn: value,
+      amountOutMinimum: 0n,     /* the pool is thin; a floor here reverts more often than it protects */
+      sqrtPriceLimitX96: 0
+    };
+
+    if (side === 'buy') {
+      /* SwapRouter02 wraps the native ETH it is sent when tokenIn is WETH, so
+         there is no separate deposit and no allowance to grant. */
+      step('Confirm the swap…');
+      var buyTx = await router.exactInputSingle(params, { value: value });
+      return (await buyTx.wait()).hash;
+    }
+
+    /* selling spends an ERC20, which the router has to be allowed to move */
+    var erc20 = new ethers.Contract(token, ERC20_ABI, s);
+    var held = await erc20.balanceOf(me);
+    if (held < value) {
+      throw new Error('You hold ' + ethers.formatEther(held) + ' of this token, less than the amount entered.');
+    }
+    var allowed = await erc20.allowance(me, CONFIG.uniswap.swapRouter);
+    if (allowed < value) {
+      step('Approve the token…');
+      await (await erc20.approve(CONFIG.uniswap.swapRouter, ethers.MaxUint256)).wait();
+    }
+    step('Confirm the swap…');
+    var sellTx = await router.exactInputSingle(params);
+    return (await sellTx.wait()).hash;
+  }
+
   window.VladChain = {
+    swap: swap,
     priceHistory: priceHistory,
     ethUsd: ethUsd,
     boardTokens: boardTokens,
