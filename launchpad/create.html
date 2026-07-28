@@ -504,12 +504,17 @@
               <svg class="ic shrink-0" aria-hidden="true"><use href="#ic-tg"/></svg>
               <span id="pv-tg-txt" class="truncate">t.me/</span>
             </span>
+            <span id="pv-web" class="font-hand text-sm px-2.5 py-1 sketch-2 bg-paper inline-flex items-center gap-1.5 max-w-full" hidden>
+              <svg class="ic shrink-0" aria-hidden="true"><use href="#ic-globe"/></svg>
+              <span id="pv-web-txt" class="truncate"></span>
+            </span>
           </div>
-          <p class="font-caveat text-lg text-brown mt-2 leading-tight">preview chips — they are not links</p>
+          <p class="font-caveat text-lg text-brown mt-2 leading-tight">stored on the token itself, for anyone to read</p>
         </div>
 
         <p class="font-hand text-xs text-ink/55 mt-4 leading-snug">
-          This card is a mock-up of a listing. It is never published, never saved and never sent anywhere.
+          A preview of the listing. The name, ticker, description and links go into the token contract when you
+          launch and are public from then on. The artwork does not — it stays in this browser.
         </p>
       </div>
     </aside>
@@ -656,6 +661,7 @@
   var pvSocialsWrap = $('pv-socials-wrap');
   var pvX = $('pv-x'), pvXTxt = $('pv-x-txt');
   var pvTg = $('pv-tg'), pvTgTxt = $('pv-tg-txt');
+  var pvWeb = $('pv-web'), pvWebTxt = $('pv-web-txt');
 
 
   /* ---------------------------------------------------------------
@@ -954,12 +960,14 @@
     }
 
     /* preview: socials */
-    var anySocial = !!(state.x || state.tg);
+    var anySocial = !!(state.x || state.tg || state.web);
     show(pvSocialsWrap, anySocial);
     show(pvX, !!state.x);
     if (state.x) pvXTxt.textContent = 'x.com/' + state.x;
     show(pvTg, !!state.tg);
     if (state.tg) pvTgTxt.textContent = 't.me/' + state.tg;
+    show(pvWeb, !!state.web);
+    if (state.web) pvWebTxt.textContent = state.web;
 
     /* the call to action reflects state */
     var missing = missingLabel();
