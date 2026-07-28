@@ -1,0 +1,8 @@
+# Three paths, one page: the app reads the path itself, so /token and /create
+# have no file behind them. Without this rule a refresh on either is a 404.
+# public/ rather than dist/ because a build wipes dist.
+RewriteEngine On
+RewriteBase /launchpad-next/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]

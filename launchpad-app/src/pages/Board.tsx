@@ -46,7 +46,7 @@ export default function Board() {
           </p>
           <div className="grid-cards">
             {tokens.map((t) => (
-              <a key={t.address} className="card sketch shadow-rough" href={`/launchpad/token?id=${t.address}`}>
+              <a key={t.address} className="card sketch shadow-rough" href={`/launchpad-next/token?id=${t.address}`}>
                 <TokenArt address={t.address} logo={t.logo} name={t.name} />
                 <div style={{ padding: '.7rem', display: 'flex', flexDirection: 'column', flex: 1 }}>
                   <h3 className="marker card-title" style={{ color: 'var(--forest)', fontSize: '.95rem', margin: 0 }}>{t.name}</h3>
