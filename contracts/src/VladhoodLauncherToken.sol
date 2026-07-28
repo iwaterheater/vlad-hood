@@ -5,12 +5,12 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IUniswapV3FactoryLike, IUniswapV3PoolImmutablesLike} from "./interfaces/ILaunchpad.sol";
 
 /**
- * @title PonsLauncherToken
- * @notice Fixed-supply ERC-20 deployed by PonsLaunchFactory for a V3 launch.
+ * @title VladhoodLauncherToken
+ * @notice Fixed-supply ERC-20 deployed by VladhoodLaunchFactory for a V3 launch.
  * Launch protections only apply to buys from the canonical pool during the
  * configured restriction window. Afterward the token behaves as a plain ERC-20.
  */
-contract PonsLauncherToken is ERC20 {
+contract VladhoodLauncherToken is ERC20 {
     struct Socials {
         string twitter;
         string telegram;

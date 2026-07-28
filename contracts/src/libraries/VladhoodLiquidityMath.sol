@@ -4,10 +4,10 @@ pragma solidity ^0.8.30;
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
 /**
- * @title PonsLiquidityMath
+ * @title VladhoodLiquidityMath
  * @notice Values the principal represented by concentrated Uniswap V3 liquidity.
  */
-library PonsLiquidityMath {
+library VladhoodLiquidityMath {
     uint256 private constant Q96 = 0x1000000000000000000000000;
 
     /**

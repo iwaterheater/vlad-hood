@@ -2,7 +2,7 @@
 pragma solidity ^0.8.30;
 
 /**
- * @notice Minimal Uniswap V3 and pons launchpad interfaces used by the suite.
+ * @notice Minimal Uniswap V3 and launchpad interfaces used by the suite.
  * Keeping these interfaces narrow avoids coupling production contracts to
  * implementation-only periphery code.
  */
@@ -121,7 +121,7 @@ interface IERC721ReceiverLike {
         returns (bytes4);
 }
 
-interface IPonsLaunchFactory {
+interface IVladhoodLaunchFactory {
     struct LaunchedToken {
         address token;
         address deployer;
@@ -141,7 +141,7 @@ interface IPonsLaunchFactory {
     function getLaunchedToken(address token) external view returns (LaunchedToken memory);
 }
 
-interface IPonsLaunchLocker {
+interface IVladhoodLaunchLocker {
     function protocolFeeRecipient() external view returns (address);
 
     function lockPosition(address token) external;

@@ -6,7 +6,7 @@ pragma solidity ^0.8.30;
  * The constants and rounding behavior are retained so launch pool prices match
  * canonical Uniswap V3 exactly.
  */
-library PonsTickMath {
+library VladhoodTickMath {
     int24 internal constant MIN_TICK = -887272;
     int24 internal constant MAX_TICK = 887272;
 

@@ -6,7 +6,7 @@ import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {IERC721ReceiverLike, INonfungiblePositionManagerLike, IPonsLaunchFactory} from "./interfaces/ILaunchpad.sol";
+import {IERC721ReceiverLike, INonfungiblePositionManagerLike, IVladhoodLaunchFactory} from "./interfaces/ILaunchpad.sol";
 
 /**
  * @title VladhoodLaunchLocker
@@ -14,25 +14,17 @@ import {IERC721ReceiverLike, INonfungiblePositionManagerLike, IPonsLaunchFactory
  * The contract intentionally exposes no position withdrawal or arbitrary-call
  * function, so registered launch liquidity cannot be removed by an administrator.
  *
- * @dev Derived from PonsLaunchLocker (MIT), taken from the verified deployment at
- * 0x736D76699C26D0d966744cAe304C000d471f7F35 on Robinhood Chain. The custody and
- * fee-splitting logic is unchanged; this fork adds the community-takeover path
- * described below.
- *
  * ---------------------------------------------------------------------------
  * COMMUNITY TAKEOVER
  * ---------------------------------------------------------------------------
- * In the original contract only `launched.deployer` could ever move the creator
- * fee payout. When a creator walks away, their share accrues to a wallet nobody
+ * Only `launched.deployer` can move the creator fee payout on its own. When a creator walks away, their share accrues to a wallet nobody
  * holds the keys to and the community that kept the token alive gets nothing.
  *
- * `reassignFeeRecipient` lets the owner move it. This is the same shape every
- * launchpad uses — pump.fun included: the contract grants the power, and the
- * judgement of who deserves the fees happens off-chain, on a form, before the
- * transaction is ever sent. Encoding that judgement on-chain was tried and
- * dropped: any dormancy long enough to be meaningful is far longer than the days
- * a real takeover takes, so it blocks the honest case without stopping a
- * determined operator, who simply waits.
+ * `reassignFeeRecipient` lets the owner move it. The judgement of who deserves the
+ * fees happens off-chain, on a form, before the transaction is ever sent. Encoding
+ * that judgement on-chain was tried and dropped: any dormancy long enough to be
+ * meaningful is far longer than the days a real takeover takes, so it blocks the
+ * honest case without stopping a determined operator, who simply waits.
  *
  * What the mechanism does guarantee:
  *   - EVENT     — every reassignment emits `FeeRecipientReassigned` naming the
@@ -42,7 +34,7 @@ import {IERC721ReceiverLike, INonfungiblePositionManagerLike, IPonsLaunchFactory
  *   - EXIT      — `renounceReassignment` is irreversible and removes the power
  *                 for every token, forever.
  *
- * What the owner still cannot do, here or in the original: withdraw liquidity,
+ * What the owner still cannot do: withdraw liquidity,
  * touch the position NFT, mint, or take anything beyond the creator fee stream
  * of a token that has already launched.
  */
@@ -153,7 +145,7 @@ contract VladhoodLaunchLocker is Ownable2Step, ReentrancyGuard, IERC721ReceiverL
     function lockPosition(address token) external onlyFactory {
         if (_lockedTokens[token]) revert PositionAlreadyLocked();
 
-        IPonsLaunchFactory.LaunchedToken memory launched = IPonsLaunchFactory(factory).getLaunchedToken(token);
+        IVladhoodLaunchFactory.LaunchedToken memory launched = IVladhoodLaunchFactory(factory).getLaunchedToken(token);
         if (!launched.exists || launched.token != token) revert TokenNotFound();
 
         address nftOwner = INonfungiblePositionManagerLike(launched.positionManager).ownerOf(launched.positionId);
@@ -177,7 +169,7 @@ contract VladhoodLaunchLocker is Ownable2Step, ReentrancyGuard, IERC721ReceiverL
      * @notice Collects V3 fees and splits both assets under the configured policy.
      */
     function collectFees(address token) external nonReentrant returns (uint256 amount0, uint256 amount1) {
-        IPonsLaunchFactory.LaunchedToken memory launched = getLaunchedToken(token);
+        IVladhoodLaunchFactory.LaunchedToken memory launched = getLaunchedToken(token);
         if (!launched.exists || !_lockedTokens[token]) revert TokenNotFound();
 
         address recipient = feeRedirects[token];
@@ -223,9 +215,9 @@ contract VladhoodLaunchLocker is Ownable2Step, ReentrancyGuard, IERC721ReceiverL
     /**
      * @notice Returns the factory record for a launch token.
      */
-    function getLaunchedToken(address token) public view returns (IPonsLaunchFactory.LaunchedToken memory) {
+    function getLaunchedToken(address token) public view returns (IVladhoodLaunchFactory.LaunchedToken memory) {
         if (factory == address(0)) revert TokenNotFound();
-        return IPonsLaunchFactory(factory).getLaunchedToken(token);
+        return IVladhoodLaunchFactory(factory).getLaunchedToken(token);
     }
 
     /**
@@ -233,7 +225,7 @@ contract VladhoodLaunchLocker is Ownable2Step, ReentrancyGuard, IERC721ReceiverL
      * @dev Callable by the launch deployer or the factory during launch setup.
      */
     function setFeeRedirect(address token, address newFeeWallet) external {
-        IPonsLaunchFactory.LaunchedToken memory launched = getLaunchedToken(token);
+        IVladhoodLaunchFactory.LaunchedToken memory launched = getLaunchedToken(token);
         if (!launched.exists) revert TokenNotFound();
         if (msg.sender != factory && msg.sender != _redirectControllerOf(token, launched.deployer)) {
             revert NotDeployer();
@@ -256,7 +248,7 @@ contract VladhoodLaunchLocker is Ownable2Step, ReentrancyGuard, IERC721ReceiverL
         if (reassignmentRenounced) revert ReassignmentRenounced();
         if (newFeeWallet == address(0)) revert ZeroAddress();
 
-        IPonsLaunchFactory.LaunchedToken memory launched = getLaunchedToken(token);
+        IVladhoodLaunchFactory.LaunchedToken memory launched = getLaunchedToken(token);
         if (!launched.exists || !_lockedTokens[token]) revert TokenNotFound();
 
         address previous = _recipientOf(token, launched.deployer);

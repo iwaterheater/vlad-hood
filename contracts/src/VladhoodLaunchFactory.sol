@@ -6,13 +6,13 @@ import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {PonsLauncherToken} from "./PonsLauncherToken.sol";
-import {PonsLiquidityMath} from "./libraries/PonsLiquidityMath.sol";
-import {PonsTickMath} from "./libraries/PonsTickMath.sol";
+import {VladhoodLauncherToken} from "./VladhoodLauncherToken.sol";
+import {VladhoodLiquidityMath} from "./libraries/VladhoodLiquidityMath.sol";
+import {VladhoodTickMath} from "./libraries/VladhoodTickMath.sol";
 import {
     INonfungiblePositionManagerLike,
-    IPonsLaunchFactory,
-    IPonsLaunchLocker,
+    IVladhoodLaunchFactory,
+    IVladhoodLaunchLocker,
     ISwapRouter02Like,
     ISwapRouterV3Like,
     IUniswapV3FactoryLike,
@@ -20,12 +20,12 @@ import {
 } from "./interfaces/ILaunchpad.sol";
 
 /**
- * @title PonsLaunchFactory
+ * @title VladhoodLaunchFactory
  * @notice Deploys fixed-supply tokens directly into one-sided Uniswap V3
  * positions, permanently locks the position NFT, and optionally executes an
  * initial native-token buy in the same atomic transaction.
  */
-contract PonsLaunchFactory is Ownable2Step, ReentrancyGuard, IPonsLaunchFactory {
+contract VladhoodLaunchFactory is Ownable2Step, ReentrancyGuard, IVladhoodLaunchFactory {
     using SafeERC20 for IERC20;
 
     int24 private constant MIN_TICK = -887272;
@@ -216,14 +216,14 @@ contract PonsLaunchFactory is Ownable2Step, ReentrancyGuard, IPonsLaunchFactory 
         LaunchedToken memory launched = _launchedTokens[token];
         if (!launched.exists) revert TokenNotFound();
 
-        address pool = PonsLauncherToken(token).liquidityPool();
+        address pool = VladhoodLauncherToken(token).liquidityPool();
         (uint160 sqrtPriceX96,,,,,,) = IUniswapV3PoolStateLike(pool).slot0();
         (,,,,, int24 tickLower, int24 tickUpper, uint128 liquidity,,,,) =
             INonfungiblePositionManagerLike(launched.positionManager).positions(launched.positionId);
-        (uint256 amount0, uint256 amount1) = PonsLiquidityMath.getAmountsForLiquidity(
+        (uint256 amount0, uint256 amount1) = VladhoodLiquidityMath.getAmountsForLiquidity(
             sqrtPriceX96,
-            PonsTickMath.getSqrtRatioAtTick(tickLower),
-            PonsTickMath.getSqrtRatioAtTick(tickUpper),
+            VladhoodTickMath.getSqrtRatioAtTick(tickLower),
+            VladhoodTickMath.getSqrtRatioAtTick(tickUpper),
             liquidity
         );
 
@@ -360,7 +360,7 @@ contract PonsLaunchFactory is Ownable2Step, ReentrancyGuard, IPonsLaunchFactory 
         INonfungiblePositionManagerLike manager = INonfungiblePositionManagerLike(dex.positionManager);
         (address token0, address token1) = isToken0 ? (token, config.pairToken) : (config.pairToken, token);
         address pool = manager.createAndInitializePoolIfNecessary(
-            token0, token1, dex.poolFee, PonsTickMath.getSqrtRatioAtTick(poolTick)
+            token0, token1, dex.poolFee, VladhoodTickMath.getSqrtRatioAtTick(poolTick)
         );
 
         IERC20(token).forceApprove(dex.positionManager, config.supply);
@@ -382,7 +382,7 @@ contract PonsLaunchFactory is Ownable2Step, ReentrancyGuard, IPonsLaunchFactory 
         IERC20(token).forceApprove(dex.positionManager, 0);
 
         uint256 initialBuyAmount = msg.value - launchFee;
-        uint256 restrictionEndBlock = PonsLauncherToken(token).restrictionEndBlock();
+        uint256 restrictionEndBlock = VladhoodLauncherToken(token).restrictionEndBlock();
         _launchedTokens[token] = LaunchedToken({
             token: token,
             deployer: msg.sender,
@@ -401,10 +401,10 @@ contract PonsLaunchFactory is Ownable2Step, ReentrancyGuard, IPonsLaunchFactory 
         _graduationThresholds[token] = config.graduationThreshold;
 
         manager.safeTransferFrom(address(this), locker, positionId);
-        IPonsLaunchLocker(locker).lockPosition(token);
+        IVladhoodLaunchLocker(locker).lockPosition(token);
         // Wire Advanced creator wallet to fee payouts, not only the developer buy.
         if (params.feeWallet != address(0)) {
-            IPonsLaunchLocker(locker).setFeeRedirect(token, params.feeWallet);
+            IVladhoodLaunchLocker(locker).setFeeRedirect(token, params.feeWallet);
         }
 
         emit TokenLaunched(
@@ -422,9 +422,9 @@ contract PonsLaunchFactory is Ownable2Step, ReentrancyGuard, IPonsLaunchFactory 
 
         if (initialBuyAmount != 0) {
             if (dex.swapRouter == address(0)) revert RouterNotSet();
-            PonsLauncherToken(token).setInitialBuyRecipient(initialBuyRecipient);
+            VladhoodLauncherToken(token).setInitialBuyRecipient(initialBuyRecipient);
             _executeInitialBuy(dex, config, token, initialBuyRecipient, initialBuyAmount);
-            PonsLauncherToken(token).setInitialBuyRecipient(address(0));
+            VladhoodLauncherToken(token).setInitialBuyRecipient(address(0));
         }
     }
 
@@ -453,7 +453,7 @@ contract PonsLaunchFactory is Ownable2Step, ReentrancyGuard, IPonsLaunchFactory 
         DexConfig memory dex,
         address tokenDeployer
     ) private pure returns (bytes memory) {
-        PonsLauncherToken.Socials memory tokenSocials = PonsLauncherToken.Socials({
+        VladhoodLauncherToken.Socials memory tokenSocials = VladhoodLauncherToken.Socials({
             twitter: params.socials.twitter,
             telegram: params.socials.telegram,
             discord: params.socials.discord,
@@ -462,7 +462,7 @@ contract PonsLaunchFactory is Ownable2Step, ReentrancyGuard, IPonsLaunchFactory 
         });
 
         return abi.encodePacked(
-            type(PonsLauncherToken).creationCode,
+            type(VladhoodLauncherToken).creationCode,
             abi.encode(
                 params.name,
                 params.symbol,
@@ -491,7 +491,7 @@ contract PonsLaunchFactory is Ownable2Step, ReentrancyGuard, IPonsLaunchFactory 
 
     function _payLaunchFee() private {
         if (launchFee == 0) return;
-        address recipient = IPonsLaunchLocker(locker).protocolFeeRecipient();
+        address recipient = IVladhoodLaunchLocker(locker).protocolFeeRecipient();
         if (recipient == address(0)) revert ZeroAddress();
         (bool sent,) = payable(recipient).call{value: launchFee}("");
         if (!sent) revert FeeTransferFailed();

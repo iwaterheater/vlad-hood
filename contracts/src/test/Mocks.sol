@@ -2,7 +2,7 @@
 pragma solidity ^0.8.30;
 
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import {INonfungiblePositionManagerLike, IPonsLaunchFactory} from "../interfaces/ILaunchpad.sol";
+import {INonfungiblePositionManagerLike, IVladhoodLaunchFactory} from "../interfaces/ILaunchpad.sol";
 
 /// @dev Test doubles only. Never deployed to a live network.
 
@@ -15,7 +15,7 @@ contract MockERC20 is ERC20 {
 }
 
 /// @notice Stands in for the launch factory: serves one launch record per token.
-contract MockFactory is IPonsLaunchFactory {
+contract MockFactory is IVladhoodLaunchFactory {
     mapping(address => LaunchedToken) private _records;
 
     function set(address token, LaunchedToken calldata record) external {
