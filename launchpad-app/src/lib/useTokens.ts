@@ -33,6 +33,15 @@ export function useToken(address?: Address) {
   return useQuery({
     queryKey: ['token', address],
     enabled: Boolean(client && address),
-    queryFn: () => fetchToken(client!, address!),
+    queryFn: async () => {
+      const token = await fetchToken(client!, address!);
+      /* fetchToken reads the token, not the factory, so the launch time has to
+         come from the event — the board gets it the same way. */
+      const launched = await fetchLaunched(client!).catch(() => []);
+      const entry = launched.find((l) => l.token.toLowerCase() === address!.toLowerCase());
+      if (!entry) return token;
+      const block = await client!.getBlock({ blockNumber: entry.blockNumber }).catch(() => null);
+      return { ...token, launchedAt: block ? Number(block.timestamp) * 1000 : null };
+    },
   });
 }

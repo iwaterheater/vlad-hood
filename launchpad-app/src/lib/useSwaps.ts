@@ -4,7 +4,7 @@ import type { Address } from 'viem';
 import { poolAbi } from './abi';
 import { priceFromSqrt } from './tokens';
 
-export type Swap = { t: number; price: number; side: 'buy' | 'sell'; eth: number; tokens: number; tx: string };
+export type Swap = { t: number; price: number; side: 'buy' | 'sell'; eth: number; tokens: number; tx: string; from: string };
 
 /**
  * A Uniswap V3 swap records the price it left the pool at, so the pool's event
@@ -32,6 +32,17 @@ export function useSwaps(pool?: Address | null, token?: Address) {
         }),
       );
 
+      /* Who traded has to come from the transaction, not the event: the pool
+         records the router as sender, and a sell now routes its proceeds back
+         through the router too, so neither address in the log is the trader. */
+      const senders = new Map<string, string>();
+      await Promise.all(
+        [...new Set(logs.map((l) => l.transactionHash))].map(async (h) => {
+          const tx = await client!.getTransaction({ hash: h }).catch(() => null);
+          if (tx) senders.set(h, tx.from.toLowerCase());
+        }),
+      );
+
       return logs
         .map((l) => {
           const a0 = l.args.amount0 as bigint;
@@ -46,6 +57,7 @@ export function useSwaps(pool?: Address | null, token?: Address) {
             eth: Number(paired < 0n ? -paired : paired) / 1e18,
             tokens: Number(mine < 0n ? -mine : mine) / 1e18,
             tx: l.transactionHash,
+            from: senders.get(l.transactionHash) ?? '',
           };
         })
         .filter((d) => d.t > 0 && isFinite(d.price) && d.price > 0)

@@ -69,3 +69,160 @@ a { color: inherit; }
 .bar-fill { height: 100%; border-right: 2px solid rgba(43,38,32,.55); transition: width .4s ease; }
 
 .banner { border-bottom: 3px solid var(--ink); background: var(--crayred); color: var(--paper); }
+
+/* hero — carried over from the static board, which had the room to explain
+   itself before showing a wall of tokens */
+.ic { display: inline-block; width: 1em; height: 1em; vertical-align: -.15em; }
+
+.hero { display: grid; gap: 2rem; grid-template-columns: minmax(0, 1fr) 20rem; align-items: start; margin-top: 1.5rem; }
+.hero-features { display: grid; gap: .75rem; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); margin-top: 1.25rem; }
+.hero-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2rem; height: 2rem; border: 2px solid var(--ink); border-radius: 9999px; flex: none;
+}
+
+/* a strip of sticky tape at each corner of the hero label */
+.taped { position: relative; }
+.taped::before, .taped::after {
+  content: ''; position: absolute; top: -8px; width: 32px; height: 15px;
+  background: rgba(224,165,30,.5); border: 1px solid rgba(43,38,32,.28);
+}
+.taped::before { left: -13px; transform: rotate(-8deg); }
+.taped::after { right: -13px; transform: rotate(8deg); }
+
+.scribble-underline { position: relative; display: inline-block; }
+.scribble-underline::after {
+  content: ''; position: absolute; left: -4%; right: -4%; bottom: -10px; height: 12px;
+  background: no-repeat center/100% 100% url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 12'%3E%3Cpath d='M2 8 C 60 2, 120 12, 180 6 S 280 2, 298 7' fill='none' stroke='%23e0a51e' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+/* the pushpin holding the launch note to the page */
+.pin {
+  position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+  width: 20px; height: 20px; border-radius: 50%; z-index: 6;
+  background: radial-gradient(circle at 35% 30%, #ff7b6b, #c0392b 65%);
+  border: 2px solid var(--ink); box-shadow: 1px 3px 3px rgba(0,0,0,.3);
+}
+
+/* board toolbar and section headings */
+.toolbar { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.toolbar-search { display: flex; align-items: center; gap: .4rem; flex: 1 1 12rem; min-width: 0; background: var(--paper); padding: .2rem .6rem; }
+.toolbar-search input { flex: 1; min-width: 0; border: 0; background: transparent; font: inherit; outline: none; }
+.sect-head { display: flex; align-items: center; gap: .5rem; }
+.sect-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.5rem; height: 1.5rem; border: 2px solid var(--ink); border-radius: 9999px; flex: none; font-size: .72rem;
+}
+
+@media (max-width: 60rem) {
+  .hero { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* The header fits a wordmark, a wallet and little else on a phone. */
+@media (max-width: 40rem) {
+  .hide-narrow { display: none; }
+}
+
+/* token page */
+.token-head { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.token-cap { margin-left: auto; text-align: right; }
+/* info rail · chart · trading, the three columns the static page settled on */
+.token-grid { display: grid; gap: 1.25rem; align-items: start; grid-template-columns: repeat(12, minmax(0, 1fr)); }
+.token-left { grid-column: span 3; display: grid; gap: 1.25rem; align-content: start; min-width: 0; }
+.token-main { grid-column: span 6; display: grid; gap: 1.25rem; align-content: start; min-width: 0; }
+.token-side { grid-column: span 3; display: grid; gap: 1.25rem; align-content: start; min-width: 0; }
+
+.token-stats { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; width: 100%; }
+.chip {
+  display: inline-flex; align-items: center; gap: .4rem; padding: .2rem .6rem;
+  background: var(--paper2); text-decoration: none; font-size: .9rem; cursor: pointer;
+  border: 2.4px solid var(--ink);
+}
+/* launch form — the drawing of a form */
+/* Held well inside the page width and centred on it. Stretched to the full 75rem
+   wrap the fields became metres of empty box, which is a worse form than a
+   narrow one; left-aligned at that width it just looked adrift. */
+.create-page { max-width: 54rem; margin-inline: auto; }
+.create-grid {
+  display: grid; gap: 1.5rem; align-items: start; margin-top: 1.5rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 14rem);
+}
+.create-preview { position: sticky; top: 5.5rem; }
+
+.box { background: var(--paper); transition: box-shadow .15s; }
+.box:focus-within { box-shadow: 3px 4px 0 rgba(43,38,32,.8), 0 0 0 3px rgba(224,165,30,.55); }
+.box.bad { border-color: var(--crayred); }
+.bare { width: 100%; min-width: 0; border: 0; background: transparent; font: inherit; outline: none; }
+.bare::placeholder { color: rgba(43,38,32,.35); }
+
+/* a strip of tape across the corner of the form */
+.tape {
+  position: absolute; top: -11px; right: 16px; transform: rotate(6deg); z-index: 5;
+  background: rgba(224,165,30,.75); border: 1px dashed rgba(43,38,32,.5); padding: 1px 10px; font-size: 13px;
+}
+
+/* dashed artwork drop-zone */
+.drop {
+  display: block; border: 2.6px dashed rgba(43,38,32,.32); border-radius: 18px;
+  background: rgba(244,236,216,.55); transition: background-color .15s, border-color .15s, opacity .15s;
+}
+.drop[data-locked="true"] { opacity: .55; cursor: not-allowed; }
+.drop[data-locked="false"] { border-color: var(--ink); cursor: pointer; }
+.drop[data-locked="false"]:hover, .drop.is-over { background-color: rgba(224,165,30,.28); }
+.drop:focus-within { outline: 3px dashed var(--mustard); outline-offset: 3px; }
+
+/* hand-drawn checkbox */
+.check-box {
+  width: 22px; height: 22px; border: 2.4px solid var(--ink); border-radius: 6px 2px 7px 3px; background: var(--paper);
+  display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto;
+}
+input[type=checkbox]:checked + .check-box { background: var(--forest2); color: var(--paper); }
+.check-box > .ic { opacity: 0; width: 14px; height: 14px; }
+input[type=checkbox]:checked + .check-box > .ic { opacity: 1; }
+
+.cta { transition: background-color .15s, color .15s, box-shadow .15s; }
+.cta:disabled { background: var(--paper2); color: rgba(43,38,32,.5); box-shadow: 2px 3px 0 rgba(43,38,32,.35); cursor: not-allowed; }
+
+details.knobs > summary { list-style: none; cursor: pointer; }
+details.knobs > summary::-webkit-details-marker { display: none; }
+details.knobs[open] .knobs-chev { transform: rotate(180deg); }
+.knobs-chev { transition: transform .15s; }
+
+.leader { flex: 1 1 auto; border-bottom: 2px dotted rgba(43,38,32,.3); margin: 0 8px; transform: translateY(-5px); }
+
+@media (max-width: 60rem) {
+  .create-grid { grid-template-columns: minmax(0, 1fr); }
+  .create-preview { position: static; }
+}
+
+/* the readout that follows the pointer across the chart */
+.chart-tip {
+  position: absolute; z-index: 6; pointer-events: none; transform: translate(-50%, -100%);
+  background: var(--paper); border: 2px solid var(--ink); padding: .25rem .55rem .3rem;
+  border-radius: 12px 4px 12px 4px / 4px 12px 4px 12px;
+  box-shadow: 3px 4px 0 rgba(43,38,32,.8); white-space: nowrap; line-height: 1.25;
+}
+
+.tab-strip { display: flex; gap: .25rem; overflow-x: auto; border-bottom: 2px solid rgba(43,38,32,.25); }
+.scroll-x { overflow-x: auto; }
+/* label · dotted leader · figure */
+.kv { display: flex; align-items: baseline; gap: .5rem; padding: .3rem 0; }
+.kv > .k { flex: none; color: rgba(43,38,32,.7); }
+.kv > .dots { flex: 1; min-width: 1rem; border-bottom: 1px dotted rgba(43,38,32,.3); }
+.kv > .v { flex: 0 1 auto; min-width: 0; text-align: right; overflow-wrap: break-word; }
+
+/* The info rail is the least urgent of the three, so it is the first to fold
+   under the chart when there is no longer room for all of them. */
+@media (max-width: 78rem) {
+  .token-main { grid-column: span 8; order: 0; }
+  .token-side { grid-column: span 4; order: 1; }
+  .token-left { grid-column: 1 / -1; order: 2; }
+}
+
+/* One column. Trading is what the page is for, so the panel keeps the top. */
+@media (max-width: 56rem) {
+  .token-main, .token-side, .token-left { grid-column: 1 / -1; }
+  .token-side { order: -1; }
+  .token-cap { margin-left: 0; text-align: left; }
+  .token-stats { grid-template-columns: 1fr 1fr; }
+}

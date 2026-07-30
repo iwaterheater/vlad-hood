@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>VLADHOOD ($VLAD) — The Outlaw of Robinhood Chain</title>
+<title>[preview] VLADHOOD ($VLAD) — The Outlaw of Robinhood Chain</title>
 <meta name="description" content="Vladhood — the legendary outlaw of the Robinhood Chain. Takes from the jeets, rewards the needy with green candles. Launching on ponsfamily. $VLAD" />
 
 <!-- Favicon = mascot -->
@@ -25,14 +25,14 @@
     theme: {
       extend: {
         colors: {
-          paper:   '#f4ecd8',
-          paper2:  '#efe6cf',
-          ink:     '#2b2620',
-          forest:  '#2f6b2f',
-          forest2: '#3f8b3d',
-          mustard: '#e0a51e',
-          brown:   '#8a5a2b',
-          crayred: '#c0392b',
+          paper:   '#0c1310',
+          paper2:  '#14201a',
+          ink:     '#dcecd4',
+          forest:  '#4bf05a',
+          forest2: '#39e04a',
+          mustard: '#f0ab33',
+          brown:   '#b38b57',
+          crayred: '#e2543f',
         },
         fontFamily: {
           marker: ['"Permanent Marker"', 'cursive'],
@@ -49,27 +49,29 @@
   /* ---------- Paper / notebook base ---------- */
   html { scroll-behavior: smooth; }
   body {
-    background-color: #f4ecd8;
-    /* pencil / paper texture: crosshatch grain + faint rule lines + red margin line */
+    background-color: #0c1310;
+    /* a forest floor at night lit by a terminal: circuit rule, faint scanline,
+       lantern glow bleeding in from the top */
     background-image:
-      repeating-linear-gradient(35deg, rgba(90,80,60,0.035) 0 1px, transparent 1px 6px),
-      repeating-linear-gradient(-35deg, rgba(90,80,60,0.03) 0 1px, transparent 1px 6px),
-      radial-gradient(rgba(120,100,60,0.06) 1px, transparent 1px),
-      repeating-linear-gradient(180deg, transparent 0 33px, rgba(90,120,160,0.13) 33px 34px),
-      linear-gradient(90deg, transparent 0 46px, rgba(192,57,43,0.2) 46px 48px, transparent 48px);
-    background-size: auto, auto, 4px 4px, 100% 34px, 100% 100%;
-    color: #2b2620;
+      radial-gradient(rgba(75,240,90,0.05) 1px, transparent 1px),
+      repeating-linear-gradient(180deg, transparent 0 33px, rgba(75,240,90,0.05) 33px 34px),
+      repeating-linear-gradient(90deg, transparent 0 33px, rgba(75,240,90,0.028) 33px 34px),
+      radial-gradient(120% 60% at 50% -10%, rgba(240,171,51,0.10), transparent 60%),
+      linear-gradient(180deg, #101a14 0%, #0c1310 45%, #080d0a 100%);
+    background-size: 4px 4px, 100% 34px, 34px 100%, 100% 100%, 100% 100%;
+    background-attachment: scroll, scroll, scroll, fixed, fixed;
+    color: #dcecd4;
     overflow-x: hidden;
   }
   /* colored-pencil grain wash over the whole page so every color reads as pencil */
   body::after {
     content: ''; position: fixed; inset: 0; z-index: 1; pointer-events: none;
-    mix-blend-mode: multiply; opacity: 0.5;
+    mix-blend-mode: screen; opacity: 0.22;
     /* свой слой отрисовки — иначе Safari на iPhone оставляет «призраки» при скролле */
     transform: translateZ(0); will-change: transform;
     background-image:
-      repeating-linear-gradient(48deg, rgba(70,60,45,0.05) 0 1px, transparent 1px 5px),
-      repeating-linear-gradient(-42deg, rgba(70,60,45,0.045) 0 1px, transparent 1px 5px);
+      repeating-linear-gradient(48deg, rgba(120,200,130,0.05) 0 1px, transparent 1px 5px),
+      repeating-linear-gradient(-42deg, rgba(120,200,130,0.04) 0 1px, transparent 1px 5px);
   }
   /* keep real content above the wash (music button & leaves keep their own fixed positioning) */
   header, section, footer { position: relative; z-index: 2; }
@@ -78,6 +80,11 @@
   section, footer { overflow-x: clip; }
 
   .font-hand { font-family: 'Patrick Hand', cursive; }
+
+  /* the sign over the workshop: marker type lit from behind */
+  .font-marker { text-shadow: 0 0 14px rgba(75,240,90,0.35), 0 0 34px rgba(75,240,90,0.16); }
+  .text-mustard.font-marker { text-shadow: 0 0 14px rgba(240,171,51,0.35), 0 0 34px rgba(240,171,51,0.14); }
+  ::selection { background: rgba(75,240,90,0.28); }
 
   /* ---------- Hand-drawn pencil borders (wobbly outline via SVG displacement) ---------- */
   .sketch, .sketch-2 {
@@ -88,14 +95,14 @@
   /* the wobbly graphite outline lives on a pseudo-element so text stays crisp */
   .sketch::before, .sketch-2::before {
     content: ''; position: absolute; inset: 0; pointer-events: none;
-    border: 2.4px solid #2b2620;
+    border: 2.4px solid rgba(120,220,140,0.55);
     border-radius: inherit;
     filter: url(#pencil);
   }
   /* a faint second pass — kids always draw the line twice */
   .sketch::after, .sketch-2::after {
     content: ''; position: absolute; inset: 1px; pointer-events: none;
-    border: 1.4px solid rgba(43,38,32,0.4);
+    border: 1.4px solid rgba(75,240,90,0.16);
     border-radius: inherit;
     filter: url(#pencil);
   }
@@ -103,32 +110,32 @@
   .sketch-2 { border-radius: 15px 225px 15px 255px / 255px 15px 225px 15px; }
 
   /* sketchy offset shadow (also roughened) */
-  .rough-shadow { box-shadow: 4px 5px 0 rgba(43,38,32,0.85), 6px 8px 0 rgba(43,38,32,0.18); }
-  .rough-shadow-sm { box-shadow: 3px 4px 0 rgba(43,38,32,0.8); }
+  .rough-shadow { box-shadow: 4px 5px 0 rgba(0,0,0,0.75), 6px 8px 0 rgba(0,0,0,0.35), 0 0 22px rgba(75,240,90,0.07); }
+  .rough-shadow-sm { box-shadow: 3px 4px 0 rgba(0,0,0,0.7); }
 
   /* ---------- Photos: colored-pencil / wobbly hand-drawn treatment ---------- */
   .sketch-photo { position: relative; }
   .sketch-photo img, img.sketch-photo {
-    filter: url(#pencilStrong) saturate(0.82) contrast(1.06) brightness(1.02);
+    filter: url(#pencilStrong) saturate(1.05) contrast(1.05) brightness(0.94);
   }
   /* pencil-grain shading laid over each image */
   .sketch-photo::after {
     content: ''; position: absolute; inset: 0; pointer-events: none;
-    mix-blend-mode: multiply; opacity: 0.4; border-radius: inherit;
+    mix-blend-mode: overlay; opacity: 0.35; border-radius: inherit;
     background-image:
-      repeating-linear-gradient(40deg, rgba(60,50,35,0.28) 0 1px, transparent 1px 5px),
-      repeating-linear-gradient(-50deg, rgba(60,50,35,0.16) 0 1px, transparent 1px 6px);
+      repeating-linear-gradient(40deg, rgba(75,240,90,0.20) 0 1px, transparent 1px 5px),
+      repeating-linear-gradient(-50deg, rgba(0,0,0,0.30) 0 1px, transparent 1px 6px);
   }
 
   /* ---------- Crayon / colored-pencil fills for the solid blocks ---------- */
   .crayon-green {
-    background-color: #2f6b2f;
+    background-color: #17351d;
     background-image:
       repeating-linear-gradient(28deg, rgba(255,255,255,0.10) 0 2px, transparent 2px 7px),
       repeating-linear-gradient(-28deg, rgba(0,0,0,0.10) 0 2px, transparent 2px 8px);
   }
   .crayon-ink {
-    background-color: #2b2620;
+    background-color: #0a120d;
     background-image:
       repeating-linear-gradient(28deg, rgba(255,255,255,0.06) 0 2px, transparent 2px 7px);
   }
@@ -139,7 +146,7 @@
     position: absolute;
     width: 92px; height: 26px;
     background: rgba(224,165,30,0.55);
-    border: 1px dashed rgba(43,38,32,0.35);
+    border: 1px dashed rgba(120,220,140,0.3);
     box-shadow: 0 1px 3px rgba(0,0,0,0.12);
     z-index: 5;
   }
@@ -151,7 +158,7 @@
 
   /* Push-pin */
   .pin { position:absolute; top:-12px; left:50%; transform:translateX(-50%); width:20px; height:20px; border-radius:50%;
-    background: radial-gradient(circle at 35% 30%, #ff7b6b, #c0392b 65%); border:2px solid #2b2620; box-shadow: 1px 3px 3px rgba(0,0,0,0.3); z-index:6; }
+    background: radial-gradient(circle at 35% 30%, #ff7b6b, #e2543f 65%); border:2px solid #dcecd4; box-shadow: 1px 3px 3px rgba(0,0,0,0.3); z-index:6; }
 
   /* ---------- Handwriting underline scribble ---------- */
   .scribble-underline { position: relative; display: inline-block; }
@@ -192,7 +199,7 @@
   #mobileMenu.open { max-height: 420px; }
 
   /* gallery polaroid */
-  .polaroid { background:#fffdf6; padding:8px 8px 26px; }
+  .polaroid { background:#1b2a22; padding:8px 8px 26px; }
   .polaroid img { display:block; width:100%; height:100%; object-fit:cover; }
 
   /* music button pulse ring */
@@ -202,10 +209,10 @@
   /* ---------- Live market cap badge ---------- */
   /* «сердцебиение рынка»: двойной удар всей кнопки, тень углубляется — кнопка подпрыгивает над бумагой */
   @keyframes mcapBeat {
-    0%, 42%, 100% { transform: scale(1) rotate(0deg); box-shadow: 3px 4px 0 rgba(43,38,32,0.8); }
-    8%  { transform: scale(1.08) rotate(-1.5deg); box-shadow: 6px 8px 0 rgba(43,38,32,0.85); }
-    16% { transform: scale(1) rotate(0.6deg); box-shadow: 3px 4px 0 rgba(43,38,32,0.8); }
-    26% { transform: scale(1.05) rotate(-1deg); box-shadow: 5px 6px 0 rgba(43,38,32,0.85); }
+    0%, 42%, 100% { transform: scale(1) rotate(0deg); box-shadow: 3px 4px 0 rgba(0,0,0,0.8); }
+    8%  { transform: scale(1.08) rotate(-1.5deg); box-shadow: 6px 8px 0 rgba(0,0,0,0.85); }
+    16% { transform: scale(1) rotate(0.6deg); box-shadow: 3px 4px 0 rgba(0,0,0,0.8); }
+    26% { transform: scale(1.05) rotate(-1deg); box-shadow: 5px 6px 0 rgba(0,0,0,0.85); }
   }
   .mcap-beat { animation: mcapBeat 3.2s ease-in-out infinite; }
   /* SVG-фильтр контура ломается на анимированном элементе (Safari/Mac) — рисуем контур без фильтра */
@@ -215,13 +222,13 @@
   .ca-copy { cursor: pointer; }
   /* тот же фикс, что и у MCAP: SVG-фильтр контура даёт «обрывки» рамки на Safari/Mac */
   .ca-copy::before, .ca-copy::after { filter: none; }
-  .ca-copy.copied { background: #2f6b2f; }
-  .ca-copy.copied [data-ca-text], .ca-copy.copied span { color: #f4ecd8 !important; }
+  .ca-copy.copied { background: #4bf05a; }
+  .ca-copy.copied [data-ca-text], .ca-copy.copied span { color: #0c1310 !important; }
   @keyframes caPop { 0%{ transform: scale(1);} 40%{ transform: scale(1.06) rotate(-1deg);} 100%{ transform: scale(1);} }
   .ca-copy.copied { animation: caPop .4s ease; }
   [data-mcap] { display:inline-block; min-width:5ch; text-align:left; }
-  @keyframes mcapPopUp { 0%{ transform:scale(1);} 35%{ transform:scale(1.22) rotate(-3deg); color:#3f8b3d; } 100%{ transform:scale(1);} }
-  @keyframes mcapPopDown { 0%{ transform:scale(1);} 35%{ transform:scale(1.22) rotate(3deg); color:#c0392b; } 100%{ transform:scale(1);} }
+  @keyframes mcapPopUp { 0%{ transform:scale(1);} 35%{ transform:scale(1.22) rotate(-3deg); color:#39e04a; } 100%{ transform:scale(1);} }
+  @keyframes mcapPopDown { 0%{ transform:scale(1);} 35%{ transform:scale(1.22) rotate(3deg); color:#e2543f; } 100%{ transform:scale(1);} }
   [data-mcap].up { animation: mcapPopUp .9s ease; }
   [data-mcap].down { animation: mcapPopDown .9s ease; }
 
@@ -231,8 +238,8 @@
   /* ---------- "Earn Vladhood Points" call-to-action ---------- */
   /* soft glow pulse on the button, arrow nudges right to invite the click */
   @keyframes vpGlow {
-    0%, 100% { box-shadow: 3px 4px 0 rgba(43,38,32,.8); }
-    50%      { box-shadow: 3px 4px 0 rgba(43,38,32,.8), 0 0 0 6px rgba(224,165,30,.35); }
+    0%, 100% { box-shadow: 3px 4px 0 rgba(0,0,0,.8); }
+    50%      { box-shadow: 3px 4px 0 rgba(0,0,0,.8), 0 0 0 6px rgba(224,165,30,.35); }
   }
   @keyframes vpNudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
   /* springy hop: quick lift, small second bounce, then a beat of rest */
@@ -261,6 +268,46 @@
     [data-aos] { opacity: 1 !important; transform: none !important; }
   }
 </style>
+
+<style id="preview-dark-overrides">
+  /* ------------------------------------------------------------------
+     Preview-only. swap.js injects its own stylesheet built for paper and
+     is shared with the live site, so it is re-skinned from here instead
+     of edited — nothing in this block touches production.
+     ------------------------------------------------------------------ */
+
+  /* photo mats were white card; on a dark ground they read as holes */
+  .sketch-photo.bg-white, .bg-white.sketch-photo { background-color: #16221b !important; }
+
+  /* swap widget surfaces */
+  .vs-ftbox, .vs-box, .vs-slip-opt { background: #16231b !important; }
+  .vs-pct { background: #1d2e23 !important; color: #dcecd4 !important; }
+  .vs-flip { background: #101a14 !important; border-color: rgba(120,220,140,.3) !important; color: #4bf05a !important; }
+  .vs-badge { border-color: #16231b !important; }
+  .vs-ov { background: rgba(10,17,13,.97) !important; }
+
+  /* swap widget type */
+  .vs-title, .vs-connect, .vs-amt, .vs-out, .vs-pct, .vs-slip-opt { color: #dcecd4 !important; }
+  .vs-ftlbl, .vs-tchain, .vs-lbl, .vs-bal, .vs-slip, .vs-sub, .vs-foot { color: #b38b57 !important; }
+  .vs-out.muted { color: rgba(220,236,212,.45) !important; }
+  .vs-ov-title { color: #4bf05a !important; }
+  .vs-err { color: #e2543f !important; }
+  .vs-btn { background: #1f7a2c !important; color: #eafbe6 !important; }
+  .vs-spin { border-color: rgba(75,240,90,.25) !important; border-top-color: #4bf05a !important; }
+
+  /* the trades feed */
+  .vt-row { background: rgba(255,255,255,.03) !important; }
+  .vt-row:hover { background: rgba(75,240,90,.07) !important; }
+  .vt-hash, .vt-time, .vt-empty { color: rgba(220,236,212,.55) !important; }
+  .vt-usd { color: #dcecd4 !important; }
+  .vt-side.buy { background: #1f7a2c !important; color: #eafbe6 !important; }
+  .vt-side.sell { background: #a33a2c !important; color: #ffeae6 !important; }
+
+  /* stat tiles */
+  .vstat { background: #16231b !important; }
+  .vstat-lbl, .vstat-sub { color: #b38b57 !important; }
+  .vstat-val { color: #dcecd4 !important; }
+</style>
 </head>
 
 <body class="font-hand selection:bg-mustard/60">
@@ -285,7 +332,7 @@
     </filter>
     <!-- graphite hatch pattern (colored-pencil shading) -->
     <pattern id="hatch" width="7" height="7" patternTransform="rotate(35)" patternUnits="userSpaceOnUse">
-      <line x1="0" y1="0" x2="0" y2="7" stroke="#2b2620" stroke-width="1"/>
+      <line x1="0" y1="0" x2="0" y2="7" stroke="#dcecd4" stroke-width="1"/>
     </pattern>
   </defs>
 </svg>
@@ -294,88 +341,88 @@
 <svg width="0" height="0" class="absolute" aria-hidden="true" style="position:absolute">
   <defs>
     <symbol id="ic-bow" viewBox="0 0 24 24">
-      <path d="M6 3c6 4 6 14 0 18" fill="none" stroke="#2f6b2f" stroke-width="2" stroke-linecap="round"/>
-      <path d="M6 3 6 21" fill="none" stroke="#8a5a2b" stroke-width="1.2"/>
-      <path d="M3 12h18" stroke="#8a5a2b" stroke-width="2" stroke-linecap="round"/>
-      <path d="M21 12l-4-3M21 12l-4 3" fill="none" stroke="#c0392b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M3 12l3-2M3 12l3 2" fill="none" stroke="#2f6b2f" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M6 3c6 4 6 14 0 18" fill="none" stroke="#4bf05a" stroke-width="2" stroke-linecap="round"/>
+      <path d="M6 3 6 21" fill="none" stroke="#b38b57" stroke-width="1.2"/>
+      <path d="M3 12h18" stroke="#b38b57" stroke-width="2" stroke-linecap="round"/>
+      <path d="M21 12l-4-3M21 12l-4 3" fill="none" stroke="#e2543f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M3 12l3-2M3 12l3 2" fill="none" stroke="#4bf05a" stroke-width="1.6" stroke-linecap="round"/>
     </symbol>
     <symbol id="ic-tree" viewBox="0 0 24 24">
-      <path d="M12 3 18 12H14L19 19H5L10 12H6Z" fill="#2f6b2f" stroke="#255224" stroke-width="1" stroke-linejoin="round"/>
-      <path d="M10.5 19h3v3h-3z" fill="#8a5a2b"/>
+      <path d="M12 3 18 12H14L19 19H5L10 12H6Z" fill="#4bf05a" stroke="#2fa83c" stroke-width="1" stroke-linejoin="round"/>
+      <path d="M10.5 19h3v3h-3z" fill="#b38b57"/>
     </symbol>
     <symbol id="ic-candle" viewBox="0 0 24 24">
-      <rect x="9" y="9" width="6" height="12" rx="1" fill="#f4ecd8" stroke="#8a5a2b" stroke-width="1.4"/>
-      <path d="M12 9V6" stroke="#2b2620" stroke-width="1"/>
-      <path d="M12 2c2 2 2 4 0 4s-2-2 0-4z" fill="#e0a51e" stroke="#b7841a" stroke-width=".8"/>
+      <rect x="9" y="9" width="6" height="12" rx="1" fill="#0c1310" stroke="#b38b57" stroke-width="1.4"/>
+      <path d="M12 9V6" stroke="#dcecd4" stroke-width="1"/>
+      <path d="M12 2c2 2 2 4 0 4s-2-2 0-4z" fill="#f0ab33" stroke="#c98d22" stroke-width=".8"/>
     </symbol>
     <symbol id="ic-moon" viewBox="0 0 24 24">
-      <path d="M16 3a10 10 0 100 18 8 8 0 010-18z" fill="#e0a51e" stroke="#b7841a" stroke-width="1" stroke-linejoin="round"/>
+      <path d="M16 3a10 10 0 100 18 8 8 0 010-18z" fill="#f0ab33" stroke="#c98d22" stroke-width="1" stroke-linejoin="round"/>
     </symbol>
     <symbol id="ic-coin" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="9" fill="#e0a51e" stroke="#b7841a" stroke-width="1.4"/>
-      <circle cx="12" cy="12" r="6.5" fill="none" stroke="#b7841a" stroke-width="1"/>
-      <path d="M9 8l3 8 3-8" fill="none" stroke="#8a5a2b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="12" cy="12" r="9" fill="#f0ab33" stroke="#c98d22" stroke-width="1.4"/>
+      <circle cx="12" cy="12" r="6.5" fill="none" stroke="#c98d22" stroke-width="1"/>
+      <path d="M9 8l3 8 3-8" fill="none" stroke="#b38b57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
     </symbol>
     <symbol id="ic-bag" viewBox="0 0 24 24">
-      <path d="M9 7h6l-2-3h-2z" fill="#8a5a2b"/>
-      <path d="M9 7C5 10 4 21 12 21s7-11 3-14z" fill="#8a5a2b" stroke="#5f3e1d" stroke-width="1"/>
-      <path d="M12 11v6M10 13h4M10 16h4" stroke="#e0a51e" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M9 7h6l-2-3h-2z" fill="#b38b57"/>
+      <path d="M9 7C5 10 4 21 12 21s7-11 3-14z" fill="#b38b57" stroke="#8a6a3c" stroke-width="1"/>
+      <path d="M12 11v6M10 13h4M10 16h4" stroke="#f0ab33" stroke-width="1.6" stroke-linecap="round"/>
     </symbol>
     <symbol id="ic-target" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="9" fill="#c0392b" stroke="#8f2a20" stroke-width="1"/>
-      <circle cx="12" cy="12" r="6" fill="#f4ecd8"/>
-      <circle cx="12" cy="12" r="3" fill="#c0392b"/>
+      <circle cx="12" cy="12" r="9" fill="#e2543f" stroke="#b13a2b" stroke-width="1"/>
+      <circle cx="12" cy="12" r="6" fill="#0c1310"/>
+      <circle cx="12" cy="12" r="3" fill="#e2543f"/>
     </symbol>
     <symbol id="ic-crown" viewBox="0 0 24 24">
-      <path d="M3 8 7 14 12 6 17 14 21 8 19 19H5Z" fill="#e0a51e" stroke="#b7841a" stroke-width="1.2" stroke-linejoin="round"/>
-      <circle cx="3" cy="8" r="1.4" fill="#c0392b"/><circle cx="21" cy="8" r="1.4" fill="#c0392b"/><circle cx="12" cy="6" r="1.4" fill="#c0392b"/>
+      <path d="M3 8 7 14 12 6 17 14 21 8 19 19H5Z" fill="#f0ab33" stroke="#c98d22" stroke-width="1.2" stroke-linejoin="round"/>
+      <circle cx="3" cy="8" r="1.4" fill="#e2543f"/><circle cx="21" cy="8" r="1.4" fill="#e2543f"/><circle cx="12" cy="6" r="1.4" fill="#e2543f"/>
     </symbol>
     <symbol id="ic-lock" viewBox="0 0 24 24">
-      <path d="M8 10V7a4 4 0 018 0v3" fill="none" stroke="#8a5a2b" stroke-width="2" stroke-linecap="round"/>
-      <rect x="5" y="10" width="14" height="10" rx="2" fill="#e0a51e" stroke="#b7841a" stroke-width="1.2"/>
-      <circle cx="12" cy="14.5" r="1.6" fill="#8a5a2b"/><path d="M12 15v2.5" stroke="#8a5a2b" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M8 10V7a4 4 0 018 0v3" fill="none" stroke="#b38b57" stroke-width="2" stroke-linecap="round"/>
+      <rect x="5" y="10" width="14" height="10" rx="2" fill="#f0ab33" stroke="#c98d22" stroke-width="1.2"/>
+      <circle cx="12" cy="14.5" r="1.6" fill="#b38b57"/><path d="M12 15v2.5" stroke="#b38b57" stroke-width="1.6" stroke-linecap="round"/>
     </symbol>
     <symbol id="ic-smile" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="9" fill="#e0a51e" stroke="#b7841a" stroke-width="1.2"/>
-      <path d="M8 10q1.5-1.5 3 0M13 10q1.5-1.5 3 0" fill="none" stroke="#2b2620" stroke-width="1.4" stroke-linecap="round"/>
-      <path d="M8.5 14.5q3.5 3 7 0" fill="none" stroke="#2b2620" stroke-width="1.6" stroke-linecap="round"/>
+      <circle cx="12" cy="12" r="9" fill="#f0ab33" stroke="#c98d22" stroke-width="1.2"/>
+      <path d="M8 10q1.5-1.5 3 0M13 10q1.5-1.5 3 0" fill="none" stroke="#dcecd4" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M8.5 14.5q3.5 3 7 0" fill="none" stroke="#dcecd4" stroke-width="1.6" stroke-linecap="round"/>
     </symbol>
     <symbol id="ic-wave" viewBox="0 0 24 24">
-      <path d="M2 9q3-3 6 0t6 0 6 0" fill="none" stroke="#4a7fa5" stroke-width="2" stroke-linecap="round"/>
-      <path d="M2 14q3-3 6 0t6 0 6 0" fill="none" stroke="#4a7fa5" stroke-width="2" stroke-linecap="round"/>
-      <path d="M2 19q3-3 6 0t6 0 6 0" fill="none" stroke="#7fa8c4" stroke-width="2" stroke-linecap="round"/>
+      <path d="M2 9q3-3 6 0t6 0 6 0" fill="none" stroke="#6fa8cc" stroke-width="2" stroke-linecap="round"/>
+      <path d="M2 14q3-3 6 0t6 0 6 0" fill="none" stroke="#6fa8cc" stroke-width="2" stroke-linecap="round"/>
+      <path d="M2 19q3-3 6 0t6 0 6 0" fill="none" stroke="#93bcd6" stroke-width="2" stroke-linecap="round"/>
     </symbol>
     <symbol id="ic-pencil" viewBox="0 0 24 24">
-      <path d="M4 20l2-6L16 4l4 4L10 18Z" fill="#e0a51e" stroke="#b7841a" stroke-width="1.2" stroke-linejoin="round"/>
-      <path d="M16 4l4 4" stroke="#c0392b" stroke-width="1.6"/>
-      <path d="M4 20l2-6 4 4z" fill="#8a5a2b"/>
+      <path d="M4 20l2-6L16 4l4 4L10 18Z" fill="#f0ab33" stroke="#c98d22" stroke-width="1.2" stroke-linejoin="round"/>
+      <path d="M16 4l4 4" stroke="#e2543f" stroke-width="1.6"/>
+      <path d="M4 20l2-6 4 4z" fill="#b38b57"/>
     </symbol>
     <symbol id="ic-pick" viewBox="0 0 24 24">
-      <path d="M3 6q9-5 18 2" fill="none" stroke="#9aa0a6" stroke-width="2.4" stroke-linecap="round"/>
-      <path d="M12 6 8 21" stroke="#8a5a2b" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M3 6q9-5 18 2" fill="none" stroke="#aab4ac" stroke-width="2.4" stroke-linecap="round"/>
+      <path d="M12 6 8 21" stroke="#b38b57" stroke-width="2.2" stroke-linecap="round"/>
     </symbol>
     <symbol id="ic-gem" viewBox="0 0 24 24">
-      <path d="M6 4h12l4 5-10 12L2 9Z" fill="#6cc5d6" stroke="#3d97a8" stroke-width="1.2" stroke-linejoin="round"/>
-      <path d="M2 9h20M9 4 7 9l5 12M15 4l2 5-5 12" fill="none" stroke="#3d97a8" stroke-width="1"/>
+      <path d="M6 4h12l4 5-10 12L2 9Z" fill="#7fd6e6" stroke="#54b9cc" stroke-width="1.2" stroke-linejoin="round"/>
+      <path d="M2 9h20M9 4 7 9l5 12M15 4l2 5-5 12" fill="none" stroke="#54b9cc" stroke-width="1"/>
     </symbol>
     <symbol id="ic-pin" viewBox="0 0 24 24">
-      <ellipse cx="12" cy="8" rx="6" ry="5" fill="#c0392b" stroke="#8f2a20" stroke-width="1"/>
+      <ellipse cx="12" cy="8" rx="6" ry="5" fill="#e2543f" stroke="#b13a2b" stroke-width="1"/>
       <ellipse cx="10" cy="6.5" rx="1.6" ry="1.2" fill="#ff8a7a"/>
-      <path d="M12 13v8" stroke="#8a5a2b" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M12 13v8" stroke="#b38b57" stroke-width="1.8" stroke-linecap="round"/>
     </symbol>
     <symbol id="ic-eyes" viewBox="0 0 24 24">
-      <ellipse cx="8" cy="12" rx="4" ry="5" fill="#f4ecd8" stroke="#2b2620" stroke-width="1.2"/>
-      <ellipse cx="16" cy="12" rx="4" ry="5" fill="#f4ecd8" stroke="#2b2620" stroke-width="1.2"/>
-      <circle cx="9" cy="13" r="1.8" fill="#2b2620"/><circle cx="17" cy="13" r="1.8" fill="#2b2620"/>
+      <ellipse cx="8" cy="12" rx="4" ry="5" fill="#0c1310" stroke="#dcecd4" stroke-width="1.2"/>
+      <ellipse cx="16" cy="12" rx="4" ry="5" fill="#0c1310" stroke="#dcecd4" stroke-width="1.2"/>
+      <circle cx="9" cy="13" r="1.8" fill="#dcecd4"/><circle cx="17" cy="13" r="1.8" fill="#dcecd4"/>
     </symbol>
     <symbol id="ic-leaf" viewBox="0 0 24 24">
-      <path d="M4 20C4 8 12 4 20 4c0 12-8 16-16 16z" fill="#3f8b3d" stroke="#2f6b2f" stroke-width="1"/>
-      <path d="M4 20C8 15 14 9 20 4" fill="none" stroke="#2f6b2f" stroke-width="1"/>
+      <path d="M4 20C4 8 12 4 20 4c0 12-8 16-16 16z" fill="#39e04a" stroke="#4bf05a" stroke-width="1"/>
+      <path d="M4 20C8 15 14 9 20 4" fill="none" stroke="#4bf05a" stroke-width="1"/>
     </symbol>
     <symbol id="ic-leaf2" viewBox="0 0 24 24">
-      <path d="M4 20C4 8 12 4 20 4c0 12-8 16-16 16z" fill="#c98a3a" stroke="#8a5a2b" stroke-width="1"/>
-      <path d="M4 20C8 15 14 9 20 4" fill="none" stroke="#8a5a2b" stroke-width="1"/>
+      <path d="M4 20C4 8 12 4 20 4c0 12-8 16-16 16z" fill="#d9a862" stroke="#b38b57" stroke-width="1"/>
+      <path d="M4 20C8 15 14 9 20 4" fill="none" stroke="#b38b57" stroke-width="1"/>
     </symbol>
   </defs>
 </svg>
@@ -467,18 +514,18 @@
 
   <!-- doodle arrows / decoration -->
   <svg class="doodle absolute top-24 left-4 w-24 opacity-70 hidden md:block" viewBox="0 0 120 80" fill="none" aria-hidden="true">
-    <path class="dash-anim" d="M5 70 C 40 10, 80 10, 112 30" stroke="#2f6b2f" stroke-width="3" stroke-linecap="round"/>
-    <path d="M112 30 l-16 -2 M112 30 l-6 15" stroke="#2f6b2f" stroke-width="3" stroke-linecap="round"/>
+    <path class="dash-anim" d="M5 70 C 40 10, 80 10, 112 30" stroke="#4bf05a" stroke-width="3" stroke-linecap="round"/>
+    <path d="M112 30 l-16 -2 M112 30 l-6 15" stroke="#4bf05a" stroke-width="3" stroke-linecap="round"/>
   </svg>
 
   <!-- doodled pencil sun -->
   <svg class="doodle absolute top-6 right-6 w-20 h-20 opacity-80" viewBox="0 0 100 100" fill="none" aria-hidden="true">
-    <circle cx="50" cy="50" r="20" stroke="#e0a51e" stroke-width="3.5"/>
-    <g stroke="#e0a51e" stroke-width="3.5" stroke-linecap="round">
+    <circle cx="50" cy="50" r="20" stroke="#f0ab33" stroke-width="3.5"/>
+    <g stroke="#f0ab33" stroke-width="3.5" stroke-linecap="round">
       <path d="M50 8v14M50 78v14M8 50h14M78 50h14M20 20l10 10M70 70l10 10M80 20l-10 10M30 70l-10 10"/>
     </g>
-    <path d="M42 52c3 5 13 5 16 0" stroke="#2b2620" stroke-width="2.5" stroke-linecap="round"/>
-    <circle cx="43" cy="45" r="1.6" fill="#2b2620"/><circle cx="57" cy="45" r="1.6" fill="#2b2620"/>
+    <path d="M42 52c3 5 13 5 16 0" stroke="#dcecd4" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="43" cy="45" r="1.6" fill="#dcecd4"/><circle cx="57" cy="45" r="1.6" fill="#dcecd4"/>
   </svg>
 
   <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 items-center">
@@ -534,7 +581,7 @@
 
       <div id="heroMascot" class="sketch-photo relative z-10 will-change-transform">
         <img src="photo_2_2026-07-21_06-14-24.jpg?v=2" alt="Vladhood the outlaw mascot holding a bow"
-             class="bob w-[78%] md:w-full max-w-sm mx-auto drop-shadow-[6px_10px_0_rgba(43,38,32,0.2)]" />
+             class="bob w-[78%] md:w-full max-w-sm mx-auto drop-shadow-[6px_10px_0_rgba(0,0,0,0.5)]" />
       </div>
 
       <!-- doodled moon -->
@@ -877,7 +924,7 @@
     e.preventDefault();
     var n = document.createElement('div');
     n.textContent = what + ' link goes live real soon™';
-    n.style.cssText = 'position:fixed;left:50%;bottom:80px;transform:translateX(-50%);z-index:60;background:#2b2620;color:#f4ecd8;font-family:"Patrick Hand",cursive;font-size:20px;padding:10px 18px;border:2.5px solid #2b2620;border-radius:255px 15px 225px 15px/15px 225px 15px 255px;box-shadow:4px 5px 0 rgba(0,0,0,.4);';
+    n.style.cssText = 'position:fixed;left:50%;bottom:80px;transform:translateX(-50%);z-index:60;background:#dcecd4;color:#0c1310;font-family:"Patrick Hand",cursive;font-size:20px;padding:10px 18px;border:2.5px solid #dcecd4;border-radius:255px 15px 225px 15px/15px 225px 15px 255px;box-shadow:4px 5px 0 rgba(0,0,0,.4);';
     document.body.appendChild(n);
     setTimeout(function(){ n.style.transition='opacity .4s'; n.style.opacity='0'; }, 1800);
     setTimeout(function(){ n.remove(); }, 2300);
@@ -956,19 +1003,19 @@
   /* ---------- Scatter little pencil doodles across sections ---------- */
   var doodleSet = [
     // star
-    '<svg viewBox="0 0 40 40" fill="none"><path d="M20 3l5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1z" stroke="#e0a51e" stroke-width="2.4" stroke-linejoin="round"/></svg>',
+    '<svg viewBox="0 0 40 40" fill="none"><path d="M20 3l5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1z" stroke="#f0ab33" stroke-width="2.4" stroke-linejoin="round"/></svg>',
     // coin with V
-    '<svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="15" stroke="#e0a51e" stroke-width="2.6"/><circle cx="20" cy="20" r="11" stroke="#e0a51e" stroke-width="1.4"/><path d="M14 13l6 15 6-15" stroke="#8a5a2b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    '<svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="15" stroke="#f0ab33" stroke-width="2.6"/><circle cx="20" cy="20" r="11" stroke="#f0ab33" stroke-width="1.4"/><path d="M14 13l6 15 6-15" stroke="#b38b57" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     // little tree
-    '<svg viewBox="0 0 40 40" fill="none"><path d="M20 4l9 14h-6l7 11H10l7-11h-6z" stroke="#2f6b2f" stroke-width="2.4" stroke-linejoin="round"/><path d="M20 29v8" stroke="#8a5a2b" stroke-width="2.6" stroke-linecap="round"/></svg>',
+    '<svg viewBox="0 0 40 40" fill="none"><path d="M20 4l9 14h-6l7 11H10l7-11h-6z" stroke="#4bf05a" stroke-width="2.4" stroke-linejoin="round"/><path d="M20 29v8" stroke="#b38b57" stroke-width="2.6" stroke-linecap="round"/></svg>',
     // spiral
-    '<svg viewBox="0 0 40 40" fill="none"><path d="M20 20c0-4 6-4 6 0s-8 6-11 0-2-14 8-14 14 8 12 16" stroke="#c0392b" stroke-width="2.4" stroke-linecap="round"/></svg>',
+    '<svg viewBox="0 0 40 40" fill="none"><path d="M20 20c0-4 6-4 6 0s-8 6-11 0-2-14 8-14 14 8 12 16" stroke="#e2543f" stroke-width="2.4" stroke-linecap="round"/></svg>',
     // heart
-    '<svg viewBox="0 0 40 40" fill="none"><path d="M20 34C6 24 6 12 14 12c4 0 6 3 6 3s2-3 6-3c8 0 8 12-6 22z" stroke="#c0392b" stroke-width="2.4" stroke-linejoin="round"/></svg>',
+    '<svg viewBox="0 0 40 40" fill="none"><path d="M20 34C6 24 6 12 14 12c4 0 6 3 6 3s2-3 6-3c8 0 8 12-6 22z" stroke="#e2543f" stroke-width="2.4" stroke-linejoin="round"/></svg>',
     // arrow
-    '<svg viewBox="0 0 44 24" fill="none"><path d="M3 12h34M30 5l8 7-8 7M6 8l-3 4 3 4" stroke="#2f6b2f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    '<svg viewBox="0 0 44 24" fill="none"><path d="M3 12h34M30 5l8 7-8 7M6 8l-3 4 3 4" stroke="#4bf05a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     // moon
-    '<svg viewBox="0 0 40 40" fill="none"><path d="M27 6a15 15 0 100 28 12 12 0 010-28z" stroke="#e0a51e" stroke-width="2.4" stroke-linejoin="round"/></svg>'
+    '<svg viewBox="0 0 40 40" fill="none"><path d="M27 6a15 15 0 100 28 12 12 0 010-28z" stroke="#f0ab33" stroke-width="2.4" stroke-linejoin="round"/></svg>'
   ];
   if (!reduceMotion || true) {
     document.querySelectorAll('section').forEach(function (sec, si) {
@@ -1038,7 +1085,7 @@
     var txt = (up ? '+' : '−') + (a >= 1000 ? (a / 1000).toFixed(1) + 'K' : a.toFixed(1)) + '%';
     mcapChEls.forEach(function (el) {
       el.textContent = txt;
-      el.style.color = up ? '#3f8b3d' : '#c0392b';
+      el.style.color = up ? '#39e04a' : '#e2543f';
     });
   }
 

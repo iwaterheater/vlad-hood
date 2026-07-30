@@ -29,6 +29,20 @@ export const DEPLOYMENT = {
   },
 } as const;
 
+/**
+ * Where a pool can be looked at outside this site.
+ *
+ * Both indexers carry Robinhood Chain under the slug `robinhood`, and both
+ * index the mainnet — a testnet pool asked for by address answers 404 there.
+ * The links are the right shape regardless, so they start working the day this
+ * launchpad points at mainnet; until then they lead to a not-found page.
+ */
+export const EXPLORERS = {
+  slug: 'robinhood',
+  dexScreenerPool: (pool: string) => `https://dexscreener.com/${EXPLORERS.slug}/${pool}`,
+  geckoTerminalPool: (pool: string) => `https://www.geckoterminal.com/${EXPLORERS.slug}/pools/${pool}`,
+} as const;
+
 export const LAUNCH = {
   fee: 500000000000000n,          // 0.0005 ETH
   dexId: 0n,

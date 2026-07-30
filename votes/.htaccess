@@ -1,0 +1,9 @@
+# The tallies are served through index.php, never as files. Without this a
+# request for data/0x….json would hand back every voter's address as plain text.
+<FilesMatch "\.(json|php)$">
+  Require all denied
+</FilesMatch>
+
+<Files "index.php">
+  Require all granted
+</Files>

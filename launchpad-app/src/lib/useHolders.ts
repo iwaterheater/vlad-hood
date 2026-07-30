@@ -4,6 +4,7 @@ import { zeroAddress, type Address } from 'viem';
 import { tokenAbi } from './abi';
 
 export type Holder = { address: Address; balance: bigint; share: number; label?: string };
+export type HolderData = { holders: Holder[]; transfers: number };
 
 /**
  * Holders, replayed from the token's own Transfer log.
@@ -22,7 +23,7 @@ export function useHolders(token?: Address, pool?: Address | null, totalSupply?:
     queryKey: ['holders', token, pool, totalSupply?.toString()],
     enabled: Boolean(client && token && totalSupply),
     staleTime: 60_000,
-    queryFn: async (): Promise<{ holders: Holder[]; transfers: number }> => {
+    queryFn: async (): Promise<HolderData> => {
       const logs = await client!.getContractEvents({
         address: token!, abi: tokenAbi, eventName: 'Transfer', fromBlock: 0n, toBlock: 'latest',
       });

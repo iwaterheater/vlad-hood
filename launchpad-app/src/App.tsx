@@ -1,3 +1,6 @@
+import { useEffect } from 'react';
+import { useAccount } from 'wagmi';
+import { useQueryClient } from '@tanstack/react-query';
 import Header from './components/Header';
 import Board from './pages/Board';
 import TokenPage from './pages/TokenPage';
@@ -14,6 +17,14 @@ function route() {
 
 export default function App() {
   const page = route();
+
+  /* Nothing here polls the chain, so switching accounts in the wallet left every
+     figure on the page describing the account you just left — the launch form
+     read a stale balance and refused a wallet that could well afford it. */
+  const { address } = useAccount();
+  const queryClient = useQueryClient();
+  useEffect(() => { queryClient.invalidateQueries(); }, [address, queryClient]);
+
   return (
     <>
       <Header />

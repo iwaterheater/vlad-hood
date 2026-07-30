@@ -16,7 +16,7 @@ declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 
-const MAX_BYTES = 2 * 1024 * 1024;   // 2 MB
+const MAX_BYTES = 4 * 1024 * 1024;   // 4 MB — keep in step with MAX_IMAGE_BYTES in the launch form
 const ALLOWED = [
     IMAGETYPE_PNG  => 'png',
     IMAGETYPE_JPEG => 'jpg',
@@ -50,7 +50,7 @@ if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
 }
 
 if (($file['size'] ?? 0) > MAX_BYTES) {
-    fail('Images must be 2 MB or smaller.');
+    fail('Images must be 4 MB or smaller.');
 }
 if (!is_uploaded_file($file['tmp_name'])) {
     fail('That upload did not arrive through a form.');

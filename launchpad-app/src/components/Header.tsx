@@ -1,4 +1,4 @@
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import WalletButton from './WalletButton';
 
 export default function Header() {
   return (
@@ -11,8 +11,15 @@ export default function Header() {
             style={{ borderRadius: '50%', border: '3px solid var(--ink)', boxShadow: '3px 4px 0 rgba(43,38,32,.8)' }}
           />
           <span className="marker" style={{ fontSize: '1.35rem', color: 'var(--forest)', letterSpacing: '.03em' }}>VLADHOOD</span>
+          <span className="num" style={{ color: 'var(--mustard)', fontSize: '1.1rem' }}>$VLAD</span>
         </a>
-        <ConnectButton showBalance={false} chainStatus="icon" accountStatus="address" />
+        <span className="marker sketch-2 shadow-rough-sm hide-narrow"
+              style={{ background: 'var(--crayred)', color: 'var(--paper)', fontSize: '.65rem',
+                       letterSpacing: '.06em', padding: '.15rem .5rem', flex: 'none' }}>
+          TESTNET
+        </span>
+        <span style={{ flex: 1 }} />
+        <WalletButton />
       </div>
     </header>
   );

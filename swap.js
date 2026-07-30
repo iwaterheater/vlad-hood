@@ -557,37 +557,80 @@
         if (p) { vladPrice = parseFloat(p.priceUsd) || 0; var pn = parseFloat(p.priceNative) || 0; ethPrice = pn > 0 ? vladPrice / pn : 0; }
       } catch (e) {}
     }
+    /* Buys and sells come from two different Blockscout indexes, and either can
+       blink on its own. Retry before believing a failure. */
+    async function getJson(url) {
+      var lastErr;
+      for (var i = 0; i < 3; i++) {
+        try {
+          var r = await fetch(url);
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return await r.json();
+        } catch (e) {
+          lastErr = e;
+          if (i < 2) await new Promise(function (done) { setTimeout(done, 400 * (i + 1)); });
+        }
+      }
+      throw lastErr;
+    }
+
+    /* BUYS — 1% fee arrives as native ETH (internal tx) to our fee wallet */
+    async function loadBuys(seen) {
+      var j = await getJson('https://robinhoodchain.blockscout.com/api/v2/addresses/' + FEE + '/internal-transactions');
+      if (!j || !Array.isArray(j.items)) throw new Error('the internal-transaction feed carried no items');
+      var out = [];
+      j.items.forEach(function (t) {
+        var to = (t.to && t.to.hash || '').toLowerCase(); var val = Number(t.value || 0) / 1e18;
+        if (to !== FEE || val <= 0) return; var tx = t.transaction_hash; if (!tx || seen[tx]) return; seen[tx] = 1;
+        out.push({ side: 'buy', usd: (val * 100) * ethPrice, ts: new Date(t.timestamp).getTime(), tx: tx });
+      });
+      return out;
+    }
+
+    /* SELLS — 1% fee arrives as VLAD. The public RPC caps eth_getLogs at a
+       couple thousand blocks, so use Blockscout's log index, which serves the
+       whole history in one call and carries timestamps. */
+    async function loadSells(seen) {
+      var feeTopic = '0x' + FEE.replace(/^0x/, '').padStart(64, '0');
+      var lu = 'https://robinhoodchain.blockscout.com/api?module=logs&action=getLogs&fromBlock=0&toBlock=latest&address=' + VLAD +
+        '&topic0=' + TRANSFER + '&topic2=' + feeTopic + '&topic0_2_opr=and';
+      var lj = await getJson(lu);
+      if (!lj || !Array.isArray(lj.result)) throw new Error('the log feed carried no result');
+      var out = [];
+      for (var i = 0; i < lj.result.length; i++) {
+        var l = lj.result[i]; var tx = l.transactionHash; if (!tx || seen[tx]) continue; seen[tx] = 1;
+        var feeV = Number(BigInt(l.data)) / 1e18;
+        out.push({ side: 'sell', usd: (feeV * 100) * vladPrice, ts: parseInt(l.timeStamp, 16) * 1000, tx: tx });
+      }
+      return out;
+    }
+
+    var shownBothSides = false;
     async function load() {
       try {
-        var trades = [], seen = {};
-        /* BUYS — 1% fee arrives as native ETH (internal tx) to our fee wallet */
-        try {
-          var r1 = await fetch('https://robinhoodchain.blockscout.com/api/v2/addresses/' + FEE + '/internal-transactions');
-          var j1 = await r1.json();
-          (j1.items || []).forEach(function (t) {
-            var to = (t.to && t.to.hash || '').toLowerCase(); var val = Number(t.value || 0) / 1e18;
-            if (to !== FEE || val <= 0) return; var tx = t.transaction_hash; if (!tx || seen[tx]) return; seen[tx] = 1;
-            trades.push({ side: 'buy', usd: (val * 100) * ethPrice, ts: new Date(t.timestamp).getTime(), tx: tx });
-          });
-        } catch (e) {}
-        /* SELLS — 1% fee arrives as VLAD. The public RPC caps eth_getLogs at a
-           couple thousand blocks, so use Blockscout's log index, which serves
-           the whole history in one call and carries timestamps. */
-        try {
-          var feeTopic = '0x' + FEE.replace(/^0x/, '').padStart(64, '0');
-          var lu = 'https://robinhoodchain.blockscout.com/api?module=logs&action=getLogs&fromBlock=0&toBlock=latest&address=' + VLAD +
-            '&topic0=' + TRANSFER + '&topic2=' + feeTopic + '&topic0_2_opr=and';
-          var lj = await fetch(lu).then(function (r) { return r.json(); });
-          var logs = Array.isArray(lj.result) ? lj.result : [];
-          for (var i = 0; i < logs.length; i++) {
-            var l = logs[i]; var tx = l.transactionHash; if (!tx || seen[tx]) continue; seen[tx] = 1;
-            var feeV = Number(BigInt(l.data)) / 1e18;
-            trades.push({ side: 'sell', usd: (feeV * 100) * vladPrice, ts: parseInt(l.timeStamp, 16) * 1000, tx: tx });
+        var seen = {}, buys = null, sells = null;
+        try { buys = await loadBuys(seen); } catch (e) {}
+        try { sells = await loadSells(seen); } catch (e) {}
+
+        /* Half a feed is worse than a stale one: with sells missing the panel
+           reads as though every recent swap was a buy. Sooner than say that,
+           leave the last good list alone and wait for the next pass. */
+        if (buys === null || sells === null) {
+          if (shownBothSides) return;
+          if (buys === null && sells === null) {
+            listEl.innerHTML = '<div class="vt-empty">couldn\'t load swaps</div>';
+            return;
           }
-        } catch (e) {}
+        }
+
+        var trades = (buys || []).concat(sells || []);
         trades.sort(function (a, b) { return b.ts - a.ts; });
         trades = trades.slice(0, 15);
-        if (!trades.length) { listEl.innerHTML = '<div class="vt-empty">no swaps yet — be the first!</div>'; return; }
+        if (!trades.length) {
+          listEl.innerHTML = '<div class="vt-empty">no swaps yet — be the first!</div>';
+          shownBothSides = buys !== null && sells !== null;
+          return;
+        }
         listEl.innerHTML = trades.map(function (x) {
           var usd = x.usd > 0 ? '<span class="vt-usd">~$' + x.usd.toLocaleString('en-US', { maximumFractionDigits: 0 }) + '</span>' : '';
           var short = x.tx.slice(0, 8) + '…' + x.tx.slice(-4);
@@ -597,7 +640,15 @@
             '<span class="vt-hash">' + short + '</span>' +
             '<span class="vt-time">' + timeAgo(x.ts) + '</span></a>';
         }).join('');
-      } catch (e) { listEl.innerHTML = '<div class="vt-empty">couldn\'t load swaps</div>'; }
+
+        /* First paint with a side still missing: show what there is, but say so,
+           rather than passing off one half as the whole market. */
+        if (buys === null || sells === null) {
+          listEl.innerHTML += '<div class="vt-empty">' +
+            (buys === null ? 'buys' : 'sells') + ' are not loading — this list is incomplete</div>';
+        }
+        shownBothSides = buys !== null && sells !== null;
+      } catch (e) { if (!shownBothSides) listEl.innerHTML = '<div class="vt-empty">couldn\'t load swaps</div>'; }
     }
     loadPrice().then(load);
     setInterval(load, 15000); setInterval(loadPrice, 60000);
